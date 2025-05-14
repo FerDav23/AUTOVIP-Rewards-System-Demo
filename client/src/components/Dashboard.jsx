@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { fetchPlacas, fetchReport } from '../services/api';
+import { fetchPlacas, fetchReport, logout } from '../services/user';
 import PdfViewer from './PdfViewer';
+import { useNavigate } from 'react-router-dom';
 
-export default function Dashboard() {
+export default function Dashboard({setIsAuthenticated}) {
   const [placas, setPlacas] = useState([]);
   const [selectedPlaca, setSelectedPlaca] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadPlacas = async () => {
@@ -37,9 +39,18 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsAuthenticated(false)
+    navigate('/login');
+  };
+
   return (
     <div className="dashboard-container">
       <h2>Reporte Historial Mantenimiento</h2>
+      <button onClick={handleLogout} style={{ position: 'absolute', top: '10px', right: '10px' }}>
+        Logout
+      </button>
       
       <div className="filter-container">
         <form onSubmit={handleSubmit}>
