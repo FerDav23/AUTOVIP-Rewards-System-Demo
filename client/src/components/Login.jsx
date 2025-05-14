@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/api';
+import { login } from '../services/user';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 
-export default function Login() {
+export default function Login({ setIsAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,8 +16,12 @@ export default function Login() {
     
     try {
       await login(username, password);
+      if (setIsAuthenticated) setIsAuthenticated(true);
+      console.log('Login successful. Attempting to navigate to /dashboard...');
       navigate('/dashboard');
+      console.log('navigate("/dashboard") called.');
     } catch (err) {
+      console.error('Error during login or navigation:', err);
       setError('Credenciales inválidas');
     }
   };
