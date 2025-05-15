@@ -1,12 +1,14 @@
 export default function PdfViewer({ url }) {
     if (!url) return null;
     return (
-      <iframe
-        src={url}
-        width="100%"
-        height="600px"
-        title="Reporte PDF"
-      />
+      <div className="pdf-container">
+        <h3 className="pdf-title">Vista previa del reporte</h3>
+        <iframe
+          src={url}
+          className="pdf-frame"
+          title="Reporte PDF"
+        />
+      </div>
     );
   }
   
