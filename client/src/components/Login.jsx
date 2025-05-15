@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../services/user';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
+import './Login.css';
 
 export default function Login({ setIsAuthenticated }) {
   const [username, setUsername] = useState('');
@@ -35,7 +36,7 @@ export default function Login({ setIsAuthenticated }) {
             height: '70px', 
             position: 'absolute',
             zIndex: 1,
-            marginRight: '395px',
+            marginRight: '335px',
             marginTop: '-32px'
            }} />
           <img src={logoCIMImg} alt="CIM Logo" className="login-logo" />

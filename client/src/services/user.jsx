@@ -19,10 +19,21 @@ export async function logout() {
 
 export async function fetchPlacas() {
   try {
-    const response = await client.get('/vehiculos/placas');
+    const user = localStorage.getItem('user');
+    
+    if (!user) {
+      throw new Error('No user found in localStorage. Please login again.');
+    }
+
+    const response = await client.get(`/report/placas/${encodeURIComponent(user)}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch placas:', error);
+    console.error('Failed to fetch placas:', error.message);
     throw error;
   }
 }

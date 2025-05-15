@@ -1,0 +1,41 @@
+/* CSS Variables */
+:root {
+  /* Colors */
+  --color-primary: #8b0000;
+  --color-primary-dark: #a50000;
+  --color-primary-hover: #a50000;
+  --color-accent: #ca0000;
+  
+  --color-text: #333333;
+  --color-text-light: #555555;
+  --color-text-muted: #777777;
+  
+  --color-bg: #f5f5f5;
+  --color-bg-light: #ffffff;
+  --color-bg-medium: #f0f0f0;
+  
+  --color-border: #dddddd;
+  --color-disabled: #999999;
+  
+  --color-dark-grey: #555555;
+  --color-medium-grey: #777777;
+  --color-light-grey: #eeeeee;
+  
+  --color-error-bg: #fff0f0;
+  --color-error-text: #d32f2f;
+  
+  /* Spacing */
+  --space-xs: 5px;
+  --space-sm: 10px;
+  --space-md: 15px;
+  --space-lg: 20px;
+  --space-xl: 30px;
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  
+  /* Shadow */
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+} 
