@@ -1,17 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchPlacas, fetchReport, logout } from '../services/user';
-import PdfViewer from './PdfViewer';
+import { fetchPlacas, logout } from '../services/user';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { FaChevronDown } from 'react-icons/fa';
+import InfoTable from './InfoTable';
 
 export default function Dashboard({setIsAuthenticated}) {
   const [placas, setPlacas] = useState([]);
   const [selectedPlaca, setSelectedPlaca] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
@@ -47,20 +45,6 @@ export default function Dashboard({setIsAuthenticated}) {
     }
   }, [dropdownOpen]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const { data } = await fetchReport(selectedPlaca, startDate, endDate);
-      const url = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }));
-      setPdfUrl(url);
-    } catch (error) {
-      console.error('Error fetching report:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handlePlacaSelect = (placa) => {
     setSelectedPlaca(placa);
@@ -112,16 +96,17 @@ export default function Dashboard({setIsAuthenticated}) {
 
 
   return (
+    <div className='main-container'>
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h2>Reporte Historial Mantenimiento</h2>
         <button onClick={handleLogout} className="logout-btn">
-          Logout
+          Cerrar Sesión
         </button>
       </div>
       
       <div className="filter-container">
-        <form onSubmit={handleSubmit}>
+        <form>
           <div className="filter-row">
             <div className="form-group">
               <label htmlFor="placa">Seleccione Placa:</label>
@@ -194,14 +179,10 @@ export default function Dashboard({setIsAuthenticated}) {
               />
             </div>
           </div>
-          
-          <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Generando...' : 'Generar PDF'}
-          </button>
         </form>
       </div>
-      
-      {pdfUrl && <PdfViewer url={pdfUrl} />}
+    </div>
+    {<InfoTable placa={selectedPlaca} startDate={startDate} endDate={endDate} />}
     </div>
   );
 } 

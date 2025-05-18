@@ -1,0 +1,191 @@
+/* General PDF styles */
+
+  .logo img {
+    display: block;
+    margin: 0 auto;
+    z-index: 1000;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  h2 {
+    margin: var(--space-sm) 0;
+    font-size: 10px;
+    text-align: center;
+  }
+  
+  .tablavacia {
+    width: 100%;
+    margin: 0 0 var(--space-sm);
+    border-collapse: collapse;
+  }
+  .tablavacia td {
+    padding: var(--space-xs);
+    text-align: center;
+    vertical-align: middle;
+    font-size: 7px;
+  }
+  .tablavacia td.bold {
+    font-weight: bold;
+  }
+  
+  .info-left td {
+    text-align: left;
+    padding: 1px var(--space-xs);
+  }
+  .info-left td.bold {
+    width: 50px;
+    font-weight: bold;
+  }
+  .info-left tr {
+    line-height: 1;
+  }
+  
+  .tablalineas {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 250px;
+  }
+  .tablalineas th,
+  .tablalineas td {
+    border: 1px solid var(--color-mediumGrey);
+    padding: var(--space-xs);
+    font-size: 6px;
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+  }
+  .tablalineas th {
+    background-color: var(--color-primary);
+    color: var(--color-bgLight);
+    font-weight: bold;
+  }
+  
+  .tablalineas th:first-child,
+  .tablalineas td:first-child,
+  .tablalineas th:nth-child(2),
+  .tablalineas td:nth-child(2),
+  .tablalineas th:nth-child(3),
+  .tablalineas td:nth-child(3),
+  .tablalineas th:nth-child(4),
+  .tablalineas td:nth-child(4),
+  .tablalineas th:nth-child(5),
+  .tablalineas td:nth-child(5),
+  .tablalineas th:nth-child(6),
+  .tablalineas td:nth-child(6) {
+    width: 50px;
+  }
+  
+  .tablalineas th:nth-child(7),
+  .tablalineas td:nth-child(7) {
+    width: 70px;
+  }
+  
+  .tablalineas tbody tr:nth-child(even) {
+    background-color: var(--color-bgMedium);
+  }
+  
+  .tablalineas thead {
+    display: table-header-group;
+  }
+  
+  .piepagina {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bgLight);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20px;
+    box-sizing: border-box;
+  }
+  .piepagina span {
+    display: inline-block;
+    text-align: center;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .bold {
+    font-weight: bold;
+  }
+  
+.reporte-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: var(--space-lg);
+  padding-bottom: 250px;
+  width: 100%;
+  background-color: var(--color-bgColor);
+}
+
+.reporte-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin: var(--space-lg) 0;
+  color: var(--color-primary);
+  
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin: var(--space-lg) 0;
+  box-shadow: var(--shadow-medium);
+  border-radius: var(--radius-medium);
+  background-color: var(--color-bgLight);
+}
+
+.historial-table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.historial-table th,
+.historial-table td {
+  padding: var(--space-md) var(--space-lg);
+  text-align: left;
+  border: 1px solid var(--color-border);
+}
+
+.historial-table th {
+  background-color: var(--color-primary);
+  color: var(--color-bgLight);
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+.historial-table tbody tr:nth-child(even) {
+  background-color: var(--color-bgMedium);
+}
+
+.historial-table tbody tr:hover {
+  background-color: var(--color-lightGrey);
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bgLight);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  height: 40px;
+  box-shadow: var(--shadow-small);
+}
+  

@@ -38,24 +38,13 @@ export async function fetchPlacas() {
   }
 }
 
-export async function fetchReport(placa, startDate = null, endDate = null) {
+export async function getHistorialData(placa, startDate, endDate) {
   try {
-    const params = { placa };
-    
-    if (startDate) {
-      params.startDate = startDate;
-    }
-    
-    if (endDate) {
-      params.endDate = endDate;
-    }
-    
-    return client.get('/report', {
-      params,
-      responseType: 'blob'
-    });
+    const response = await client.get(`/report/historial/${placa}?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
   } catch (error) {
-    console.error('Failed to fetch report:', error);
+    console.error('Failed to fetch historial data:', error);  
     throw error;
   }
 }
+
