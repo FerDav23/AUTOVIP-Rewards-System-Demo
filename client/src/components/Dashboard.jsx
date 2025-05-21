@@ -10,6 +10,8 @@ export default function Dashboard({setIsAuthenticated}) {
   const [selectedPlaca, setSelectedPlaca] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [codigo, setCodigo] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
@@ -178,11 +180,41 @@ export default function Dashboard({setIsAuthenticated}) {
                 className="form-input"
               />
             </div>
+
+            <div className="form-group">
+              <label htmlFor="codigo">Código:</label>
+              <input 
+                id="codigo" 
+                type="text" 
+                value={codigo} 
+                onChange={(e) => setCodigo(e.target.value)}
+                className="form-input"
+                placeholder="Ingrese código"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="descripcion">Descripción de Mantenimiento:</label>
+              <input 
+                id="descripcion" 
+                type="text" 
+                value={descripcion} 
+                onChange={(e) => setDescripcion(e.target.value)}
+                className="form-input"
+                placeholder="Ingrese descripción"
+              />
+            </div>
           </div>
         </form>
       </div>
     </div>
-    {<InfoTable placa={selectedPlaca} startDate={startDate} endDate={endDate} />}
+    {<InfoTable 
+      placa={selectedPlaca} 
+      startDate={startDate} 
+      endDate={endDate} 
+      codigo={codigo}
+      descripcion={descripcion}
+    />}
     </div>
   );
 } 
