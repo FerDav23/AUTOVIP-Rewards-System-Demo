@@ -3,9 +3,10 @@ import { getHistorialData } from "../services/user";
 import { Loading, NoData } from './TableStates';
 import './InfoTable.css';
 
-const ReporteHistorial = ({placa, startDate, endDate}) => {
+const ReporteHistorial = ({placa, startDate, endDate, codigo, descripcion}) => {
   const [historial, setHistorial] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [originalHistorial, setOriginalHistorial] = useState([]);
 
   const getHistorial = async () => {
     if(!placa) {
@@ -15,6 +16,7 @@ const ReporteHistorial = ({placa, startDate, endDate}) => {
       setIsLoading(true);
       const data = await getHistorialData(placa, startDate, endDate);
       setHistorial(data.historial);
+      setOriginalHistorial(data.historial);
     } catch (error) {
       console.error('Error fetching historial data:', error);
     } finally {
@@ -22,9 +24,60 @@ const ReporteHistorial = ({placa, startDate, endDate}) => {
     }
   };
 
+  const filterTableCodigo = async() => {
+    if (!codigo) {
+      setHistorial(originalHistorial); // Reset to original data if no codigo filter
+      return;
+    }
+
+    try {
+      const regexPattern = new RegExp(codigo, 'i'); // Case insensitive search
+      const filteredData = originalHistorial.filter(row => 
+        row.tipo.some(tipo => 
+          tipo.tipoArray.some(item => 
+            regexPattern.test(item.codigo)
+          )
+        )
+      );
+      setHistorial(filteredData);
+    } catch (error) {
+      console.error('Error filtering by codigo:', error);
+    }
+  }
+
+  const filterTableDescripcion = async() => {
+    if (!descripcion) {
+      setHistorial(originalHistorial); // Reset to original data if no descripcion filter
+      return;
+    }
+
+    try {
+      const regexPattern = new RegExp(descripcion, 'i'); // Case insensitive search
+      const filteredData = originalHistorial.filter(row => 
+        row.tipo.some(tipo => 
+          tipo.tipoArray.some(item => 
+            regexPattern.test(item.detalle)
+          )
+        )
+      );
+      console.log(filteredData)
+      setHistorial(filteredData);
+    } catch (error) {
+      console.error('Error filtering by descripcion:', error);
+    }
+  }
+
   useEffect(() => {
     getHistorial();
   }, [placa, startDate, endDate]);
+
+  useEffect(() => {
+    filterTableCodigo();
+  }, [codigo]);
+
+  useEffect(() => {
+    filterTableDescripcion();
+  }, [descripcion]);
 
   return (
     <div className="reporte-container">
@@ -37,7 +90,7 @@ const ReporteHistorial = ({placa, startDate, endDate}) => {
           <NoData />
         ) : (
           <table className="historial-table">
-            <thead style={{color: 'white'}}>
+            <thead style={{color: 'white', textAlign: 'center'}}>
               <tr>
                 <th>FECHA</th>
                 <th>ORDEN</th>
@@ -46,7 +99,7 @@ const ReporteHistorial = ({placa, startDate, endDate}) => {
                 <th>TIPO</th>
                 <th>CANT</th>
                 <th>CODIGO</th>
-                <th>DETALLE</th>
+                <th>Descripción de Mantenimiento</th>
               </tr>
             </thead>
             <tbody>

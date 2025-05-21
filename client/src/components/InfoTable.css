@@ -164,6 +164,7 @@
   font-weight: bold;
   position: sticky;
   top: 0;
+  text-align: center;
 }
 
 .historial-table tbody tr:nth-child(even) {
