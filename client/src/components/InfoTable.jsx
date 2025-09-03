@@ -99,7 +99,7 @@ const ReporteHistorial = ({placa, startDate, endDate, codigo, descripcion}) => {
                 <th>TIPO</th>
                 <th>CANT</th>
                 <th>CODIGO</th>
-                <th>Descripción de Mantenimiento</th>
+                <th>DESCRIPCIÓN DE MANTENIMIENTO</th>
               </tr>
             </thead>
             <tbody>
@@ -109,7 +109,7 @@ const ReporteHistorial = ({placa, startDate, endDate, codigo, descripcion}) => {
                     <tr key={`${rowIndex}-${tipoIndex}-${idx}`}>
                       {idx === 0 && tipoIndex === 0 && (
                         <>
-                          <td rowSpan={row.CANTTotal}>{row.fecha}</td>
+                          <td rowSpan={row.CANTTotal}>{row.fecha ? row.fecha.split('T')[0] : ''}</td>
                           <td rowSpan={row.CANTTotal}>{row.orden}</td>
                           <td rowSpan={row.CANTTotal}>{row.km}</td>
                           <td rowSpan={row.CANTTotal}>{row.asesor}</td>
