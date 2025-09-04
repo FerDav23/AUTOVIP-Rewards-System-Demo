@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import './variables.css';
 import './base.css';
+import './components/mobile.css';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
