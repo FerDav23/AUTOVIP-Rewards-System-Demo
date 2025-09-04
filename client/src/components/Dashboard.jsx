@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { FaChevronDown } from 'react-icons/fa';
 import InfoTable from './InfoTable';
+import InfoTableMobile from './InfoTableMobile';
 
 export default function Dashboard({setIsAuthenticated}) {
   const [placas, setPlacas] = useState([]);
@@ -14,6 +15,7 @@ export default function Dashboard({setIsAuthenticated}) {
   const [descripcion, setDescripcion] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -38,6 +40,18 @@ export default function Dashboard({setIsAuthenticated}) {
     
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Focus input when dropdown opens
@@ -208,13 +222,23 @@ export default function Dashboard({setIsAuthenticated}) {
         </form>
       </div>
     </div>
-    {<InfoTable 
-      placa={selectedPlaca} 
-      startDate={startDate} 
-      endDate={endDate} 
-      codigo={codigo}
-      descripcion={descripcion}
-    />}
+    {isMobile ? (
+      <InfoTableMobile 
+        placa={selectedPlaca} 
+        startDate={startDate} 
+        endDate={endDate} 
+        codigo={codigo}
+        descripcion={descripcion}
+      />
+    ) : (
+      <InfoTable 
+        placa={selectedPlaca} 
+        startDate={startDate} 
+        endDate={endDate} 
+        codigo={codigo}
+        descripcion={descripcion}
+      />
+    )}
     </div>
   );
 } 

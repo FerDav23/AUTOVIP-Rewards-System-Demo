@@ -1,0 +1,372 @@
+/* Mobile-specific InfoTable styles */
+
+/* Hide on desktop by default */
+.reporte-container-mobile {
+  display: none;
+}
+
+/* Show only on mobile devices */
+@media screen and (max-width: 768px) {
+  .reporte-container-mobile {
+    display: block;
+    padding: 15px;
+    padding-bottom: 100px;
+    background-color: var(--color-bg);
+    min-height: 100vh;
+  }
+
+  .reporte-title-mobile {
+    text-align: center;
+    font-size: 1.4rem;
+    margin: 20px 0;
+    color: var(--color-primary);
+    font-weight: bold;
+    padding: 0 10px;
+  }
+
+  .mobile-cards-container {
+    margin: 20px 0;
+  }
+
+  .cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Main Maintenance Card */
+  .maintenance-card {
+    background: var(--color-bg-light);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .maintenance-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .maintenance-card:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Card Header */
+  .card-header {
+    background: var(--color-primary);
+    color: white;
+    padding: 15px;
+  }
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .header-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .header-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+  }
+
+  .header-item .label {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: 2px;
+  }
+
+  .header-item .value {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  /* Card Content */
+  .card-content {
+    padding: 15px;
+  }
+
+  /* Maintenance Type */
+  .maintenance-type {
+    margin-bottom: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .maintenance-type:last-child {
+    margin-bottom: 0;
+  }
+
+  .type-header {
+    background: var(--color-bg-medium);
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .type-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-primary);
+    text-transform: uppercase;
+  }
+
+  /* Maintenance Items */
+  .maintenance-items {
+    padding: 0;
+  }
+
+  .maintenance-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--color-border);
+    background: white;
+  }
+
+  .maintenance-item:last-child {
+    border-bottom: none;
+  }
+
+  .maintenance-item:nth-child(even) {
+    background: var(--color-bg-medium);
+  }
+
+  .item-row {
+    display: flex;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .item-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .item-row.description {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    min-width: 80px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .item-value {
+    font-size: 14px;
+    color: var(--color-text);
+    flex: 1;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  .item-value.code {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: var(--color-primary);
+    background: rgba(139, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .item-row.description .item-label {
+    margin-bottom: 5px;
+    margin-right: 0;
+  }
+
+  .item-row.description .item-value {
+    width: 100%;
+  }
+
+  /* Footer */
+  .footer-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--color-bg-light);
+    border-top: 1px solid var(--color-border);
+    padding: 12px 15px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--color-text);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+
+  /* Loading and No Data States */
+  .mobile-cards-container .loading-container,
+  .mobile-cards-container .no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    background: var(--color-bg-light);
+    border-radius: 12px;
+    margin: 20px 0;
+  }
+
+  /* Landscape orientation adjustments */
+  @media screen and (orientation: landscape) {
+    .reporte-container-mobile {
+      padding: 10px;
+    }
+    
+    .cards-wrapper {
+      gap: 15px;
+    }
+    
+    .maintenance-card {
+      border-radius: 8px;
+    }
+    
+    .card-header {
+      padding: 12px;
+    }
+    
+    .card-content {
+      padding: 12px;
+    }
+  }
+
+  /* Small mobile devices (320px - 480px) */
+  @media screen and (max-width: 480px) {
+    .reporte-container-mobile {
+      padding: 10px;
+    }
+    
+    .reporte-title-mobile {
+      font-size: 1.2rem;
+      margin: 15px 0;
+    }
+    
+    .card-header {
+      padding: 12px;
+    }
+    
+    .header-item .label {
+      font-size: 11px;
+    }
+    
+    .header-item .value {
+      font-size: 13px;
+    }
+    
+    .card-content {
+      padding: 12px;
+    }
+    
+    .type-header {
+      padding: 10px 12px;
+    }
+    
+    .type-name {
+      font-size: 14px;
+    }
+    
+    .maintenance-item {
+      padding: 12px;
+    }
+    
+    .item-label {
+      font-size: 12px;
+      min-width: 70px;
+    }
+    
+    .item-value {
+      font-size: 13px;
+    }
+    
+    .footer-mobile {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+  }
+
+  /* Extra small mobile devices (320px and below) */
+  @media screen and (max-width: 320px) {
+    .reporte-container-mobile {
+      padding: 8px;
+    }
+    
+    .reporte-title-mobile {
+      font-size: 1.1rem;
+      margin: 12px 0;
+    }
+    
+    .card-header {
+      padding: 10px;
+    }
+    
+    .header-item .label {
+      font-size: 10px;
+    }
+    
+    .header-item .value {
+      font-size: 12px;
+    }
+    
+    .card-content {
+      padding: 10px;
+    }
+    
+    .type-header {
+      padding: 8px 10px;
+    }
+    
+    .type-name {
+      font-size: 13px;
+    }
+    
+    .maintenance-item {
+      padding: 10px;
+    }
+    
+    .item-label {
+      font-size: 11px;
+      min-width: 65px;
+    }
+    
+    .item-value {
+      font-size: 12px;
+    }
+    
+    .footer-mobile {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+  }
+}
+
+/* Print styles for mobile */
+@media print {
+  .reporte-container-mobile {
+    display: block !important;
+    padding: 0;
+    background: white;
+  }
+  
+  .maintenance-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  
+  .footer-mobile {
+    position: static;
+    border-top: 1px solid #ccc;
+    margin-top: 20px;
+  }
+}
