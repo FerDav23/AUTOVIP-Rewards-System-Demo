@@ -1,0 +1,90 @@
+/* QrBridge styles - consistent with system design */
+.qr-bridge-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: var(--bg-color);
+}
+
+.qr-bridge-form {
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  padding: var(--spacing-xl);
+  width: 100%;
+  max-width: 500px;
+  border-top: 5px solid var(--primary-color);
+  text-align: center;
+}
+
+.qr-bridge-form h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+.error-message {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+  font-weight: 500;
+}
+
+.status-message {
+  background-color: var(--bg-medium);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.status-message p {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* Loading animation for status */
+.status-message.processing {
+  position: relative;
+}
+
+.status-message.processing::after {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-color);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Error state styling */
+.status-message.error {
+  background-color: var(--error-bg);
+  border-color: var(--error-text);
+  color: var(--error-text);
+}
+
+/* Success state styling */
+.status-message.success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}

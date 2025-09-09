@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import QrBridge from './components/QrBridge';
 import './variables.css';
 import './base.css';
 import './components/mobile.css';
@@ -31,6 +32,10 @@ export default function App() {
         <Route
           path="/dashboard"
           element={isAuthenticated ? <Dashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+        />
+         <Route 
+          path="/qr-login" 
+          element={isAuthenticated ?  <Navigate to="/dashboard" /> : <QrBridge setIsAuthenticated={setIsAuthenticated} />}
         />
       </Routes>
     </div>

@@ -60,7 +60,6 @@ const ReporteHistorial = ({placa, startDate, endDate, codigo, descripcion}) => {
           )
         )
       );
-      console.log(filteredData)
       setHistorial(filteredData);
     } catch (error) {
       console.error('Error filtering by descripcion:', error);
