@@ -40,7 +40,6 @@ function getValidToken() {
 
 export async function login(username, password) {
   try {
-    console.log(username, password)
     const response = await client.post('/users/login', { username, password });
     storeTokenWithExpiration(response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.userName));
