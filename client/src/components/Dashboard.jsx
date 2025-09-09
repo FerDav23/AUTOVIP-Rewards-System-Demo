@@ -16,11 +16,19 @@ export default function Dashboard({setIsAuthenticated}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const [userName, setUserName] = useState('');
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load user name from localStorage
+    const user = localStorage.getItem('user');
+    if (user) {
+      // Remove quotes from the user name
+      setUserName(user.replace(/"/g, ''));
+    }
+
     const loadPlacas = async () => {
       try {
         const data = await fetchPlacas();
@@ -119,6 +127,17 @@ export default function Dashboard({setIsAuthenticated}) {
         <button onClick={handleLogout} className="logout-btn">
           Cerrar Sesión
         </button>
+      </div>
+      
+      <div className="welcome-section">
+        <div className="welcome-content">
+          <h3 className="welcome-title">
+            ¡Bienvenido{userName ? ` ${userName}` : ''}!
+          </h3>
+          <p className="welcome-message">
+            Bienvenido al sistema de gestión de historial de mantenimiento.
+          </p>
+        </div>
       </div>
       
       <div className="filter-container">

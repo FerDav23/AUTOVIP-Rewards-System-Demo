@@ -35,7 +35,7 @@ export default function App() {
         />
          <Route 
           path="/qr-login" 
-          element={isAuthenticated ?  <Navigate to="/dashboard" /> : <QrBridge setIsAuthenticated={setIsAuthenticated} />}
+          element={<QrBridge setIsAuthenticated={setIsAuthenticated} />}
         />
       </Routes>
     </div>
