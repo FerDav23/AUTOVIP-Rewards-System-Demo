@@ -123,7 +123,7 @@ export default function Dashboard({setIsAuthenticated}) {
     <div className='main-container'>
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2>Reporte Historial Mantenimiento</h2>
+        <h2>Reporte Historial De Mantenimiento</h2>
         <button onClick={handleLogout} className="logout-btn">
           Cerrar Sesión
         </button>
