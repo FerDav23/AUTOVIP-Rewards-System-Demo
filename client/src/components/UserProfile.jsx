@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../services/user';
+import { logout, getCurrentUserMembership, getCurrentUserCardNumber, getCurrentUserEmail, getCurrentUserPhoneNumber } from '../services/user';
 import './UserProfile.css';
-import { FaUser, FaCar, FaTrash, FaPlus, FaReceipt, FaChartLine, FaGift, FaTimes, FaEdit } from 'react-icons/fa';
+import { FaUser, FaCar, FaTrash, FaPlus, FaReceipt, FaChartLine, FaGift, FaTimes, FaEdit, FaCreditCard, FaCrown, FaPhone } from 'react-icons/fa';
 
 export default function UserProfile({ setIsAuthenticated }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('');
+  const [membershipType, setMembershipType] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [vehicles, setVehicles] = useState([]);
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [showEditVehicle, setShowEditVehicle] = useState(false);
@@ -63,6 +67,25 @@ export default function UserProfile({ setIsAuthenticated }) {
     const user = localStorage.getItem('user');
     if (user) {
       setUserName(user.replace(/"/g, ''));
+    }
+
+    // Load membership data
+    const membership = getCurrentUserMembership();
+    const card = getCurrentUserCardNumber();
+    const email = getCurrentUserEmail();
+    const phone = getCurrentUserPhoneNumber();
+    
+    if (membership) {
+      setMembershipType(membership);
+    }
+    if (card) {
+      setCardNumber(card);
+    }
+    if (email) {
+      setUserEmail(email);
+    }
+    if (phone) {
+      setPhoneNumber(phone);
     }
 
     // Load vehicles from localStorage
@@ -187,6 +210,21 @@ export default function UserProfile({ setIsAuthenticated }) {
     }).format(amount);
   };
 
+  const formatCardNumber = (card) => {
+    if (!card) return '';
+    return card.replace(/(\d{4})/g, '$1 ').trim();
+  };
+
+  const getMembershipDisplayName = (type) => {
+    if (!type) return 'Sin membresía';
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  const getMembershipBadgeClass = (type) => {
+    if (!type) return 'membership-badge';
+    return `membership-badge membership-${type.toLowerCase()}`;
+  };
+
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -221,7 +259,26 @@ export default function UserProfile({ setIsAuthenticated }) {
             </div>
             <div className="user-info-item">
               <span className="info-label">Email:</span>
-              <span className="info-value">{userName ? `${userName.toLowerCase()}@example.com` : 'cliente@example.com'}</span>
+              <span className="info-value">{userEmail || (userName ? `${userName.toLowerCase()}@example.com` : 'cliente@example.com')}</span>
+            </div>
+            <div className="user-info-item">
+              <span className="info-label">Tipo de Membresía:</span>
+              <span className={`info-value ${getMembershipBadgeClass(membershipType)}`}>
+                <FaCrown className="membership-icon" />
+                {getMembershipDisplayName(membershipType)}
+              </span>
+            </div>
+            <div className="user-info-item">
+              <span className="info-label">
+                <FaCreditCard className="info-icon" /> Número de Tarjeta:
+              </span>
+              <span className="info-value">{cardNumber ? formatCardNumber(cardNumber) : 'No disponible'}</span>
+            </div>
+            <div className="user-info-item">
+              <span className="info-label">
+                <FaPhone className="info-icon" /> Teléfono:
+              </span>
+              <span className="info-value">{phoneNumber || 'No disponible'}</span>
             </div>
           </div>
         </div>

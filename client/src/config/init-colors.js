@@ -1,10 +1,12 @@
-import colors, { shadows, borderRadius, spacing } from './colors';
+import { getColorsByMembership, shadows, borderRadius, spacing } from './colors';
 
 /**
  * Initialize CSS custom properties based on the colors config
+ * @param {string} membershipType - Optional membership type ('gold', 'platinum', 'black')
  */
-export function initColors() {
+export function initColors(membershipType = null) {
   const root = document.documentElement;
+  const colors = getColorsByMembership(membershipType);
   
   // Set colors
   for (const [key, value] of Object.entries(colors)) {
