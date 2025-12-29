@@ -42,7 +42,10 @@ export async function login(username, password) {
   try {
     const response = await client.post('/users/login', { username, password });
     storeTokenWithExpiration(response.data.token);
+    console.log(response.data);
+    console.log(response.data.userName, response.data.password);
     localStorage.setItem('user', JSON.stringify(response.data.userName));
+    localStorage.setItem('password', JSON.stringify(response.data.password));
     return response.data;
   } catch (error) {
     console.error('Login failed:', error);

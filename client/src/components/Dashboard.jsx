@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchPlacas, logout } from '../services/user';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
-import { FaChevronDown } from 'react-icons/fa';
+import { FaChevronDown, FaGift, FaUser } from 'react-icons/fa';
 import InfoTable from './InfoTable';
 import InfoTableMobile from './InfoTableMobile';
 
@@ -118,17 +118,32 @@ export default function Dashboard({setIsAuthenticated}) {
     navigate('/login');
   };
 
+  const handleNavigateToRewards = () => {
+    navigate('/rewards');
+  };
+
+  const handleNavigateToProfile = () => {
+    navigate('/profile');
+  };
+
 
   return (
     <div className='main-container'>
-    <div className="dashboard-container">
       <div className="dashboard-header">
         <h2>Reporte Historial De Mantenimiento</h2>
-        <button onClick={handleLogout} className="logout-btn">
-          Cerrar Sesión
-        </button>
+        <div className="header-actions">
+          <button onClick={handleNavigateToRewards} className="rewards-btn">
+            <FaGift /> Puntos y Recompensas
+          </button>
+          <button onClick={handleNavigateToProfile} className="rewards-btn">
+            <FaUser /> Mi Perfil
+          </button>
+          <button onClick={handleLogout} className="logout-btn">
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
-      
+    <div className="dashboard-container">
       <div className="welcome-section">
         <div className="welcome-content">
           <h3 className="welcome-title">

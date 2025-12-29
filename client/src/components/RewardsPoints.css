@@ -1,0 +1,536 @@
+/* Rewards Points System Styles - consistent with system design */
+.rewards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: 25px;
+  padding: 25px;
+  background-color: var(--bg-hard);
+  color: var(--text-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-hard);
+}
+
+.rewards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.rewards-header h2 {
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.dashboard-btn {
+  background-color: var(--bg-light);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.dashboard-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.dashboard-btn svg {
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Points Display Section */
+.points-display-section {
+  margin-bottom: 30px;
+}
+
+.points-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  border-radius: var(--border-radius-md);
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  box-shadow: var(--box-shadow-md);
+  position: relative;
+  overflow: visible;
+  justify-content: space-between;
+}
+
+.points-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+}
+
+.points-icon {
+  font-size: 4rem;
+  color: white;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+}
+
+.points-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+.points-label {
+  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  font-weight: 500;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.points-value {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.points-subtitle {
+  font-size: 1.20rem;
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Next Reward Counter */
+.next-reward-counter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.circular-progress {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring {
+  display: block;
+}
+
+.progress-ring-circle-bg {
+  opacity: 0.3;
+}
+
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.5s ease;
+  opacity: 0.9;
+}
+
+.progress-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+}
+
+.progress-label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.progress-points {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.progress-text {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.next-reward-info {
+  font-size: 1rem;
+  text-align: center;
+  color: white;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin: 0;
+  max-width: 200px;
+  font-weight: bold;
+}
+
+.next-reward-info strong {
+  font-weight: 600;
+}
+
+/* Section Container */
+.section-container {
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.section-icon {
+  font-size: 1.5rem !important;
+  color: var(--primary-color);
+}
+
+.section-header h3 {
+  color: var(--primary-color);
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Promotions Section - Different Color Scheme */
+.promotions-section .section-header {
+  border-bottom-color: var(--primary-color);
+}
+.section-header.rewards-header {
+  border-bottom-color: var(--primary-color) !important;
+}
+
+.promotion-icon {
+  font-size: 1.5rem !important;
+  color: var(--primary-color) !important;
+}
+
+.promotions-section .section-header h3 {
+  color: var(--primary-color);
+}
+
+
+
+/* Promotions Grid */
+.promotions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.promotion-card {
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  box-shadow: var(--box-shadow-sm);
+  border: 1px solid #b3d9ff;
+  border-top: 4px solid var(--primary-color);
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  background: linear-gradient(to bottom, #f0f8ff, var(--bg-light));
+}
+
+.promotion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+  border-color: var(--primary-color);
+}
+
+.promotion-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+}
+
+.promotion-title {
+  color: var(--primary-color);
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding-right: 80px;
+}
+
+.promotion-description {
+  color: var(--text-light);
+  margin: 0 0 15px 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.promotion-footer {
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.promotion-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Rewards Grid */
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.reward-card {
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  box-shadow: var(--box-shadow-sm);
+  border: 2px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.reward-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-md);
+}
+
+.reward-card.affordable {
+  border-color: var(--primary-color);
+  background: linear-gradient(to bottom, var(--bg-light), rgba(139, 0, 0, 0.02));
+}
+
+.reward-card.unavailable {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reward-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.reward-category {
+  background-color: var(--bg-medium);
+  color: var(--text-light);
+  padding: 4px 10px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.reward-unavailable-badge {
+  background-color: var(--disabled-color);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.reward-icon {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  opacity: 0.8;
+}
+
+.reward-title {
+  color: var(--primary-color);
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.reward-description {
+  color: var(--text-light);
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  text-align: center;
+  flex: 1;
+}
+
+.reward-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.reward-points {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.points-icon-small {
+  font-size: 1.2rem;
+}
+
+.redeem-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  font-size: 1rem;
+}
+
+.redeem-btn.can-redeem {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.redeem-btn.can-redeem:hover {
+  background-color: var(--primary-hover);
+  transform: scale(1.02);
+}
+
+.redeem-btn.cannot-redeem {
+  background-color: var(--disabled-color);
+  color: white;
+  cursor: not-allowed;
+}
+
+.redeem-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rewards-container {
+    padding: 15px;
+  }
+
+  .rewards-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-btn,
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .points-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 25px;
+  }
+
+  .points-icon {
+    font-size: 3rem;
+  }
+
+  .points-value {
+    font-size: 2.5rem;
+  }
+
+  .next-reward-counter {
+    margin-top: 20px;
+  }
+
+  .circular-progress {
+    width: 100px;
+    height: 100px;
+  }
+
+  .progress-ring {
+    width: 100px;
+    height: 100px;
+  }
+
+  .progress-ring circle {
+    r: 42;
+    cx: 50;
+    cy: 50;
+    stroke-width: 6;
+  }
+
+  .progress-points {
+    font-size: 1.2rem;
+  }
+
+  .promotions-grid,
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .promotion-title {
+    padding-right: 0;
+  }
+}
+

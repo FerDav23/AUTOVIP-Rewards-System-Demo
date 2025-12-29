@@ -38,6 +38,7 @@
   /* Shadow */
   --box-shadow-sm: var(--shadow-sm);
   --box-shadow-md: var(--shadow-md);
+  --box-shadow-hard: var(--shadow-hard);
   
   /* Default font settings */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
