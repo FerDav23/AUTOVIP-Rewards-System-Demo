@@ -18,7 +18,7 @@ export default function Login({ setIsAuthenticated }) {
     try {
       await login(username, password);
       if (setIsAuthenticated) setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/rewards');
     } catch (err) {
       console.error('Error during login or navigation:', err);
       setError('Credenciales inválidas');

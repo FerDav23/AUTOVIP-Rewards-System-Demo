@@ -15,6 +15,7 @@ export const colors = {
   bgColor: '#f5f5f5',
   bgLight: '#ffffff',
   bgMedium: '#f0f0f0',
+  bgHard: '#e5e5e5',
   
   // Border and utility colors
   border: '#dddddd',
@@ -36,7 +37,8 @@ export const colors = {
 // Shadows
 export const shadows = {
   small: '0 2px 10px rgba(0, 0, 0, 0.05)',
-  medium: '0 4px 15px rgba(0, 0, 0, 0.1)'
+  medium: '0 4px 15px rgba(0, 0, 0, 0.1)',
+  hard: '0 8px 35px rgba(0, 0, 0, 0.15)'
 };
 
 // Border radius

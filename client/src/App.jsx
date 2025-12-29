@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import QrBridge from './components/QrBridge';
+import RewardsPoints from './components/RewardsPoints';
+import UserProfile from './components/UserProfile';
 import './variables.css';
 import './base.css';
 import './components/mobile.css';
@@ -23,11 +25,11 @@ export default function App() {
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
+          element={isAuthenticated ? <Navigate to="/rewards" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
         />
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
+          element={isAuthenticated ? <Navigate to="/rewards" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
         />
         <Route
           path="/dashboard"
@@ -36,6 +38,14 @@ export default function App() {
          <Route 
           path="/qr-login" 
           element={<QrBridge setIsAuthenticated={setIsAuthenticated} />}
+        />
+        <Route
+          path="/rewards"
+          element={isAuthenticated ? <RewardsPoints setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <UserProfile setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>
