@@ -4,7 +4,7 @@
   margin: 0 auto;
   margin-bottom: 25px;
   padding: 25px;
-  background-color: var(--bg-hard);
+  background-color: var(--bg-light);
   color: var(--text-color);
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-hard);
@@ -48,7 +48,7 @@
 
 .dashboard-btn:hover {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .dashboard-btn svg {
@@ -56,18 +56,39 @@
 }
 
 .logout-btn {
-  background-color: var(--primary-color);
-  color: white;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
+  color: var(--bg-light);
   border: none;
   padding: 8px 16px;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.logout-btn:hover::before {
+  left: 100%;
 }
 
 .logout-btn:hover {
-  background-color: var(--primary-hover);
+  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Points Display Section */
@@ -76,7 +97,8 @@
 }
 
 .points-card {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
   border-radius: var(--border-radius-md);
   padding: 30px;
   display: flex;
@@ -101,7 +123,7 @@
 
 .points-icon {
   font-size: 4rem;
-  color: white;
+  color: var(--text-on-primary);
   opacity: 0.9;
   position: relative;
   z-index: 1;
@@ -111,7 +133,7 @@
   flex: 1;
   position: relative;
   z-index: 1;
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .points-label {
@@ -172,7 +194,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: white;
+  color: var(--text-on-primary);
 }
 
 .progress-label {
@@ -200,7 +222,7 @@
 .next-reward-info {
   font-size: 1rem;
   text-align: center;
-  color: white;
+  color: var(--text-on-primary);
   opacity: 0.95;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   margin: 0;
@@ -271,16 +293,15 @@
   border-radius: var(--border-radius-md);
   padding: 20px;
   box-shadow: var(--box-shadow-sm);
-  border: 1px solid #b3d9ff;
+  border: 1px solid var(--border-color);
   border-top: 4px solid var(--primary-color);
   position: relative;
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  background: linear-gradient(to bottom, #f0f8ff, var(--bg-light));
 }
 
 .promotion-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+  box-shadow: var(--box-shadow-md);
   border-color: var(--primary-color);
 }
 
@@ -288,14 +309,15 @@
   position: absolute;
   top: 15px;
   right: 15px;
-  background: var(--primary-color);
-  color: white;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
+  color: var(--text-on-primary);
   padding: 4px 10px;
   border-radius: var(--border-radius-sm);
   font-size: 0.75rem;
   font-weight: bold;
   text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .promotion-title {
@@ -349,7 +371,7 @@
 
 .reward-card.affordable {
   border-color: var(--primary-color);
-  background: linear-gradient(to bottom, var(--bg-light), rgba(139, 0, 0, 0.02));
+  background-color: var(--bg-light);
 }
 
 .reward-card.unavailable {
@@ -365,7 +387,7 @@
 }
 
 .reward-category {
-  background-color: var(--bg-medium);
+  background-color: var(--light-grey);
   color: var(--text-light);
   padding: 4px 10px;
   border-radius: var(--border-radius-sm);
@@ -441,13 +463,32 @@
 }
 
 .redeem-btn.can-redeem {
-  background-color: var(--primary-color);
-  color: white;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
+  color: var(--text-on-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.redeem-btn.can-redeem::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.redeem-btn.can-redeem:hover::before {
+  left: 100%;
 }
 
 .redeem-btn.can-redeem:hover {
-  background-color: var(--primary-hover);
+  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
   transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .redeem-btn.cannot-redeem {

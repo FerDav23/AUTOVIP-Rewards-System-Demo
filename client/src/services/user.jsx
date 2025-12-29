@@ -1,4 +1,5 @@
 import client from './apiClient';
+import { getUserData } from './dummyUsers';
 
 // Token expiration time in milliseconds (24 hours)
 const TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
@@ -46,6 +47,16 @@ export async function login(username, password) {
     console.log(response.data.userName, response.data.password);
     localStorage.setItem('user', JSON.stringify(response.data.userName));
     localStorage.setItem('password', JSON.stringify(response.data.password));
+    
+    // Store user membership data from dummy data (in production, this would come from the API)
+    const userData = getUserData(response.data.userName);
+    if (userData) {
+      localStorage.setItem('userMembership', userData.membershipType);
+      localStorage.setItem('userCardNumber', userData.cardNumber);
+      localStorage.setItem('userEmail', userData.email);
+      localStorage.setItem('userPhoneNumber', userData.phoneNumber || '');
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Login failed:', error);
@@ -57,6 +68,42 @@ export async function logout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('tokenExpiration');
   localStorage.removeItem('user');
+  localStorage.removeItem('userMembership');
+  localStorage.removeItem('userCardNumber');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userPhoneNumber');
+}
+
+/**
+ * Get current user's membership type
+ * @returns {string|null} Membership type or null
+ */
+export function getCurrentUserMembership() {
+  return localStorage.getItem('userMembership');
+}
+
+/**
+ * Get current user's card number
+ * @returns {string|null} Card number or null
+ */
+export function getCurrentUserCardNumber() {
+  return localStorage.getItem('userCardNumber');
+}
+
+/**
+ * Get current user's email
+ * @returns {string|null} Email or null
+ */
+export function getCurrentUserEmail() {
+  return localStorage.getItem('userEmail');
+}
+
+/**
+ * Get current user's phone number
+ * @returns {string|null} Phone number or null
+ */
+export function getCurrentUserPhoneNumber() {
+  return localStorage.getItem('userPhoneNumber');
 }
 
 export async function fetchPlacas() {

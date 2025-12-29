@@ -13,6 +13,7 @@
   --bg-color: var(--color-bg);
   --bg-light: var(--color-bg-light);
   --bg-medium: var(--color-bg-medium);
+  --bg-hard: var(--color-bg-hard);
   
   --border-color: var(--color-border);
   --disabled-color: var(--color-disabled);
@@ -23,6 +24,14 @@
   
   --error-bg: var(--color-error-bg);
   --error-text: var(--color-error-text);
+  
+  /* Text on primary background - adapts to membership */
+  --text-on-primary: var(--color-text-on-primary);
+  
+  /* Gradient colors for platinum shiny effect */
+  --gradient-start: var(--color-gradient-start, var(--primary-color));
+  --gradient-mid: var(--color-gradient-mid, var(--primary-color));
+  --gradient-end: var(--color-gradient-end, var(--primary-hover));
   
   /* Spacing */
   --spacing-xs: var(--space-xs);
