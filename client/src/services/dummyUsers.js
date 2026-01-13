@@ -29,7 +29,7 @@ export const dummyUsers = {
   'user3': {
     userName: 'user3',
     cardNumber: '3456-7890-1234-5678',
-    membershipType: 'black',
+    membershipType: 'gold',
     email: 'user3@example.com',
     phoneNumber: '+1 (555) 345-6789'
   },
@@ -43,7 +43,7 @@ export const dummyUsers = {
   'test': {
     userName: 'test',
     cardNumber: '9999-9999-9999-9999',
-    membershipType: 'gold',
+    membershipType: 'black',
     email: 'test@example.com',
     phoneNumber: '+1 (555) 999-9999'
   }

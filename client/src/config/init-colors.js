@@ -8,6 +8,13 @@ export function initColors(membershipType = null) {
   const root = document.documentElement;
   const colors = getColorsByMembership(membershipType);
   
+  // Set membership data attribute for CSS targeting
+  if (membershipType) {
+    root.setAttribute('data-membership', membershipType.toLowerCase());
+  } else {
+    root.removeAttribute('data-membership');
+  }
+  
   // Set colors
   for (const [key, value] of Object.entries(colors)) {
     root.style.setProperty(`--color-${kebabCase(key)}`, value);

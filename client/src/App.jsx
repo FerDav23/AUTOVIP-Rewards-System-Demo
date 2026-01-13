@@ -14,11 +14,13 @@ import './components/mobile.css';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [membership, setMembership] = useState(null);
   
   // Initialize colors based on user membership
   const initializeColors = () => {
-    const membership = getCurrentUserMembership();
-    initColors(membership);
+    const currentMembership = getCurrentUserMembership();
+    setMembership(currentMembership);
+    initColors(currentMembership);
   };
   
   useEffect(() => {
@@ -33,7 +35,27 @@ export default function App() {
     if (token) {
       setIsAuthenticated(true);
     }
-  }, []);
+
+    // Listen for storage changes to update membership dynamically
+    const handleStorageChange = () => {
+      initializeColors();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check periodically for membership changes
+    const interval = setInterval(() => {
+      const currentMembership = getCurrentUserMembership();
+      if (currentMembership !== membership) {
+        initializeColors();
+      }
+    }, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [membership]);
   
   // Re-initialize colors when authentication state changes
   useEffect(() => {
@@ -41,6 +63,7 @@ export default function App() {
       initializeColors();
     } else {
       initColors(null);
+      setMembership(null);
     }
   }, [isAuthenticated]);
 
@@ -64,7 +87,7 @@ export default function App() {
           element={<QrBridge setIsAuthenticated={setIsAuthenticated} />}
         />
         <Route
-          path="/rewards"
+          path="/rewards" 
           element={isAuthenticated ? <RewardsPoints setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
         />
         <Route

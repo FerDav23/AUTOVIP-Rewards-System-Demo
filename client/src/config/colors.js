@@ -1,15 +1,16 @@
 // Membership-based color schemes with comprehensive palettes
 const membershipColors = {
   gold: {
-    // Primary colors - Metallic gold tones
-    primary: '#FFD700',           // Classic gold
-    primaryDark: '#D4AF37',        // Darker gold
-    primaryHover: '#FFC700',       // Hover gold
-    accent: '#FFA500',             // Orange-gold accent
-    // Gradient colors for shiny metallic gold effect
-    gradientStart: '#FFD700',      // Bright gold highlight
-    gradientMid: '#FFC700',        // Medium gold
-    gradientEnd: '#FFB700',        // Darker gold shadow
+    // Primary colors - Shiny liquid metal gold with white highlights
+    // Colors derived from liquid metal gold effect (shiny, reflective tones)
+    primary: '#F4D03F',           // Bright light gold - vibrant and shiny (polished metallic)
+    primaryDark: '#D4AF37',        // Classic gold - medium gold shadow
+    primaryHover: '#FFE87C',       // Light golden yellow - luminous hover
+    accent: '#FFD700',            // Bright gold - sparkling accent
+    // Gradient colors for shiny liquid metal gold effect with white highlights
+    gradientStart: '#FFFEF0',      // Almost white-gold - very light reflective
+    gradientMid: '#F4D03F',        // Bright light gold - polished metallic
+    gradientEnd: '#D4AF37',        // Classic gold - medium shiny shadow
     
     // Text colors - Warm dark tones for contrast
     text: '#2C1810',               // Rich brown-black
@@ -17,15 +18,15 @@ const membershipColors = {
     textMuted: '#8B6F47',          // Muted brown-gold
     textOnPrimary: '#2C1810',      // Dark text on gold backgrounds
     
-    // Background colors - Light, warm tones
-    bgColor: '#FFFEF5',            // Very light warm cream
+    // Background colors - Shiny liquid metal gold backgrounds with white
+    bgColor: '#FFFEF5',            // Very light with white (almost white with gold tint)
     bgLight: '#FFFFFF',            // Pure white
-    bgMedium: '#FFFFFF',           // White (cards)
-    bgHard: '#FFFFFF',             // White (cards)
+    bgMedium: '#FFF8DC',           // Cornsilk (white with gold tint)
+    bgHard: '#F5E6D3',             // Light liquid metal (warm cream)
     
     // Border and utility colors
-    border: '#F5E6B3',             // Light gold border
-    disabled: '#D4C4A0',           // Muted light gold
+    border: '#F4D03F',             // Bright light gold - vibrant border
+    disabled: '#D4AF37',           // Classic gold - medium gold (shiny muted)
     
     // Gray shades - Warm grays
     darkGrey: '#6B5B3D',          // Warm dark gray
