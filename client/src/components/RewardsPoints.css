@@ -1,13 +1,50 @@
 /* Rewards Points System Styles - consistent with system design */
+.rewards-wrapper {
+  padding-bottom: 50px;
+}
+
 .rewards-container {
   max-width: 1200px;
   margin: 0 auto;
-  margin-bottom: 25px;
+  margin-bottom: 40px;
   padding: 25px;
-  background-color: var(--bg-light);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--bg-light); /* Fallback */
   color: var(--text-color);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-hard);
+  border-radius: 8px;
+  box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.40);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Add space at the end - target the last rewards-container */
+.rewards-container:last-child {
+  margin-bottom: 30px !important;
+}
+
+.rewards-container:last-of-type {
+  margin-bottom: 30px !important;
+}
+
+.rewards-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+  pointer-events: none;
+  animation: liquidShimmer 3s infinite;
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  z-index: 0;
+}
+
+@keyframes liquidShimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .rewards-header {
@@ -20,9 +57,11 @@
 }
 
 .rewards-header h2 {
-  color: var(--primary-color);
+  color: var(--text-color);
   margin: 0;
   font-size: 1.8rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .header-actions {
@@ -32,9 +71,10 @@
 }
 
 .dashboard-btn {
-  background-color: var(--bg-light);
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
+  color: var(--text-on-primary);
+  border: none;
   padding: 8px 16px;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
@@ -44,21 +84,41 @@
   align-items: center;
   gap: 8px;
   font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.dashboard-btn:hover::before {
+  left: 100%;
 }
 
 .dashboard-btn:hover {
-  background-color: var(--primary-color);
-  color: var(--text-on-primary);
+  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .dashboard-btn svg {
   font-size: 0.9rem;
+  color: var(--text-on-primary);
 }
 
 .logout-btn {
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
   background-color: var(--primary-color); /* Fallback */
-  color: var(--bg-light);
+  color: var(--text-on-primary);
   border: none;
   padding: 8px 16px;
   border-radius: var(--border-radius-sm);
@@ -68,6 +128,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
+}
+
+.logout-btn svg {
+  color: var(--text-on-primary);
 }
 
 .logout-btn::before {
@@ -106,8 +170,9 @@
   gap: 25px;
   box-shadow: var(--box-shadow-md);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .points-card::before {
@@ -256,10 +321,11 @@
 }
 
 .section-header h3 {
-  color: var(--primary-color);
+  color: var(--text-color);
   margin: 0;
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Promotions Section - Different Color Scheme */
@@ -276,7 +342,44 @@
 }
 
 .promotions-section .section-header h3 {
-  color: var(--primary-color);
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+/* Black membership style - white text and icons for section elements */
+[data-membership="black"] .section-icon,
+[data-membership="black"] .promotion-icon {
+  color: #FFFFFF !important;
+}
+
+[data-membership="black"] .section-header h3,
+[data-membership="black"] .section-header.rewards-header h3,
+[data-membership="black"] .section-header.rewards-header,
+[data-membership="black"] .promotions-section .section-header h3 {
+  color: #FFFFFF !important;
+}
+
+/* Black membership style - white points label */
+[data-membership="black"] .points-label {
+  color: #FFFFFF !important;
+}
+
+/* Platinum membership style - white text and icons for section elements */
+[data-membership="platinum"] .section-icon,
+[data-membership="platinum"] .promotion-icon {
+  color: #FFFFFF !important;
+}
+
+[data-membership="platinum"] .section-header h3,
+[data-membership="platinum"] .section-header.rewards-header h3,
+[data-membership="platinum"] .section-header.rewards-header,
+[data-membership="platinum"] .promotions-section .section-header h3 {
+  color: #FFFFFF !important;
+}
+
+/* Platinum membership style - white points label */
+[data-membership="platinum"] .points-label {
+  color: #FFFFFF !important;
 }
 
 
@@ -292,7 +395,7 @@
   background-color: var(--bg-light);
   border-radius: var(--border-radius-md);
   padding: 20px;
-  box-shadow: var(--box-shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--border-color);
   border-top: 4px solid var(--primary-color);
   position: relative;
@@ -321,10 +424,10 @@
 }
 
 .promotion-title {
-  color: var(--primary-color);
+  color: var(--text-color);
   margin: 0 0 12px 0;
   font-size: 1.2rem;
-  font-weight: bold;
+  font-weight: 600;
   padding-right: 80px;
 }
 
@@ -357,7 +460,7 @@
   background-color: var(--bg-light);
   border-radius: var(--border-radius-md);
   padding: 20px;
-  box-shadow: var(--box-shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 2px solid var(--border-color);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   display: flex;
@@ -414,10 +517,10 @@
 }
 
 .reward-title {
-  color: var(--primary-color);
+  color: var(--text-color);
   margin: 0 0 10px 0;
   font-size: 1.2rem;
-  font-weight: bold;
+  font-weight: 600;
   text-align: center;
 }
 

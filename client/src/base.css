@@ -72,17 +72,35 @@
   padding: 0;
 }
 
+html {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   display: flex;
   min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--bg-color);
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--bg-color); /* Fallback */
 }
 
 #root {
   width: 100%;
+  height: 100%;
+  max-height: 100%;
   padding: 2rem;
+  margin-bottom: 15rem;
+  background-color: #FFFFFF;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 /* Typography */
@@ -100,6 +118,18 @@ a:hover {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+h3 {
+  color: var(--text-color);
+  font-weight: 600;
 }
 
 code {
@@ -144,7 +174,14 @@ select:focus {
 
 /* App container */
 .app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: Arial, sans-serif;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 2rem;
+  padding-bottom: 6rem;
+  margin-bottom: 2rem;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+  min-height: 0;
+  position: relative;
 } 

@@ -3,6 +3,26 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--bg-light); /* Fallback */
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.profile-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+  pointer-events: none;
+  animation: liquidShimmer 3s infinite;
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.2);
 }
 
 .profile-header {
@@ -38,9 +58,10 @@
 }
 
 .nav-btn {
-  background-color: var(--bg-light);
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--primary-color); /* Fallback */
+  color: var(--text-on-primary);
+  border: none;
   padding: 8px 16px;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
@@ -50,11 +71,34 @@
   align-items: center;
   gap: 8px;
   font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-btn svg {
+  color: var(--text-on-primary);
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.nav-btn:hover::before {
+  left: 100%;
 }
 
 .nav-btn:hover {
-  background-color: var(--primary-color);
-  color: var(--text-on-primary);
+  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .logout-btn {
@@ -70,6 +114,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
+}
+
+.logout-btn svg {
+  color: var(--text-on-primary);
 }
 
 .logout-btn::before {
@@ -100,11 +148,32 @@
 }
 
 .profile-section {
-  background-color: var(--bg-light);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--bg-light); /* Fallback */
   border-radius: var(--border-radius-md);
   padding: 25px;
-  box-shadow: var(--box-shadow-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+  pointer-events: none;
+  animation: liquidShimmer 3s infinite;
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes liquidShimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 .section-header {
@@ -122,9 +191,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--primary-color);
+  color: var(--text-color);
   margin: 0;
   font-size: 1.4rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .section-header h3.centered-title {
@@ -137,6 +208,24 @@
 .section-icon {
   font-size: 1.2rem;
   color: var(--primary-color);
+}
+
+/* Black membership style - white text and icons for section elements */
+[data-membership="black"] .section-icon {
+  color: #FFFFFF !important;
+}
+
+[data-membership="black"] .section-header h3 {
+  color: #FFFFFF !important;
+}
+
+/* Platinum membership style - white text and icons for section elements */
+[data-membership="platinum"] .section-icon {
+  color: #FFFFFF !important;
+}
+
+[data-membership="platinum"] .section-header h3 {
+  color: #FFFFFF !important;
 }
 
 .count-badge {
@@ -165,6 +254,7 @@
   background-color: var(--bg-light);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .info-label {
@@ -300,11 +390,14 @@
   border-radius: var(--border-radius-sm);
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cancel-btn:hover {
   background-color: var(--light-grey);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Vehicles Grid */
@@ -321,13 +414,13 @@
   padding: 20px;
   position: relative;
   color: var(--text-on-primary);
-  box-shadow: var(--box-shadow-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .vehicle-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--box-shadow-hard);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .vehicle-card-actions {
@@ -355,6 +448,7 @@
   font-size: 1rem;
   flex-shrink: 0;
   user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-vehicle-btn svg,
@@ -370,7 +464,8 @@
 .delete-vehicle-btn:hover {
   background-color: rgba(255, 255, 255, 0.4);
   border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.1);
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .vehicle-icon {
@@ -429,6 +524,9 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
 }
 
 .billing-table thead {
@@ -580,7 +678,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s;
+  transition: all 0.3s;
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -589,6 +687,8 @@
 .modal-close-btn:hover {
   color: var(--primary-color);
   background-color: var(--light-grey);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .modal-body {

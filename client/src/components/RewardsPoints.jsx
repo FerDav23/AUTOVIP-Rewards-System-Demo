@@ -157,7 +157,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   };
 
   return (
-    <>
+    <div className="rewards-wrapper">
     <div className="rewards-header">
         <h2>Sistema de Puntos y Recompensas</h2>
         <div className="header-actions">
@@ -293,7 +293,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
