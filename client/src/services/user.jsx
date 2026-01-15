@@ -43,8 +43,6 @@ export async function login(username, password) {
   try {
     const response = await client.post('/users/login', { username, password });
     storeTokenWithExpiration(response.data.token);
-    console.log(response.data);
-    console.log(response.data.userName, response.data.password);
     localStorage.setItem('user', JSON.stringify(response.data.userName));
     localStorage.setItem('password', JSON.stringify(response.data.password));
     
@@ -64,6 +62,20 @@ export async function login(username, password) {
   }
 }
 
+export async function loginManager(username, password) {
+  try {
+    const response = await client.post('/managers/login', { username, password });
+    storeTokenWithExpiration(response.data.token);
+    localStorage.setItem('managerID', JSON.stringify(response.data.id));
+    localStorage.setItem('managerName', JSON.stringify(response.data.name));
+    localStorage.setItem('managerUsername', JSON.stringify(response.data.username));
+    return response.data;
+  } catch (error) {
+    console.error('Login manager failed:', error);
+    throw error;
+  }
+}
+
 export async function logout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('tokenExpiration');
@@ -72,6 +84,14 @@ export async function logout() {
   localStorage.removeItem('userCardNumber');
   localStorage.removeItem('userEmail');
   localStorage.removeItem('userPhoneNumber');
+}
+
+export async function logoutManager() {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('tokenExpiration');
+  localStorage.removeItem('managerID');
+  localStorage.removeItem('managerName');
+  localStorage.removeItem('managerUsername');
 }
 
 /**

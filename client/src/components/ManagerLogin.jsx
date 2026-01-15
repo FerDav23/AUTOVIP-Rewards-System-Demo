@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/user';
+import { loginManager } from '../services/user';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
@@ -37,9 +37,9 @@ export default function ManagerLogin({ setIsAuthenticated }) {
     setError('');
     
     try {
-      await login(username, password);
+      await loginManager(username, password);
       if (setIsAuthenticated) setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/manager-dashboard');
     } catch (err) {
       console.error('Error during login or navigation:', err);
       setError('Credenciales inválidas');
@@ -61,7 +61,9 @@ export default function ManagerLogin({ setIsAuthenticated }) {
            }} />
           <img src={logoCIMImg} alt="CIM Logo" className="manager-login-logo" />
         </div>
-        <h1 className="manager-welcome-title">Panel de Administración</h1>
+        <h1 className="manager-welcome-title">
+          AUTOVIP<br />Panel de Administración
+        </h1>
         <h2>Acceso Gerentes</h2>
         {error && <div className="manager-error-message">{error}</div>}
         <form onSubmit={handleSubmit}>

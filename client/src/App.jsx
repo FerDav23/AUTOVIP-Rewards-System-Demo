@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import AUTOVIPLogin from './components/AUTOVIPLogin';
 import ManagerLogin from './components/ManagerLogin';
+import CreateManager from './components/CreateManager';
 import Dashboard from './components/Dashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
