@@ -75,7 +75,7 @@
   display: block;
   margin-bottom: var(--spacing-xs);
   font-weight: bold;
-  color: var(--text-light);
+  color: black;
   text-align: left;
 }
 
@@ -95,6 +95,39 @@
   border-color: #616161; /* Blue */
   outline: none;
   box-shadow: 0 0 0 2px rgba(97, 97, 97, 0.1);
+}
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  padding-right: 45px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #616161;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
+}
+
+.password-toggle-btn:hover {
+  color: #424242;
+}
+
+.password-toggle-btn:focus {
+  outline: none;
 }
 
 .manager-login-button {

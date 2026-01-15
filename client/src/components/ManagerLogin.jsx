@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginManager } from '../services/user';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
@@ -10,6 +11,7 @@ export default function ManagerLogin({ setIsAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Remove root padding to make background cover full screen
@@ -79,13 +81,23 @@ export default function ManagerLogin({ setIsAuthenticated }) {
           </div>
           <div className="manager-form-group">
             <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
           <button type="submit" className="manager-login-button">Ingresar</button>
         

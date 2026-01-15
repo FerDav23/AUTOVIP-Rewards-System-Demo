@@ -18,7 +18,7 @@
 
 /* Header */
 .manager-header {
-  background: linear-gradient(135deg, #cf0000 0%, #a50000 100%);
+  background: linear-gradient(135deg, #a00000 0%, #7a0000 100%);
   color: white;
   padding: 20px 30px;
   display: flex;
@@ -27,10 +27,26 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.manager-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .manager-header h1 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  color: white;
+  margin-left: 70px;
+}
+
+.manager-header .header-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  position: absolute;
+ 
 }
 
 .manager-header .logout-btn {
@@ -45,6 +61,11 @@
   gap: 8px;
   font-size: 0.9rem;
   transition: all 0.2s;
+}
+
+.manager-header .logout-btn svg {
+  color: white;
+  fill: white;
 }
 
 .manager-header .logout-btn:hover {

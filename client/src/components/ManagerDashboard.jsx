@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import './ManagerDashboard.css';
+import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
   FaUsers, FaCar, FaGift, FaTag, FaCoins, FaPlus, FaTrash, 
   FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage
@@ -45,7 +46,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [rewardMembershipFilter, setRewardMembershipFilter] = useState('all');
   const [rewardTitleFilter, setRewardTitleFilter] = useState('');
   const [rewardDescriptionFilter, setRewardDescriptionFilter] = useState('');
-  const [promoBadgeFilter, setPromoBadgeFilter] = useState('all');
+  const [promoTitleFilter, setPromoTitleFilter] = useState('');
+  const [promoDescriptionFilter, setPromoDescriptionFilter] = useState('');
+  const [promoValidUntilFilter, setPromoValidUntilFilter] = useState('');
+  const [promoExpiredFilter, setPromoExpiredFilter] = useState('all');
   
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -87,13 +91,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
   // Image modal state
   const [showImageModal, setShowImageModal] = useState(false);
-  const [imageModalReward, setImageModalReward] = useState(null);
+  const [imageModalItem, setImageModalItem] = useState(null);
+  const [imageModalType, setImageModalType] = useState(null); // 'reward' or 'promotion'
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Promotions state
   const [promotions, setPromotions] = useState([
-    { id: 1, title: 'Doble Puntos', description: 'Gana el doble de puntos este mes', validUntil: '2024-12-31', badge: 'Nuevo' },
-    { id: 2, title: 'Fin de Año', description: '500 puntos extra en mantenimiento completo', validUntil: '2024-12-25', badge: 'Popular' },
+    { id: 1, title: 'Doble Puntos', description: 'Gana el doble de puntos este mes', validUntil: '2024-12-31', badge: 'Nuevo', imageUrl: 'https://picsum.photos/seed/promo1/200/150' },
+    { id: 2, title: 'Fin de Año', description: '500 puntos extra en mantenimiento completo', validUntil: '2024-12-25', badge: 'Popular', imageUrl: 'https://picsum.photos/seed/promo2/200/150' },
   ]);
 
   // Form states
@@ -225,21 +230,23 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         if (editingItem) {
           setPromotions(prev => prev.map(p => p.id === editingItem.id ? { ...p, ...formData } : p));
         } else {
-          setPromotions(prev => [...prev, { ...formData, id: Date.now() }]);
+          setPromotions(prev => [...prev, { ...formData, id: Date.now(), imageUrl: formData.imageUrl || '' }]);
         }
         break;
     }
     closeModal();
   };
 
-  const openImageModal = (reward) => {
-    setImageModalReward(reward);
+  const openImageModal = (item, type) => {
+    setImageModalItem(item);
+    setImageModalType(type);
     setShowImageModal(true);
   };
 
   const closeImageModal = () => {
     setShowImageModal(false);
-    setImageModalReward(null);
+    setImageModalItem(null);
+    setImageModalType(null);
   };
 
   const handleImageUpload = async (e) => {
@@ -255,20 +262,26 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     setUploadingImage(true);
     try {
       // Delete old image if exists
-      if (imageModalReward?.imageUrl) {
-        await deleteImageFromS3(imageModalReward.imageUrl);
+      if (imageModalItem?.imageUrl) {
+        await deleteImageFromS3(imageModalItem.imageUrl);
       }
 
       // Upload new image
       const imageUrl = await uploadImageToS3(file);
 
-      // Update reward with new image
-      setRewards(prev => prev.map(r => 
-        r.id === imageModalReward.id ? { ...r, imageUrl } : r
-      ));
+      // Update item with new image based on type
+      if (imageModalType === 'reward') {
+        setRewards(prev => prev.map(r => 
+          r.id === imageModalItem.id ? { ...r, imageUrl } : r
+        ));
+      } else if (imageModalType === 'promotion') {
+        setPromotions(prev => prev.map(p => 
+          p.id === imageModalItem.id ? { ...p, imageUrl } : p
+        ));
+      }
 
       // Update modal state
-      setImageModalReward(prev => ({ ...prev, imageUrl }));
+      setImageModalItem(prev => ({ ...prev, imageUrl }));
     } catch (error) {
       alert('Error al subir la imagen. Intente de nuevo.');
       console.error('Upload error:', error);
@@ -329,9 +342,26 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   });
 
   const filteredPromotions = promotions.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBadge = promoBadgeFilter === 'all' || p.badge === promoBadgeFilter;
-    return matchesSearch && matchesBadge;
+    const matchesTitle = !promoTitleFilter || p.title.toLowerCase().includes(promoTitleFilter.toLowerCase());
+    const matchesDescription = !promoDescriptionFilter || p.description.toLowerCase().includes(promoDescriptionFilter.toLowerCase());
+    const matchesValidUntil = !promoValidUntilFilter || p.validUntil === promoValidUntilFilter;
+    
+    let matchesExpired = true;
+    if (promoExpiredFilter !== 'all') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const validUntilDate = new Date(p.validUntil);
+      validUntilDate.setHours(0, 0, 0, 0);
+      const isExpired = validUntilDate < today;
+      
+      if (promoExpiredFilter === 'valid') {
+        matchesExpired = !isExpired;
+      } else if (promoExpiredFilter === 'expired') {
+        matchesExpired = isExpired;
+      }
+    }
+    
+    return matchesTitle && matchesDescription && matchesValidUntil && matchesExpired;
   });
 
   const renderModal = () => {
@@ -654,19 +684,45 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <input type="date" name="validUntil" value={formData.validUntil || ''} onChange={handleFormChange} required />
                 </div>
                 <div className="form-group">
-                  <label>Badge</label>
-                  <select name="badge" value={formData.badge || 'Nuevo'} onChange={handleFormChange}>
-                    <option value="Nuevo">Nuevo</option>
-                    <option value="Popular">Popular</option>
-                    <option value="Limitado">Limitado</option>
-                  </select>
+                  <label>Imagen de la promoción</label>
+                  <div className="image-upload-inline">
+                    {formData.imageUrl ? (
+                      <img src={formData.imageUrl} alt="Preview" className="image-preview-small" />
+                    ) : (
+                      <div className="no-image-small">
+                        <FaImage />
+                      </div>
+                    )}
+                    <label className={`btn-upload-inline ${uploadingImage ? 'uploading' : ''}`}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file || !file.type.startsWith('image/')) return;
+                          setUploadingImage(true);
+                          try {
+                            const imageUrl = await uploadImageToS3(file);
+                            setFormData(prev => ({ ...prev, imageUrl }));
+                          } catch (error) {
+                            alert('Error al subir la imagen.');
+                          } finally {
+                            setUploadingImage(false);
+                          }
+                        }}
+                        disabled={uploadingImage}
+                        hidden
+                      />
+                      <FaImage /> {uploadingImage ? 'Subiendo...' : (formData.imageUrl ? 'Cambiar' : 'Subir imagen')}
+                    </label>
+                  </div>
                 </div>
                 <div className="modal-actions">
                   <button type="button" className="btn-cancel" onClick={closeModal}>Cancelar</button>
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.validUntil}
+                    disabled={!formData.title || !formData.description || !formData.validUntil || !formData.imageUrl}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -682,7 +738,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   return (
     <div className="manager-dashboard">
       <header className="manager-header">
-        <h1>Panel de Administración</h1>
+        <div className="header-left">
+          <img src={logoImage} alt="Grupo FJ Logo" className="header-logo" />
+          <h1>Panel de Administración</h1>
+        </div>
         <button className="logout-btn" onClick={handleLogout}>
           <FaSignOutAlt /> Cerrar Sesión
         </button>
@@ -818,16 +877,39 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           )}
           {activeTab === 'promotions' && (
             <>
-              <select value={promoBadgeFilter} onChange={(e) => setPromoBadgeFilter(e.target.value)}>
-                <option value="all">Todos los badges</option>
-                <option value="Nuevo">Nuevo</option>
-                <option value="Popular">Popular</option>
-                <option value="Limitado">Limitado</option>
+              <input 
+                type="text" 
+                placeholder="Filtrar por título..." 
+                value={promoTitleFilter}
+                onChange={(e) => setPromoTitleFilter(e.target.value)}
+                className="filter-input"
+              />
+              <input 
+                type="text" 
+                placeholder="Filtrar por descripción..." 
+                value={promoDescriptionFilter}
+                onChange={(e) => setPromoDescriptionFilter(e.target.value)}
+                className="filter-input"
+              />
+              <input 
+                type="date" 
+                placeholder="Filtrar por válido hasta..." 
+                value={promoValidUntilFilter}
+                onChange={(e) => setPromoValidUntilFilter(e.target.value)}
+                className="filter-input"
+              />
+              <select value={promoExpiredFilter} onChange={(e) => setPromoExpiredFilter(e.target.value)}>
+                <option value="all">Todos los estados</option>
+                <option value="valid">Válidas</option>
+                <option value="expired">Expiradas</option>
               </select>
               <button 
                 className="btn-clear-filters"
                 onClick={() => {
-                  setPromoBadgeFilter('all');
+                  setPromoTitleFilter('');
+                  setPromoDescriptionFilter('');
+                  setPromoValidUntilFilter('');
+                  setPromoExpiredFilter('all');
                 }}
               >
                 <FaTimes /> Limpiar filtros
@@ -901,7 +983,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 {filteredRewards.map(reward => (
                   <tr key={reward.id}>
                     <td>
-                      <div className="reward-image-cell" onClick={() => openImageModal(reward)}>
+                      <div className="reward-image-cell" onClick={() => openImageModal(reward, 'reward')}>
                         {reward.imageUrl ? (
                           <img src={reward.imageUrl} alt={reward.title} className="reward-thumbnail" />
                         ) : (
@@ -928,7 +1010,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </span>
                     </td>
                     <td className="actions">
-                      <button className="btn-image" onClick={() => openImageModal(reward)} title="Gestionar imagen">
+                      <button className="btn-image" onClick={() => openImageModal(reward, 'reward')} title="Gestionar imagen">
                         <FaImage />
                       </button>
                       <button className="btn-edit" onClick={() => openModal('reward', reward)} title="Editar">
@@ -950,21 +1032,34 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             <table>
               <thead>
                 <tr>
+                  <th>Imagen</th>
                   <th>Título</th>
                   <th>Descripción</th>
                   <th>Válido hasta</th>
-                  <th>Badge</th>
                   <th><FaCog /> Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPromotions.map(promo => (
                   <tr key={promo.id}>
+                    <td>
+                      <div className="reward-image-cell" onClick={() => openImageModal(promo, 'promotion')}>
+                        {promo.imageUrl ? (
+                          <img src={promo.imageUrl} alt={promo.title} className="reward-thumbnail" />
+                        ) : (
+                          <div className="no-image-placeholder">
+                            <FaImage />
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td><strong>{promo.title}</strong></td>
                     <td>{promo.description}</td>
                     <td>{new Date(promo.validUntil).toLocaleDateString('es-ES')}</td>
-                    <td><span className="promo-badge">{promo.badge}</span></td>
                     <td className="actions">
+                      <button className="btn-image" onClick={() => openImageModal(promo, 'promotion')} title="Gestionar imagen">
+                        <FaImage />
+                      </button>
                       <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
                         <FaEdit />
                       </button>
@@ -983,16 +1078,16 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       {renderModal()}
 
       {/* Image Modal */}
-      {showImageModal && imageModalReward && (
+      {showImageModal && imageModalItem && (
         <div className="modal-overlay" onClick={closeImageModal}>
           <div className="modal-content image-modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={closeImageModal}><FaTimes /></button>
-            <h3><FaImage /> Imagen de Recompensa</h3>
-            <p className="modal-subtitle">{imageModalReward.title}</p>
+            <h3><FaImage /> Imagen de {imageModalType === 'reward' ? 'Recompensa' : 'Promoción'}</h3>
+            <p className="modal-subtitle">{imageModalItem.title}</p>
             
             <div className="image-preview-container">
-              {imageModalReward.imageUrl ? (
-                <img src={imageModalReward.imageUrl} alt={imageModalReward.title} className="image-preview" />
+              {imageModalItem.imageUrl ? (
+                <img src={imageModalItem.imageUrl} alt={imageModalItem.title} className="image-preview" />
               ) : (
                 <div className="no-image-large">
                   <FaImage />
@@ -1010,7 +1105,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   disabled={uploadingImage}
                   hidden
                 />
-                <FaImage /> {uploadingImage ? 'Subiendo...' : (imageModalReward.imageUrl ? 'Cambiar imagen' : 'Subir imagen')}
+                <FaImage /> {uploadingImage ? 'Subiendo...' : (imageModalItem.imageUrl ? 'Cambiar imagen' : 'Subir imagen')}
               </label>
             </div>
 
