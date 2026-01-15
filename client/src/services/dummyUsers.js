@@ -76,7 +76,7 @@ export function getMembershipType(username) {
  * TO TEST DIFFERENT MEMBERSHIPS: Change the TEST_MEMBERSHIP variable below
  * Options: 'gold', 'platinum', 'black'
  */
-const TEST_MEMBERSHIP = 'platinum'; // Change this to 'gold', 'platinum', or 'black' to test different colors
+const TEST_MEMBERSHIP = 'gold'; // Change this to 'gold', 'platinum', or 'black' to test different colors
 
 export function initializeDummyUserData() {
   // Get current user from localStorage
