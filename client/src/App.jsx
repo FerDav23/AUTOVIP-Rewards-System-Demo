@@ -2,8 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import AUTOVIPLogin from './components/AUTOVIPLogin';
 import ManagerLogin from './components/ManagerLogin';
-import CreateManager from './components/CreateManager';
 import Dashboard from './components/Dashboard';
+import ManagerDashboard from './components/ManagerDashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
 import UserProfile from './components/UserProfile';
@@ -98,7 +98,11 @@ export default function App() {
         />
         <Route
           path="/manager-login"
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <ManagerLogin setIsAuthenticated={setIsAuthenticated} />}
+          element={isAuthenticated ? <Navigate to="/manager-dashboard" /> : <ManagerLogin setIsAuthenticated={setIsAuthenticated} />}
+        />
+        <Route
+          path="/manager-dashboard"
+          element={isAuthenticated ? <ManagerDashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/manager-login" />}
         />
       </Routes>
     </div>
