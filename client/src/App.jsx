@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import AUTOVIPLogin from './components/AUTOVIPLogin';
+import ManagerLogin from './components/ManagerLogin';
 import Dashboard from './components/Dashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
@@ -93,6 +94,10 @@ export default function App() {
         <Route
           path="/profile"
           element={isAuthenticated ? <UserProfile setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/manager-login"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <ManagerLogin setIsAuthenticated={setIsAuthenticated} />}
         />
       </Routes>
     </div>
