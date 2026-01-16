@@ -49,6 +49,7 @@ export default function CreateManager() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Full name"
+              autoComplete="off"
               required
             />
           </div>
@@ -59,6 +60,7 @@ export default function CreateManager() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Username"
+              autoComplete="off"
               required
             />
           </div>
@@ -70,6 +72,7 @@ export default function CreateManager() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
+                autoComplete="off"
                 required
               />
               <button
@@ -89,6 +92,7 @@ export default function CreateManager() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
+                autoComplete="off"
                 required
               />
               <button

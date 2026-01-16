@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
-import { getAllAutoVipUsers, getMembershipById, getCarsCountByUserId } from '../services/autovipUsers';
+import { 
+  getAllAutoVipUsers, 
+  getMembershipById, 
+  getCarsCountByUserId, 
+  getAllMemberships, 
+  createAutoVipUser,
+} from '../services/autovipUsers';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -59,9 +65,13 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
   // Loading state
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingMemberships, setLoadingMemberships] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
+  
+  // Memberships state
+  const [memberships, setMemberships] = useState([]);
 
   // Cars state - linked to users (min 1, max 5 per user)
   const [cars, setCars] = useState([
@@ -148,9 +158,24 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  // Load users on component mount
+  // Function to load all memberships
+  const loadMemberships = async () => {
+    setLoadingMemberships(true);
+    try {
+      const membershipsData = await getAllMemberships();
+      setMemberships(membershipsData);
+    } catch (error) {
+      console.error('Failed to load memberships:', error);
+      alert('Error al cargar las membresías. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingMemberships(false);
+    }
+  };
+
+  // Load users and memberships on component mount
   useEffect(() => {
     loadUsers();
+    loadMemberships();
   }, []);
 
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
@@ -275,7 +300,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '' });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     switch (modalType) {
@@ -283,11 +308,46 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         if (editingItem) {
           setUsers(prev => prev.map(u => u.id === editingItem.id ? { ...u, ...formData } : u));
         } else {
-          const newUser = { ...formData, id: Date.now(), points: 0 };
-          setUsers(prev => [...prev, newUser]);
-          // New user needs at least 1 car - open cars modal after
-          setTimeout(() => openModal('cars', newUser), 100);
-          return;
+          // Create new user with vehicle via API
+          try {
+            // Find the selected membership by ID
+            const membershipId = parseInt(formData.membership);
+            const selectedMembership = memberships.find(m => m.id === membershipId);
+            
+            if (!selectedMembership) {
+              alert('Por favor seleccione una membresía válida.');
+              return;
+            }
+
+            const userData = {
+              name: formData.name,
+              cardNumber: formData.cardNumber,
+              rucCi: formData.rucCi,
+              membershipId: selectedMembership.id
+            };
+
+            const vehicleData = {
+              placa: formData.carPlaca,
+              marca: formData.carMarca,
+              modelo: formData.carModelo,
+              año: parseInt(formData.carAño),
+              color: formData.carColor
+            };
+
+            // Call API to create user and vehicle
+            await createAutoVipUser(userData, vehicleData);
+            
+            // Reload users to get the updated list
+            await loadUsers();
+            
+            alert('Usuario creado exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error creating user:', error);
+            alert(error.response?.data?.message || error.message || 'Error al crear el usuario. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         }
         break;
       case 'reward':
@@ -450,30 +510,103 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Nombre</label>
-                  <input type="text" name="name" value={formData.name || ''} onChange={handleFormChange} required />
+                  <input type="text" name="name" value={formData.name || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Número de Tarjeta</label>
-                  <input type="text" name="cardNumber" value={formData.cardNumber || ''} onChange={handleFormChange} required placeholder="XXXX-XXXX-XXXX-XXXX" />
+                  <input type="text" name="cardNumber" value={formData.cardNumber || ''} onChange={handleFormChange} autoComplete="off" required placeholder="XXXX-XXXX-XXXX-XXXX" />
                 </div>
                 <div className="form-group">
                   <label>RUC/C.I.</label>
-                  <input type="text" name="rucCi" value={formData.rucCi || ''} onChange={handleFormChange} required />
+                  <input type="text" name="rucCi" value={formData.rucCi || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Membresía</label>
-                  <select name="membership" value={formData.membership || 'gold'} onChange={handleFormChange}>
-                    <option value="gold">Gold</option>
-                    <option value="platinum">Platinum</option>
-                    <option value="black">Black</option>
+                  <select 
+                    name="membership" 
+                    value={formData.membership || ''} 
+                    onChange={handleFormChange}
+                    required
+                    disabled={loadingMemberships}
+                  >
+                    <option value="">{loadingMemberships ? 'Cargando...' : 'Seleccione una membresía'}</option>
+                    {memberships.map(membership => (
+                      <option key={membership.id} value={membership.id}>
+                        {membership.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
+                
+                {/* Car fields - only shown when creating a new user */}
+                {!editingItem && (
+                  <>
+                    <div className="form-divider">
+                      <h4 className="section-title"><FaCar /> Vehículo (Requerido)</h4>
+                      <p className="section-subtitle">Todos los usuarios deben tener al menos un vehículo</p>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Placa *</label>
+                        <input type="text" name="carPlaca" value={formData.carPlaca || ''} onChange={handleFormChange} autoComplete="off" required placeholder="ABC-123" />
+                      </div>
+                      <div className="form-group">
+                        <label>Año *</label>
+                        <input 
+                          type="text" 
+                          name="carAño" 
+                          value={formData.carAño || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            // Remove all non-digit characters
+                            const digitsOnly = val.replace(/\D/g, '');
+                            // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
+                            if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                carAño: digitsOnly
+                              }));
+                            }
+                          }}
+                          pattern="[1-9]\d*"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          required 
+                          placeholder={new Date().getFullYear()}
+                        />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Marca *</label>
+                        <input type="text" name="carMarca" value={formData.carMarca || ''} onChange={handleFormChange} autoComplete="off" required placeholder="Toyota" />
+                      </div>
+                      <div className="form-group">
+                        <label>Modelo *</label>
+                        <input type="text" name="carModelo" value={formData.carModelo || ''} onChange={handleFormChange} autoComplete="off" required placeholder="Corolla" />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Color *</label>
+                        <input type="text" name="carColor" value={formData.carColor || ''} onChange={handleFormChange} autoComplete="off" required placeholder="Rojo" />
+                      </div>
+                    </div>
+                  </>
+                )}
+                
                 <div className="modal-actions">
                   <button type="button" className="btn-cancel" onClick={closeModal}>Cancelar</button>
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.name || !formData.cardNumber || !formData.rucCi}
+                    disabled={
+                      !formData.name || 
+                      !formData.cardNumber || 
+                      !formData.rucCi ||
+                      !formData.membership ||
+                      (!editingItem && (!formData.carPlaca || !formData.carMarca || !formData.carModelo || !formData.carColor || !formData.carAño || parseInt(formData.carAño) <= 0))
+                    }
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -523,21 +656,21 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <div className="form-row">
                       <div className="form-group">
                         <label>Placa</label>
-                        <input type="text" name="placa" value={formData.placa || ''} onChange={handleFormChange} required />
+                        <input type="text" name="placa" value={formData.placa || ''} onChange={handleFormChange} autoComplete="off" required />
                       </div>
                       <div className="form-group">
                         <label>Año</label>
-                        <input type="number" name="año" value={formData.año || ''} onChange={handleFormChange} />
+                        <input type="number" name="año" value={formData.año || ''} onChange={handleFormChange} autoComplete="off" />
                       </div>
                     </div>
                     <div className="form-row">
                       <div className="form-group">
                         <label>Marca</label>
-                        <input type="text" name="marca" value={formData.marca || ''} onChange={handleFormChange} required />
+                        <input type="text" name="marca" value={formData.marca || ''} onChange={handleFormChange} autoComplete="off" required />
                       </div>
                       <div className="form-group">
                         <label>Modelo</label>
-                        <input type="text" name="modelo" value={formData.modelo || ''} onChange={handleFormChange} required />
+                        <input type="text" name="modelo" value={formData.modelo || ''} onChange={handleFormChange} autoComplete="off" required />
                       </div>
                     </div>
                     <button 
@@ -598,6 +731,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         setFormData(prev => ({ ...prev, pointsAmount: val }));
                       }
                     }}
+                    autoComplete="off"
                     required 
                     placeholder="Ej: 100"
                   />
@@ -609,6 +743,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     value={formData.reason || ''} 
                     onChange={handleFormChange}
                     placeholder="Ej: Canje de recompensa, Bonificación, etc."
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -633,11 +768,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
-                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} required />
+                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Descripción</label>
-                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} required />
+                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Puntos Requeridos</label>
@@ -651,6 +786,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                               setFormData(prev => ({ ...prev, pointsRequired: val }));
                             }
                           }} 
+                          autoComplete="off"
                           required 
                         />
                 </div>
@@ -744,15 +880,15 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
-                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} required />
+                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Descripción</label>
-                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} required />
+                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Válido hasta</label>
-                  <input type="date" name="validUntil" value={formData.validUntil || ''} onChange={handleFormChange} required />
+                  <input type="date" name="validUntil" value={formData.validUntil || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
                   <label>Imagen de la promoción</label>
@@ -850,6 +986,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <input 
                 type="text" 
@@ -857,6 +994,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={cardNumberFilter}
                 onChange={(e) => setCardNumberFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <input 
                 type="text" 
@@ -864,6 +1002,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={rucCiFilter}
                 onChange={(e) => setRucCiFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <select value={membershipFilter} onChange={(e) => setMembershipFilter(e.target.value)}>
                 <option value="all">Todas las membresías</option>
@@ -907,6 +1046,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={rewardTitleFilter}
                 onChange={(e) => setRewardTitleFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <input 
                 type="text" 
@@ -914,6 +1054,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={rewardDescriptionFilter}
                 onChange={(e) => setRewardDescriptionFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <select value={rewardCategoryFilter} onChange={(e) => setRewardCategoryFilter(e.target.value)}>
                 <option value="all">Todas las categorías</option>
@@ -954,6 +1095,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={promoTitleFilter}
                 onChange={(e) => setPromoTitleFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <input 
                 type="text" 
@@ -961,6 +1103,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={promoDescriptionFilter}
                 onChange={(e) => setPromoDescriptionFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <input 
                 type="date" 
@@ -968,6 +1111,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 value={promoValidUntilFilter}
                 onChange={(e) => setPromoValidUntilFilter(e.target.value)}
                 className="filter-input"
+                autoComplete="off"
               />
               <select value={promoExpiredFilter} onChange={(e) => setPromoExpiredFilter(e.target.value)}>
                 <option value="all">Todos los estados</option>

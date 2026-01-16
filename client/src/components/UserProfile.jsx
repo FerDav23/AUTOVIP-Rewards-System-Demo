@@ -424,6 +424,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     onChange={handleInputChange}
                     placeholder="ABC-123"
                     maxLength={10}
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -434,6 +435,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.marca}
                     onChange={handleInputChange}
                     placeholder="Toyota"
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -444,6 +446,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.modelo}
                     onChange={handleInputChange}
                     placeholder="Corolla"
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -456,6 +459,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     placeholder="2020"
                     min="1900"
                     max={new Date().getFullYear() + 1}
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -466,6 +470,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.color}
                     onChange={handleInputChange}
                     placeholder="Blanco"
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -503,6 +508,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     onChange={handleInputChange}
                     placeholder="ABC-123"
                     maxLength={10}
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -513,6 +519,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.marca}
                     onChange={handleInputChange}
                     placeholder="Toyota"
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -523,6 +530,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.modelo}
                     onChange={handleInputChange}
                     placeholder="Corolla"
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -535,6 +543,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     placeholder="2020"
                     min="1900"
                     max={new Date().getFullYear() + 1}
+                    autoComplete="off"
                   />
                 </div>
                 <div className="form-group">
@@ -545,6 +554,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                     value={newVehicle.color}
                     onChange={handleInputChange}
                     placeholder="Blanco"
+                    autoComplete="off"
                   />
                 </div>
               </div>

@@ -173,6 +173,7 @@ export default function Dashboard({setIsAuthenticated}) {
                     value={searchTerm}
                     onChange={handleSearchChange}
                     onClick={handleInputClick}
+                    autoComplete="off"
                   />
                   <FaChevronDown className="dropdown-icon" />
                 </div>
@@ -212,6 +213,7 @@ export default function Dashboard({setIsAuthenticated}) {
                 type="date" 
                 value={startDate} 
                 onChange={(e) => setStartDate(e.target.value)}
+                autoComplete="off"
                 required
                 className="form-input"
               />
@@ -224,6 +226,7 @@ export default function Dashboard({setIsAuthenticated}) {
                 type="date" 
                 value={endDate} 
                 onChange={(e) => setEndDate(e.target.value)}
+                autoComplete="off"
                 required
                 className="form-input"
               />
@@ -238,6 +241,7 @@ export default function Dashboard({setIsAuthenticated}) {
                 onChange={(e) => setCodigo(e.target.value)}
                 className="form-input"
                 placeholder="Ingrese código"
+                autoComplete="off"
               />
             </div>
 
@@ -250,6 +254,7 @@ export default function Dashboard({setIsAuthenticated}) {
                 onChange={(e) => setDescripcion(e.target.value)}
                 className="form-input"
                 placeholder="Ingrese descripción"
+                autoComplete="off"
               />
             </div>
           </div>
