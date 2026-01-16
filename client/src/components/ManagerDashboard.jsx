@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
+import { getAllAutoVipUsers, getMembershipById, getCarsCountByUserId } from '../services/autovipUsers';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -56,12 +57,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [modalType, setModalType] = useState('');
   const [editingItem, setEditingItem] = useState(null);
 
+  // Loading state
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
   // Users state
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Juan Pérez', cardNumber: '4532-1234-5678-9012', rucCi: '0912345678', points: 800, membership: 'gold' },
-    { id: 2, name: 'María García', cardNumber: '4532-9876-5432-1098', rucCi: '1798765432001', points: 1500, membership: 'platinum' },
-    { id: 3, name: 'Carlos López', cardNumber: '4532-5555-4444-3333', rucCi: '0987654321', points: 2500, membership: 'black' },
-  ]);
+  const [users, setUsers] = useState([]);
 
   // Cars state - linked to users (min 1, max 5 per user)
   const [cars, setCars] = useState([
@@ -78,9 +78,80 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const MIN_CARS_PER_USER = 1;
 
   const getUserCars = (userId) => cars.filter(c => c.userId === userId);
-  const getUserCarCount = (userId) => getUserCars(userId).length;
+  
+  const getUserCarCount = (userId) => {
+    // First check if user has carCount property (from API)
+    const user = users.find(u => u.id === userId);
+    if (user && user.carCount !== undefined) {
+      return user.carCount;
+    }
+    // Fallback to local cars array
+    return getUserCars(userId).length;
+  };
+
   const canAddCarToUser = (userId) => getUserCarCount(userId) < MAX_CARS_PER_USER;
   const canDeleteCarFromUser = (userId) => getUserCarCount(userId) > MIN_CARS_PER_USER;
+
+  // Function to load all users with their membership and car count data
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      // Get all users
+      const usersData = await getAllAutoVipUsers();
+      
+      // Process each user to get membership and car count
+      const processedUsers = await Promise.all(
+        usersData.map(async (user) => {
+          let membership = 'undefined'; // default
+          let carCount = 0;
+
+          // Get membership details if membresiaId exists
+          // the variable name membresiaId might be wrong
+          if (user.membership_id) {
+            try {
+              const membershipData = await getMembershipById(user.membership_id);
+              membership = membershipData?.name || 'undefined';
+            } catch (error) {
+              console.warn(`Failed to load membership for user ${user.id}:`, error);
+            }
+          }
+
+          // Get car count for this user
+          try {
+            carCount = await getCarsCountByUserId(user.id);
+          } catch (error) {
+            console.warn(`Failed to load car count for user ${user.id}:`, error);
+          }
+
+          // Transform user data to match component expectations
+          // Adjust field mappings based on your API response structure
+          return {
+            id: user.id,
+            name: user.name,
+            cardNumber: user.card_number,
+            rucCi: user.ruc_ci, //I decided to change the name of this varible here, make sure is the same in backend and db
+            points: user.points_balance,
+            membership: membership.toLowerCase(), // Ensure lowercase for consistency
+            carCount: carCount, // Store car count in user object
+            // Store original user data for reference
+            _original: user
+          };
+        })
+      );
+
+      setUsers(processedUsers);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      alert('Error al cargar los usuarios. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Load users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
   const [rewards, setRewards] = useState([
@@ -920,47 +991,61 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
         {activeTab === 'users' && (
           <div className="data-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Número de Tarjeta</th>
-                  <th>RUC/C.I.</th>
-                  <th>Membresía</th>
-                  <th>Vehículos</th>
-                  <th>Puntos</th>
-                  <th><FaCog /> Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map(user => (
-                  <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.cardNumber}</td>
-                    <td>{user.rucCi}</td>
-                    <td><span className={`membership-badge ${user.membership}`}>{user.membership}</span></td>
-                    <td>
-                      <button className="btn-cars" onClick={() => openModal('cars', user)} title="Gestionar vehículos">
-                        <FaCar /> {getUserCarCount(user.id)}/{MAX_CARS_PER_USER}
-                      </button>
-                    </td>
-                    <td>
-                      <button className="btn-points-display" onClick={() => openModal('points', user)} title="Gestionar puntos">
-                        <FaCoins /> {user.points.toLocaleString()}
-                      </button>
-                    </td>
-                    <td className="actions">
-                      <button className="btn-edit" onClick={() => openModal('user', user)} title="Editar">
-                        <FaEdit />
-                      </button>
-                      <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar">
-                        <FaTrash />
-                      </button>
-                    </td>
+            {loadingUsers ? (
+              <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <p>Cargando usuarios...</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Número de Tarjeta</th>
+                    <th>RUC/C.I.</th>
+                    <th>Membresía</th>
+                    <th>Vehículos</th>
+                    <th>Puntos</th>
+                    <th><FaCog /> Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>
+                        No se encontraron usuarios
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map(user => (
+                      <tr key={user.id}>
+                        <td>{user.name}</td>
+                        <td>{user.cardNumber}</td>
+                        <td>{user.rucCi}</td>
+                        <td><span className={`membership-badge ${user.membership}`}>{user.membership}</span></td>
+                        <td>
+                          <button className="btn-cars" onClick={() => openModal('cars', user)} title="Gestionar vehículos">
+                            <FaCar /> {getUserCarCount(user.id)}/{MAX_CARS_PER_USER}
+                          </button>
+                        </td>
+                        <td>
+                          <button className="btn-points-display" onClick={() => openModal('points', user)} title="Gestionar puntos">
+                            <FaCoins /> {user.points.toLocaleString()}
+                          </button>
+                        </td>
+                        <td className="actions">
+                          <button className="btn-edit" onClick={() => openModal('user', user)} title="Editar">
+                            <FaEdit />
+                          </button>
+                          <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar">
+                            <FaTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 

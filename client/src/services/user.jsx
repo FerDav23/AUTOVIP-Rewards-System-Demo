@@ -65,7 +65,7 @@ export async function login(username, password) {
 export async function loginManager(username, password) {
   try {
     const response = await client.post('/managers/login', { username, password });
-    storeTokenWithExpiration(response.data.token);
+    storeTokenWithExpiration(response.data.data.token);
     localStorage.setItem('managerID', JSON.stringify(response.data.id));
     localStorage.setItem('managerName', JSON.stringify(response.data.name));
     localStorage.setItem('managerUsername', JSON.stringify(response.data.username));
