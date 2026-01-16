@@ -538,6 +538,33 @@
   flex: 1;
 }
 
+.form-divider {
+  margin: 25px 0 20px 0;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.section-title svg {
+  color: #cf0000;
+}
+
+.section-subtitle {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0 0 15px 0;
+  font-style: italic;
+}
+
 .btn-full {
   width: 100%;
   justify-content: center;

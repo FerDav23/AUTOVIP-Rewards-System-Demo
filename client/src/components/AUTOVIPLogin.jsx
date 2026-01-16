@@ -72,6 +72,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>
@@ -82,6 +83,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>

@@ -49,6 +49,7 @@ export default function Login({ setIsAuthenticated }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>
@@ -59,6 +60,7 @@ export default function Login({ setIsAuthenticated }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>
