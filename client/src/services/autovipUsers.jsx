@@ -90,6 +90,37 @@ export async function getCarsCountByUserId(userId) {
 }
 
 /**
+ * Get all cars/vehicles for a specific user
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<Array>} Array of vehicle objects
+ */
+export async function getAllCarsByUserId(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      return [];
+    }
+
+    const response = await client.get(`/vehicles/user/${userId}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data || [];
+  } catch (error) {
+    console.error(`Failed to fetch cars for user ${userId}:`, error.message);
+    // Return empty array if there's an error
+    return [];
+  }
+}
+
+/**
  * Get all memberships
  * @returns {Promise<Array>} Array of membership objects
  */
@@ -160,6 +191,154 @@ export async function createAutoVipUser(userData, vehicleData) {
     return response.data.data;
   } catch (error) {
     console.error('Failed to create AutoVIP user:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Update an existing AutoVIP user
+ * @param {number|string} userId - The user ID
+ * @param {Object} userData - User data object to update
+ * @param {string} [userData.name] - User's name
+ * @param {string} [userData.cardNumber] - User's card number
+ * @param {string} [userData.rucCi] - User's RUC/C.I.
+ * @param {number|string} [userData.membershipId] - Membership ID
+ * @returns {Promise<Object>} Updated user object
+ */
+export async function updateUser(userId, userData) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    // Prepare the request payload - only include provided fields
+    const payload = {};
+    if (userData.name !== undefined) payload.name = userData.name;
+    if (userData.cardNumber !== undefined) payload.card_number = userData.cardNumber;
+    if (userData.rucCi !== undefined) payload.ruc_ci = userData.rucCi;
+    if (userData.membershipId !== undefined) payload.membership_id = userData.membershipId;
+
+    const response = await client.put(`/autovip-users/${userId}`, payload);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(`Failed to update user ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Delete an AutoVIP user
+ * @param {number|string} userId - The user ID to delete
+ * @returns {Promise<void>}
+ */
+export async function deleteUser(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    const response = await client.delete(`/autovip-users/${userId}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete user ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Create a new car/vehicle for a user
+ * @param {number|string} userId - The user ID
+ * @param {Object} vehicleData - Vehicle data object
+ * @param {string} vehicleData.placa - Vehicle license plate
+ * @param {string} vehicleData.marca - Vehicle brand
+ * @param {string} vehicleData.modelo - Vehicle model
+ * @param {number} vehicleData.año - Vehicle year
+ * @param {string} vehicleData.color - Vehicle color
+ * @returns {Promise<Object>} Created vehicle object
+ */
+export async function createCarForUser(userId, vehicleData) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    // Prepare the request payload
+    const payload = {
+      user_id: userId,
+      placa: vehicleData.placa,
+      marca: vehicleData.marca,
+      modelo: vehicleData.modelo,
+      año: vehicleData.año,
+      color: vehicleData.color
+    };
+
+    const response = await client.post('/vehicles/', payload);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to create vehicle:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Delete a car/vehicle by ID
+ * @param {number|string} vehicleId - The vehicle ID to delete
+ * @returns {Promise<void>}
+ */
+export async function deleteCarById(vehicleId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!vehicleId) {
+      throw new Error('Vehicle ID is required');
+    }
+
+    const response = await client.delete(`/vehicles/${vehicleId}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete vehicle ${vehicleId}:`, error.message);
     throw error;
   }
 }
