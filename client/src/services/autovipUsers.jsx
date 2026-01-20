@@ -342,3 +342,86 @@ export async function deleteCarById(vehicleId) {
     throw error;
   }
 }
+
+/**
+ * Load all transaction types from the database
+ * @returns {Promise<Array>} Array of transaction type objects
+ */
+export async function loadTransactionTypes() {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    const response = await client.get('/transaction-types/');
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to load transaction types:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Manage a points transaction for a user (add or remove points)
+ * @param {number|string} userId - The user ID
+ * @param {Object} transactionData - Transaction data object
+ * @param {string} transactionData.type - Transaction type ('add' or 'remove')
+ * @param {number} transactionData.amount - Amount of points to add or remove
+ * @param {string} transactionData.reason - Reason/description for the transaction
+ * @param {number|string} [transactionData.transactionTypeId] - Optional transaction type ID from database
+ * @returns {Promise<Object>} Updated user object with new points balance
+ */
+export async function managePointTransaction(userId, transactionData) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    if (!transactionData.type || !['add', 'remove'].includes(transactionData.type)) {
+      throw new Error('Transaction type must be "add" or "remove"');
+    }
+
+    if (!transactionData.amount || transactionData.amount <= 0) {
+      throw new Error('Amount must be a positive number');
+    }
+
+    if (!transactionData.reason) {
+      throw new Error('Reason is required for the transaction');
+    }
+
+    // Prepare the request payload
+    const payload = {
+      type: transactionData.type,
+      amount: transactionData.amount,
+      reason: transactionData.reason
+    };
+
+    // Add transaction type ID if provided
+    if (transactionData.transactionTypeId) {
+      payload.transaction_type_id = transactionData.transactionTypeId;
+    }
+
+    const response = await client.post(`/autovip-users/${userId}/points`, payload);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(`Failed to manage points transaction for user ${userId}:`, error.message);
+    throw error;
+  }
+}

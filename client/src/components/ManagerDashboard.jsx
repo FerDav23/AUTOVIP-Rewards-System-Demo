@@ -12,6 +12,8 @@ import {
   getAllCarsByUserId,
   createCarForUser,
   deleteCarById,
+  managePointTransaction,
+  loadTransactionTypes,
 } from '../services/autovipUsers';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
@@ -72,12 +74,16 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingMemberships, setLoadingMemberships] = useState(false);
   const [loadingCars, setLoadingCars] = useState(false);
+  const [loadingTransactionTypes, setLoadingTransactionTypes] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
   
   // Memberships state
   const [memberships, setMemberships] = useState([]);
+
+  // Transaction types state
+  const [transactionTypes, setTransactionTypes] = useState([]);
 
   // Cars state - stores cars for the currently viewed user
   const [cars, setCars] = useState([]);
@@ -215,10 +221,25 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  // Load users and memberships on component mount
+  // Function to load all transaction types
+  const loadPointsTransactionTypes = async () => {
+    setLoadingTransactionTypes(true);
+    try {
+      const transactionTypesData = await loadTransactionTypes();
+      setTransactionTypes(transactionTypesData);
+    } catch (error) {
+      console.error('Failed to load transaction types:', error);
+      alert('Error al cargar los tipos de transacción. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingTransactionTypes(false);
+    }
+  };
+
+  // Load users, memberships, and transaction types on component mount
   useEffect(() => {
     loadUsers();
     loadMemberships();
+    loadPointsTransactionTypes();
   }, []);
 
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
@@ -260,7 +281,13 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         await loadUserCars(item.id);
       }
     } else if (type === 'points') {
-      setFormData({ userId: item?.id });
+      setFormData({ 
+        userId: item?.id,
+        transactionType: 'add',
+        pointsAmount: '',
+        reason: '',
+        transactionTypeId: ''
+      });
       setShowModal(true);
     } else if (type === 'user' && item) {
       // When editing a user, we need to get the membership ID from the original data
@@ -357,44 +384,63 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  const handlePointsTransaction = (e) => {
+  const handlePointsTransaction = async (e) => {
     e.preventDefault();
     const amount = parseInt(formData.pointsAmount) || 0;
     const type = formData.transactionType;
     const reason = formData.reason || '';
+    const transactionTypeId = formData.transactionTypeId;
     
     if (amount <= 0) {
       alert('Ingrese una cantidad válida de puntos.');
       return;
     }
 
-    const pointsChange = type === 'add' ? amount : -amount;
+    if (!transactionTypeId) {
+      alert('Por favor seleccione un tipo de transacción.');
+      return;
+    }
+
     const user = users.find(u => u.id === editingItem.id);
-    const newPoints = Math.max(0, user.points + pointsChange);
 
     if (type === 'remove' && amount > user.points) {
       alert(`El usuario solo tiene ${user.points} puntos disponibles.`);
       return;
     }
 
-    setUsers(prev => prev.map(u => 
-      u.id === editingItem.id ? { ...u, points: newPoints } : u
-    ));
+    try {
+      // Call API to manage the points transaction
+      const updatedUser = await managePointTransaction(editingItem.id, {
+        type,
+        amount,
+        reason,
+        transactionTypeId
+      });
 
-    // Record transaction
-    setPointsTransactions(prev => [...prev, {
-      id: Date.now(),
-      userId: editingItem.id,
-      userName: editingItem.name,
-      type,
-      amount,
-      reason,
-      date: new Date().toISOString(),
-      balanceAfter: newPoints
-    }]);
+      // Update local state with the new user data
+      await loadUsers();
 
-    alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos. Nuevo saldo: ${newPoints}`);
-    setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '' });
+      // Record transaction locally for history
+      setPointsTransactions(prev => [...prev, {
+        id: Date.now(),
+        userId: editingItem.id,
+        userName: editingItem.name,
+        type,
+        amount,
+        reason,
+        date: new Date().toISOString(),
+        balanceAfter: updatedUser.points_balance || updatedUser.points
+      }]);
+
+      alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.points_balance || updatedUser.points}`);
+      
+      // Reset form and close modal
+      setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '', transactionTypeId: '' });
+      closeModal();
+    } catch (error) {
+      console.error('Error managing points transaction:', error);
+      alert(error.response?.data?.message || error.message || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -935,6 +981,23 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   </div>
                 </div>
                 <div className="form-group">
+                  <label>Categoría de transacción</label>
+                  <select 
+                    name="transactionTypeId" 
+                    value={formData.transactionTypeId || ''} 
+                    onChange={handleFormChange}
+                    required
+                    disabled={loadingTransactionTypes}
+                  >
+                    <option value="">{loadingTransactionTypes ? 'Cargando...' : 'Seleccione una categoría'}</option>
+                    {transactionTypes.map(txType => (
+                      <option key={txType.id} value={txType.id}>
+                        {txType.type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
                   <label>Cantidad de puntos</label>
                   <input 
                     type="text" 
@@ -967,7 +1030,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className={`btn-submit ${formData.transactionType === 'remove' ? 'btn-remove' : ''}`}
-                    disabled={!formData.transactionType || !formData.pointsAmount || !formData.reason}
+                    disabled={!formData.transactionType || !formData.transactionTypeId || !formData.pointsAmount || !formData.reason}
                   >
                     <FaCheck /> Confirmar Transacción
                   </button>
