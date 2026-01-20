@@ -7,6 +7,11 @@ import {
   getCarsCountByUserId, 
   getAllMemberships, 
   createAutoVipUser,
+  updateUser,
+  deleteUser,
+  getAllCarsByUserId,
+  createCarForUser,
+  deleteCarById,
 } from '../services/autovipUsers';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
@@ -66,6 +71,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   // Loading state
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingMemberships, setLoadingMemberships] = useState(false);
+  const [loadingCars, setLoadingCars] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -73,13 +79,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   // Memberships state
   const [memberships, setMemberships] = useState([]);
 
-  // Cars state - linked to users (min 1, max 5 per user)
-  const [cars, setCars] = useState([
-    { id: 1, placa: 'ABC-123', marca: 'Toyota', modelo: 'Corolla', año: 2020, userId: 1, userName: 'Juan Pérez' },
-    { id: 2, placa: 'DEF-456', marca: 'Honda', modelo: 'Civic', año: 2021, userId: 1, userName: 'Juan Pérez' },
-    { id: 3, placa: 'GHI-789', marca: 'Ford', modelo: 'Focus', año: 2019, userId: 2, userName: 'María García' },
-    { id: 4, placa: 'JKL-012', marca: 'Chevrolet', modelo: 'Cruze', año: 2022, userId: 3, userName: 'Carlos López' },
-  ]);
+  // Cars state - stores cars for the currently viewed user
+  const [cars, setCars] = useState([]);
+  const [currentUserIdForCars, setCurrentUserIdForCars] = useState(null);
 
   // Points transactions history
   const [pointsTransactions, setPointsTransactions] = useState([]);
@@ -87,7 +89,13 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const MAX_CARS_PER_USER = 5;
   const MIN_CARS_PER_USER = 1;
 
-  const getUserCars = (userId) => cars.filter(c => c.userId === userId);
+  const getUserCars = (userId) => {
+    // Only return cars if we're viewing the current user's cars
+    if (currentUserIdForCars === userId) {
+      return cars;
+    }
+    return [];
+  };
   
   const getUserCarCount = (userId) => {
     // First check if user has carCount property (from API)
@@ -95,12 +103,47 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     if (user && user.carCount !== undefined) {
       return user.carCount;
     }
-    // Fallback to local cars array
-    return getUserCars(userId).length;
+    // Fallback to local cars array only if we're viewing this user's cars
+    if (currentUserIdForCars === userId) {
+      return cars.length;
+    }
+    return 0;
   };
 
   const canAddCarToUser = (userId) => getUserCarCount(userId) < MAX_CARS_PER_USER;
   const canDeleteCarFromUser = (userId) => getUserCarCount(userId) > MIN_CARS_PER_USER;
+
+  // Function to load cars for a specific user
+  const loadUserCars = async (userId) => {
+    setLoadingCars(true);
+    try {
+      const carsData = await getAllCarsByUserId(userId);
+      
+      // Transform car data to match component expectations
+      const processedCars = carsData.map(car => ({
+        id: car.id,
+        placa: car.plate,
+        marca: car.make,
+        modelo: car.model,
+        año: car.year,
+        color: car.color,
+        userId: userId,
+        userName: users.find(u => u.id === userId)?.name || '',
+        _original: car
+      }));
+
+
+      setCars(processedCars);
+      setCurrentUserIdForCars(userId);
+    } catch (error) {
+      console.error('Failed to load cars:', error);
+      alert('Error al cargar los vehículos. Por favor, intente de nuevo.');
+      setCars([]);
+      setCurrentUserIdForCars(null);
+    } finally {
+      setLoadingCars(false);
+    }
+  };
 
   // Function to load all users with their membership and car count data
   const loadUsers = async () => {
@@ -206,21 +249,42 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     navigate('/login');
   };
 
-  const openModal = (type, item = null) => {
+  const openModal = async (type, item = null) => {
     setModalType(type);
     setEditingItem(item);
-    if (type === 'cars' || type === 'points') {
+    if (type === 'cars') {
       setFormData({ userId: item?.id });
+      setShowModal(true);
+      // Load cars for this user
+      if (item?.id) {
+        await loadUserCars(item.id);
+      }
+    } else if (type === 'points') {
+      setFormData({ userId: item?.id });
+      setShowModal(true);
+    } else if (type === 'user' && item) {
+      // When editing a user, we need to get the membership ID from the original data
+      const membershipId = item._original?.membership_id;
+      setFormData({
+        ...item,
+        membership: membershipId
+      });
+      setShowModal(true);
     } else {
       setFormData(item || {});
+      setShowModal(true);
     }
-    setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setEditingItem(null);
     setFormData({});
+    // Clear cars state when closing modal
+    if (modalType === 'cars') {
+      setCars([]);
+      setCurrentUserIdForCars(null);
+    }
   };
 
   const handleFormChange = (e) => {
@@ -231,33 +295,66 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }));
   };
 
-  const handleAddCar = (e) => {
+  const handleAddCar = async (e) => {
     e.preventDefault();
     const userId = editingItem.id;
     if (!canAddCarToUser(userId)) {
       alert(`Este usuario ya tiene ${MAX_CARS_PER_USER} vehículos registrados (máximo permitido).`);
       return;
     }
-    const newCar = {
-      id: Date.now(),
-      placa: formData.placa,
-      marca: formData.marca,
-      modelo: formData.modelo,
-      año: parseInt(formData.año) || new Date().getFullYear(),
-      userId: userId,
-      userName: editingItem.name
-    };
-    setCars(prev => [...prev, newCar]);
-    setFormData({ userId: userId });
+
+    try {
+      const vehicleData = {
+        placa: formData.placa,
+        marca: formData.marca,
+        modelo: formData.modelo,
+        año: parseInt(formData.año) || new Date().getFullYear(),
+        color: formData.color || 'No especificado'
+      };
+
+      // Create vehicle via API
+      await createCarForUser(userId, vehicleData);
+
+      // Reload cars for this user
+      await loadUserCars(userId);
+      
+      // Update user's car count in the users list
+      await loadUsers();
+
+      // Clear form
+      setFormData({ userId: userId });
+      
+      alert('Vehículo agregado exitosamente.');
+    } catch (error) {
+      console.error('Error adding vehicle:', error);
+      alert(error.response?.data?.message || error.message || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
+    }
   };
 
-  const handleDeleteCar = (carId) => {
-    const car = cars.find(c => c.id === carId);
-    if (!canDeleteCarFromUser(car.userId)) {
+  const handleDeleteCar = async (carId) => {
+    const userId = editingItem.id;
+    if (!canDeleteCarFromUser(userId)) {
       alert(`No se puede eliminar. El usuario debe tener al menos ${MIN_CARS_PER_USER} vehículo registrado.`);
       return;
     }
-    setCars(prev => prev.filter(c => c.id !== carId));
+
+    if (!confirm('¿Estás seguro de eliminar este vehículo?')) return;
+
+    try {
+      // Delete vehicle via API
+      await deleteCarById(carId);
+
+      // Reload cars for this user
+      await loadUserCars(userId);
+      
+      // Update user's car count in the users list
+      await loadUsers();
+
+      alert('Vehículo eliminado exitosamente.');
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      alert(error.response?.data?.message || error.message || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
+    }
   };
 
   const handlePointsTransaction = (e) => {
@@ -306,7 +403,38 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     switch (modalType) {
       case 'user':
         if (editingItem) {
-          setUsers(prev => prev.map(u => u.id === editingItem.id ? { ...u, ...formData } : u));
+          // Update existing user via API
+          try {
+            // Find the selected membership by ID
+            const membershipId = parseInt(formData.membership);
+            const selectedMembership = memberships.find(m => m.id === membershipId);
+            
+            if (!selectedMembership) {
+              alert('Por favor seleccione una membresía válida.');
+              return;
+            }
+
+            const userData = {
+              name: formData.name,
+              cardNumber: formData.cardNumber,
+              rucCi: formData.rucCi,
+              membershipId: selectedMembership.id
+            };
+
+            // Call API to update user
+            await updateUser(editingItem.id, userData);
+            
+            // Reload users to get the updated list
+            await loadUsers();
+            
+            alert('Usuario actualizado exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error updating user:', error);
+            alert(error.response?.data?.message || error.message || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         } else {
           // Create new user with vehicle via API
           try {
@@ -421,13 +549,23 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  const handleDelete = (type, id) => {
+  const handleDelete = async (type, id) => {
     if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
     
     switch (type) {
       case 'user':
-        setUsers(prev => prev.filter(u => u.id !== id));
-        setCars(prev => prev.filter(c => c.userId !== id));
+        try {
+          // Delete user via API
+          await deleteUser(id);
+          
+          // Update local state
+          setUsers(prev => prev.filter(u => u.id !== id));
+          
+          alert('Usuario eliminado exitosamente.');
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          alert(error.response?.data?.message || error.message || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
+        }
         break;
       case 'reward':
         setRewards(prev => prev.filter(r => r.id !== id));
@@ -514,11 +652,51 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 </div>
                 <div className="form-group">
                   <label>Número de Tarjeta</label>
-                  <input type="text" name="cardNumber" value={formData.cardNumber || ''} onChange={handleFormChange} autoComplete="off" required placeholder="XXXX-XXXX-XXXX-XXXX" />
+                  <input 
+                    type="text" 
+                    name="cardNumber" 
+                    value={formData.cardNumber || ''} 
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Remove all non-digit characters
+                      const digitsOnly = val.replace(/\D/g, '');
+                      // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
+                      if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                        setFormData(prev => ({
+                          ...prev,
+                          cardNumber: digitsOnly
+                        }));
+                      }
+                    }}
+                    pattern="[1-9]\d*"
+                    inputMode="numeric"
+                    autoComplete="off" 
+                    required 
+                  />
                 </div>
                 <div className="form-group">
                   <label>RUC/C.I.</label>
-                  <input type="text" name="rucCi" value={formData.rucCi || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <input 
+                    type="text" 
+                    name="rucCi" 
+                    value={formData.rucCi || ''} 
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Remove all non-digit characters
+                      const digitsOnly = val.replace(/\D/g, '');
+                      // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
+                      if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                        setFormData(prev => ({
+                          ...prev,
+                          rucCi: digitsOnly
+                        }));
+                      }
+                    }}
+                    pattern="[1-9]\d*"
+                    inputMode="numeric"
+                    autoComplete="off" 
+                    required 
+                  />
                 </div>
                 <div className="form-group">
                   <label>Membresía</label>
@@ -548,7 +726,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <div className="form-row">
                       <div className="form-group">
                         <label>Placa *</label>
-                        <input type="text" name="carPlaca" value={formData.carPlaca || ''} onChange={handleFormChange} autoComplete="off" required placeholder="ABC-123" />
+                        <input type="text" name="carPlaca" value={formData.carPlaca || ''} onChange={handleFormChange} autoComplete="off" required placeholder="ABC123" />
                       </div>
                       <div className="form-group">
                         <label>Año *</label>
@@ -560,19 +738,21 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                             const val = e.target.value;
                             // Remove all non-digit characters
                             const digitsOnly = val.replace(/\D/g, '');
-                            // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
-                            if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                            // Only update if it's empty or a 4-digit positive integer (starts with 1-9, followed by exactly 3 more digits)
+                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[1-9]\d{0,3}$/.test(digitsOnly))) {
                               setFormData(prev => ({
                                 ...prev,
                                 carAño: digitsOnly
                               }));
                             }
                           }}
-                          pattern="[1-9]\d*"
+                          pattern="[1-9]\d{3}"
                           inputMode="numeric"
                           autoComplete="off"
                           required 
                           placeholder={new Date().getFullYear()}
+                          minLength="4"
+                          maxLength="4"
                         />
                       </div>
                     </div>
@@ -605,7 +785,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       !formData.cardNumber || 
                       !formData.rucCi ||
                       !formData.membership ||
-                      (!editingItem && (!formData.carPlaca || !formData.carMarca || !formData.carModelo || !formData.carColor || !formData.carAño || parseInt(formData.carAño) <= 0))
+                      (!editingItem && (!formData.carPlaca || !formData.carMarca || !formData.carModelo || !formData.carColor || !formData.carAño || formData.carAño.length !== 4))
                     }
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
@@ -621,35 +801,41 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <h3><FaCar /> Vehículos de {editingItem.name}</h3>
               <p className="modal-subtitle">Vehículos: {getUserCarCount(editingItem.id)}/{MAX_CARS_PER_USER} (mín: {MIN_CARS_PER_USER})</p>
               
-              {!canAddCarToUser(editingItem.id) && (
+              {!canAddCarToUser(editingItem.id) && !loadingCars && (
                 <div className="max-cars-warning">
                   Este usuario ha alcanzado el máximo de {MAX_CARS_PER_USER} vehículos permitidos.
                 </div>
               )}
               
-              <div className="cars-list">
-                {getUserCars(editingItem.id).map(car => (
-                  <div key={car.id} className="car-item">
-                    <div className="car-info">
-                      <strong>{car.placa}</strong>
-                      <span>{car.marca} {car.modelo} ({car.año})</span>
+              {loadingCars ? (
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <p>Cargando vehículos...</p>
+                </div>
+              ) : (
+                <div className="cars-list">
+                  {getUserCars(editingItem.id).map(car => (
+                    <div key={car.id} className="car-item">
+                      <div className="car-info">
+                        <strong>{car.placa}</strong>
+                        <span>{car.marca} {car.modelo} ({car.año}) - {car.color}</span>
+                      </div>
+                      <button 
+                        className="btn-delete-small"
+                        onClick={() => handleDeleteCar(car.id)}
+                        disabled={!canDeleteCarFromUser(editingItem.id)}
+                        title={canDeleteCarFromUser(editingItem.id) ? "Eliminar" : "Mínimo 1 vehículo"}
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
-                    <button 
-                      className="btn-delete-small"
-                      onClick={() => handleDeleteCar(car.id)}
-                      disabled={!canDeleteCarFromUser(editingItem.id)}
-                      title={canDeleteCarFromUser(editingItem.id) ? "Eliminar" : "Mínimo 1 vehículo"}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                ))}
-                {getUserCarCount(editingItem.id) === 0 && (
-                  <p className="no-cars">Este usuario necesita al menos 1 vehículo.</p>
-                )}
-              </div>
+                  ))}
+                  {getUserCarCount(editingItem.id) === 0 && (
+                    <p className="no-cars">Este usuario necesita al menos 1 vehículo.</p>
+                  )}
+                </div>
+              )}
 
-              {canAddCarToUser(editingItem.id) && (
+              {canAddCarToUser(editingItem.id) && !loadingCars && (
                 <>
                   <h4 className="add-car-title"><FaPlus /> Agregar Vehículo</h4>
                   <form onSubmit={handleAddCar}>
@@ -660,7 +846,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </div>
                       <div className="form-group">
                         <label>Año</label>
-                        <input type="number" name="año" value={formData.año || ''} onChange={handleFormChange} autoComplete="off" />
+                        <input 
+                          type="text" 
+                          name="año" 
+                          value={formData.año || ''} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            // Remove all non-digit characters
+                            const digitsOnly = val.replace(/\D/g, '');
+                            // Only update if it's empty or a 4-digit positive integer (starts with 1-9, followed by exactly 3 more digits)
+                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[1-9]\d{0,3}$/.test(digitsOnly))) {
+                              setFormData(prev => ({
+                                ...prev,
+                                año: digitsOnly
+                              }));
+                            }
+                          }}
+                          pattern="[1-9]\d{3}"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          required
+                          placeholder={new Date().getFullYear()}
+                          minLength="4"
+                          maxLength="4"
+                        />
                       </div>
                     </div>
                     <div className="form-row">
@@ -673,10 +882,16 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         <input type="text" name="modelo" value={formData.modelo || ''} onChange={handleFormChange} autoComplete="off" required />
                       </div>
                     </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Color</label>
+                        <input type="text" name="color" value={formData.color || ''} onChange={handleFormChange} autoComplete="off" required />
+                      </div>
+                    </div>
                     <button 
                       type="submit" 
                       className="btn-submit btn-full"
-                      disabled={!formData.placa || !formData.marca || !formData.modelo}
+                      disabled={!formData.placa || !formData.marca || !formData.modelo || !formData.color || !formData.año || formData.año.length !== 4}
                     >
                       <FaPlus /> Agregar Vehículo
                     </button>
