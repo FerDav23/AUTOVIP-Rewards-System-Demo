@@ -286,7 +286,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         transactionType: 'add',
         pointsAmount: '',
         reason: '',
-        transactionTypeId: ''
+        transactionTypeId: '',
+        rewardId: '' // Optional reward field
       });
       setShowModal(true);
     } else if (type === 'user' && item) {
@@ -435,7 +436,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.points_balance || updatedUser.points}`);
       
       // Reset form and close modal
-      setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '', transactionTypeId: '' });
+      setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '', transactionTypeId: '', rewardId: '' });
       closeModal();
     } catch (error) {
       console.error('Error managing points transaction:', error);
@@ -995,6 +996,23 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         {txType.type}
                       </option>
                     ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Recompensa asociada (opcional)</label>
+                  <select 
+                    name="rewardId" 
+                    value={formData.rewardId || ''} 
+                    onChange={handleFormChange}
+                  >
+                    <option value="">Ninguna - No aplica</option>
+                    {rewards
+                      .filter(reward => reward.available)
+                      .map(reward => (
+                        <option key={reward.id} value={reward.id}>
+                          {reward.title} - {reward.pointsRequired.toLocaleString()} pts ({reward.category})
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div className="form-group">

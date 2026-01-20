@@ -413,7 +413,7 @@ export async function managePointTransaction(userId, transactionData) {
       payload.transaction_type_id = transactionData.transactionTypeId;
     }
 
-    const response = await client.post(`/autovip-users/${userId}/points`, payload);
+    const response = await client.post(`/points-transactions/${userId}/transaction`, payload);
     
     if (!response.data) {
       throw new Error('Invalid response format from server');
