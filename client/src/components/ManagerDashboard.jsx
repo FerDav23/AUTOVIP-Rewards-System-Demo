@@ -15,35 +15,13 @@ import {
   managePointTransaction,
   loadTransactionTypes,
 } from '../services/autovipUsers';
-import { getRewardTypes, createReward } from '../services/autovipRewards';
+import { getRewardTypes, createReward, getAllRewards, updateReward, deleteReward, uploadImage } from '../services/autovipRewards';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
   FaUsers, FaCar, FaGift, FaTag, FaCoins, FaPlus, FaTrash, 
   FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage
 } from 'react-icons/fa';
-
-// S3 upload functions - to be connected later
-const uploadImageToS3 = async (file) => {
-  // TODO: Implement S3 upload
-  // For now, return a dummy URL based on file name
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Create a local URL for preview (in production, this would be the S3 URL)
-      const dummyUrl = URL.createObjectURL(file);
-      resolve(dummyUrl);
-    }, 500);
-  });
-};
-
-const deleteImageFromS3 = async (imageUrl) => {
-  // TODO: Implement S3 delete
-  // For now, just revoke the object URL if it's a blob
-  if (imageUrl && imageUrl.startsWith('blob:')) {
-    URL.revokeObjectURL(imageUrl);
-  }
-  return true;
-};
 
 export default function ManagerDashboard({ setIsAuthenticated }) {
   const navigate = useNavigate();
@@ -77,6 +55,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [loadingCars, setLoadingCars] = useState(false);
   const [loadingTransactionTypes, setLoadingTransactionTypes] = useState(false);
   const [loadingRewardTypes, setLoadingRewardTypes] = useState(false);
+  const [loadingRewards, setLoadingRewards] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -254,6 +233,44 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
+  // Function to load all rewards
+  const loadRewards = async () => {
+    setLoadingRewards(true);
+    try {
+      const rewardsData = await getAllRewards();
+      // Process rewards data to match component expectations
+      const processedRewards = rewardsData.map(reward => {
+        // Find the category name from rewardTypes
+        const categoryName = rewardTypes.find(rt => rt.id === reward.categoryId)?.type || 'Desconocido';
+        
+        // Find membership names from memberships array
+        const membershipNames = (reward.memberships || []).map(membershipId => {
+          const membership = memberships.find(m => m.id === membershipId);
+          return membership ? membership.name.toLowerCase() : null;
+        }).filter(Boolean);
+        
+        return {
+          id: reward.id,
+          title: reward.title || '',
+          description: reward.description || '',
+          pointsRequired: reward.pointsRequired || 0,
+          category: categoryName,
+          available: reward.available ?? true,
+          memberships: membershipNames,
+          imageUrl: reward.imageUrl || '',
+          _original: reward
+        };
+      });
+      console.log(processedRewards);
+      setRewards(processedRewards);
+    } catch (error) {
+      console.error('Failed to load rewards:', error);
+      alert('Error al cargar las recompensas. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingRewards(false);
+    }
+  };
+
   // Load users, memberships, transaction types, and reward types on component mount
   useEffect(() => {
     loadUsers();
@@ -262,12 +279,15 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     loadRewardTypesData();
   }, []);
 
+  // Load rewards after memberships and reward types are loaded
+  useEffect(() => {
+    if (memberships.length > 0 && rewardTypes.length > 0) {
+      loadRewards();
+    }
+  }, [memberships, rewardTypes]);
+
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
-  const [rewards, setRewards] = useState([
-    { id: 1, title: 'Descuento del 10%', description: 'Descuento en próximo servicio', pointsRequired: 500, category: 'Descuento', available: true, memberships: ['gold', 'platinum', 'black'], imageUrl: 'https://picsum.photos/seed/reward1/200/150' },
-    { id: 2, title: 'Mantenimiento Gratis', description: 'Mantenimiento básico gratis', pointsRequired: 1000, category: 'Servicio', available: true, memberships: ['platinum', 'black'], imageUrl: 'https://picsum.photos/seed/reward2/200/150' },
-    { id: 3, title: 'Kit de Limpieza', description: 'Kit premium de limpieza', pointsRequired: 800, category: 'Producto', available: true, memberships: ['black'], imageUrl: 'https://picsum.photos/seed/reward3/200/150' },
-  ]);
+  const [rewards, setRewards] = useState([]);
 
   // Image modal state
   const [showImageModal, setShowImageModal] = useState(false);
@@ -318,6 +338,16 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         membership: membershipId
       });
       setShowModal(true);
+    } else if (type === 'reward' && item) {
+      // When editing a reward, we need to get the category ID and membership IDs from the original data
+      const categoryId = item._original?.category_id;
+      const membershipIds = item._original?.memberships || [];
+      setFormData({
+        ...item,
+        category: categoryId,
+        memberships: membershipIds
+      });
+      setShowModal(true);
     } else {
       setFormData(item || {});
       setShowModal(true);
@@ -325,6 +355,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   };
 
   const closeModal = () => {
+    // Clean up preview URL if it exists
+    if (formData.imagePreviewUrl && formData.imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.imagePreviewUrl);
+    }
+    
     setShowModal(false);
     setEditingItem(null);
     setFormData({});
@@ -547,8 +582,38 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         break;
       case 'reward':
         if (editingItem) {
-          // Edit existing reward (local state only for now)
-          setRewards(prev => prev.map(r => r.id === editingItem.id ? { ...r, ...formData } : r));
+          // Edit existing reward via API
+          try {
+            const rewardData = {
+              title: formData.title,
+              description: formData.description,
+              pointsRequired: parseInt(formData.pointsRequired),
+              categoryId: parseInt(formData.category), // Pass category ID
+              memberships: formData.memberships || [],
+              available: formData.available !== undefined ? formData.available : true
+            };
+
+            // Include image file if a new one was selected, otherwise keep existing imageUrl
+            if (formData.imageFile) {
+              rewardData.imageFile = formData.imageFile;
+            } else if (formData.imageUrl) {
+              rewardData.imageUrl = formData.imageUrl;
+            }
+
+            // Call API to update reward
+            await updateReward(editingItem.id, rewardData);
+            
+            // Reload rewards to get the updated list
+            await loadRewards();
+            
+            alert('Recompensa actualizada exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error updating reward:', error);
+            alert(error.response?.data?.message || error.message || 'Error al actualizar la recompensa. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         } else {
           // Create new reward via API
           try {
@@ -558,15 +623,21 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               pointsRequired: parseInt(formData.pointsRequired),
               categoryId: parseInt(formData.category), // Pass category ID
               memberships: formData.memberships || [],
-              imageUrl: formData.imageUrl || '',
               available: formData.available !== undefined ? formData.available : true
             };
+
+            // Include image file if provided
+            if (formData.imageFile) {
+              rewardData.imageFile = formData.imageFile;
+            } else if (formData.imageUrl) {
+              rewardData.imageUrl = formData.imageUrl;
+            }
 
             // Call API to create reward
             await createReward(rewardData);
             
             // Reload rewards to get the updated list
-            // TODO: Implement loadRewards function when getAllRewards is integrated
+            await loadRewards();
             
             alert('Recompensa creada exitosamente.');
             closeModal(); // Close modal only on success
@@ -613,27 +684,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
     setUploadingImage(true);
     try {
-      // Delete old image if exists
-      if (imageModalItem?.imageUrl) {
-        await deleteImageFromS3(imageModalItem.imageUrl);
-      }
-
-      // Upload new image
-      const imageUrl = await uploadImageToS3(file);
-
-      // Update item with new image based on type
       if (imageModalType === 'reward') {
+        // For rewards, send image file in the update payload
+        const rewardData = {
+          imageFile: file
+        };
+        
+        const updatedReward = await updateReward(imageModalItem.id, rewardData);
+        
+        // Update rewards list with the new image URL from the response
+        const newImageUrl = updatedReward.image_url || updatedReward.imageUrl;
         setRewards(prev => prev.map(r => 
-          r.id === imageModalItem.id ? { ...r, imageUrl } : r
+          r.id === imageModalItem.id ? { ...r, imageUrl: newImageUrl } : r
         ));
+        
+        // Update modal state
+        setImageModalItem(prev => ({ ...prev, imageUrl: newImageUrl }));
       } else if (imageModalType === 'promotion') {
+        // For promotions (local state), use the uploadImage function
+        const imageUrl = await uploadImage(file);
         setPromotions(prev => prev.map(p => 
           p.id === imageModalItem.id ? { ...p, imageUrl } : p
         ));
+        setImageModalItem(prev => ({ ...prev, imageUrl }));
       }
-
-      // Update modal state
-      setImageModalItem(prev => ({ ...prev, imageUrl }));
     } catch (error) {
       alert('Error al subir la imagen. Intente de nuevo.');
       console.error('Upload error:', error);
@@ -661,7 +735,18 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         }
         break;
       case 'reward':
-        setRewards(prev => prev.filter(r => r.id !== id));
+        try {
+          // Delete reward via API
+          await deleteReward(id);
+          
+          // Update local state
+          await loadRewards();
+          
+          alert('Recompensa eliminada exitosamente.');
+        } catch (error) {
+          console.error('Error deleting reward:', error);
+          alert(error.response?.data?.message || error.message || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
+        }
         break;
       case 'promotion':
         setPromotions(prev => prev.filter(p => p.id !== id));
@@ -702,6 +787,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     const matchesMembership = rewardMembershipFilter === 'all' || (r.memberships || []).includes(rewardMembershipFilter);
     return matchesTitle && matchesDescription && matchesCategory && matchesAvailability && matchesMembership;
   });
+
 
   const filteredPromotions = promotions.filter(p => {
     const matchesTitle = !promoTitleFilter || p.title.toLowerCase().includes(promoTitleFilter.toLowerCase());
@@ -1056,7 +1142,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       .filter(reward => reward.available)
                       .map(reward => (
                         <option key={reward.id} value={reward.id}>
-                          {reward.title} - {reward.pointsRequired.toLocaleString()} pts ({reward.category})
+                          {reward.title} - {(reward.pointsRequired || 0).toLocaleString()} pts ({reward.category})
                         </option>
                       ))}
                   </select>
@@ -1178,34 +1264,48 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 <div className="form-group">
                   <label>Imagen de la recompensa</label>
                   <div className="image-upload-inline">
-                    {formData.imageUrl ? (
-                      <img src={formData.imageUrl} alt="Preview" className="image-preview-small" />
-                    ) : (
-                      <div className="no-image-small">
-                        <FaImage />
-                      </div>
-                    )}
-                    <label className={`btn-upload-inline ${uploadingImage ? 'uploading' : ''}`}>
+                    {(() => {
+                      // Show preview from stored preview URL if available, otherwise show existing imageUrl
+                      const previewUrl = formData.imagePreviewUrl || formData.imageUrl;
+                      
+                      return previewUrl ? (
+                        <img src={previewUrl} alt="Preview" className="image-preview-small" />
+                      ) : (
+                        <div className="no-image-small">
+                          <FaImage />
+                        </div>
+                      );
+                    })()}
+                    <label className="btn-upload-inline">
                       <input 
                         type="file" 
                         accept="image/*" 
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           const file = e.target.files[0];
-                          if (!file || !file.type.startsWith('image/')) return;
-                          setUploadingImage(true);
-                          try {
-                            const imageUrl = await uploadImageToS3(file);
-                            setFormData(prev => ({ ...prev, imageUrl }));
-                          } catch (error) {
-                            alert('Error al subir la imagen.');
-                          } finally {
-                            setUploadingImage(false);
+                          if (!file) return;
+                          
+                          // Validate file type
+                          if (!file.type.startsWith('image/')) {
+                            alert('Por favor seleccione un archivo de imagen válido.');
+                            return;
                           }
+                          
+                          // Revoke previous preview URL if it was a blob
+                          if (formData.imagePreviewUrl && formData.imagePreviewUrl.startsWith('blob:')) {
+                            URL.revokeObjectURL(formData.imagePreviewUrl);
+                          }
+                          
+                          // Store file and create preview URL
+                          const previewUrl = URL.createObjectURL(file);
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            imageFile: file,
+                            imagePreviewUrl: previewUrl
+                          }));
                         }}
-                        disabled={uploadingImage}
                         hidden
                       />
-                      <FaImage /> {uploadingImage ? 'Subiendo...' : (formData.imageUrl ? 'Cambiar' : 'Subir imagen')}
+                      <FaImage /> {formData.imageFile || formData.imageUrl ? 'Cambiar' : 'Subir imagen'}
                     </label>
                   </div>
                 </div>
@@ -1220,7 +1320,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.pointsRequired || !formData.category || !(formData.memberships || []).length || !formData.imageUrl}
+                    disabled={!formData.title || !formData.description || !formData.pointsRequired || !formData.category || !(formData.memberships || []).length || (!formData.imageFile && !formData.imageUrl)}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -1265,7 +1365,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           if (!file || !file.type.startsWith('image/')) return;
                           setUploadingImage(true);
                           try {
-                            const imageUrl = await uploadImageToS3(file);
+                            const imageUrl = await uploadImage(file);
                             setFormData(prev => ({ ...prev, imageUrl }));
                           } catch (error) {
                             alert('Error al subir la imagen.');
@@ -1362,9 +1462,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               />
               <select value={membershipFilter} onChange={(e) => setMembershipFilter(e.target.value)}>
                 <option value="all">Todas las membresías</option>
-                <option value="gold">Gold</option>
-                <option value="platinum">Platinum</option>
-                <option value="black">Black</option>
+                {memberships.map(membership => (
+                  <option key={membership.id} value={membership.name.toLowerCase()}>
+                    {membership.name}
+                  </option>
+                ))}
               </select>
               <select value={carCountFilter} onChange={(e) => setCarCountFilter(e.target.value)}>
                 <option value="all">Todos los vehículos</option>
@@ -1414,9 +1516,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               />
               <select value={rewardCategoryFilter} onChange={(e) => setRewardCategoryFilter(e.target.value)}>
                 <option value="all">Todas las categorías</option>
-                <option value="Descuento">Descuento</option>
-                <option value="Servicio">Servicio</option>
-                <option value="Producto">Producto</option>
+                {rewardTypes.map(rewardType => (
+                  <option key={rewardType.id} value={rewardType.type}>
+                    {rewardType.type}
+                  </option>
+                ))}
               </select>
               <select value={rewardAvailabilityFilter} onChange={(e) => setRewardAvailabilityFilter(e.target.value)}>
                 <option value="all">Todos los estados</option>
@@ -1425,9 +1529,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               </select>
               <select value={rewardMembershipFilter} onChange={(e) => setRewardMembershipFilter(e.target.value)}>
                 <option value="all">Todas las membresías</option>
-                <option value="gold">Gold</option>
-                <option value="platinum">Platinum</option>
-                <option value="black">Black</option>
+                {memberships.map(membership => (
+                  <option key={membership.id} value={membership.name.toLowerCase()}>
+                    {membership.name}
+                  </option>
+                ))}
               </select>
               <button 
                 className="btn-clear-filters"
@@ -1551,21 +1657,33 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
         {activeTab === 'rewards' && (
           <div className="data-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>Título</th>
-                  <th>Descripción</th>
-                  <th>Puntos</th>
-                  <th>Categoría</th>
-                  <th>Membresías</th>
-                  <th>Estado</th>
-                  <th><FaCog /> Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRewards.map(reward => (
+            {loadingRewards ? (
+              <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <p>Cargando recompensas...</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Imagen</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Puntos</th>
+                    <th>Categoría</th>
+                    <th>Membresías</th>
+                    <th>Estado</th>
+                    <th><FaCog /> Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRewards.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
+                        No se encontraron recompensas
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRewards.map(reward => (
                   <tr key={reward.id}>
                     <td>
                       <div className="reward-image-cell" onClick={() => openImageModal(reward, 'reward')}>
@@ -1580,7 +1698,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     </td>
                     <td><strong>{reward.title}</strong></td>
                     <td>{reward.description}</td>
-                    <td>{reward.pointsRequired.toLocaleString()}</td>
+                    <td>{(reward.pointsRequired || 0).toLocaleString()}</td>
                     <td>{reward.category}</td>
                     <td>
                       <div className="memberships-tags">
@@ -1606,9 +1724,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 
