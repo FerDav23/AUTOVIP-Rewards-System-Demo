@@ -15,6 +15,7 @@ import {
   managePointTransaction,
   loadTransactionTypes,
 } from '../services/autovipUsers';
+import { getRewardTypes, createReward } from '../services/autovipRewards';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -75,6 +76,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [loadingMemberships, setLoadingMemberships] = useState(false);
   const [loadingCars, setLoadingCars] = useState(false);
   const [loadingTransactionTypes, setLoadingTransactionTypes] = useState(false);
+  const [loadingRewardTypes, setLoadingRewardTypes] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -84,6 +86,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
   // Transaction types state
   const [transactionTypes, setTransactionTypes] = useState([]);
+
+  // Reward types state
+  const [rewardTypes, setRewardTypes] = useState([]);
 
   // Cars state - stores cars for the currently viewed user
   const [cars, setCars] = useState([]);
@@ -235,11 +240,26 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  // Load users, memberships, and transaction types on component mount
+  // Function to load all reward types
+  const loadRewardTypesData = async () => {
+    setLoadingRewardTypes(true);
+    try {
+      const rewardTypesData = await getRewardTypes();
+      setRewardTypes(rewardTypesData);
+    } catch (error) {
+      console.error('Failed to load reward types:', error);
+      alert('Error al cargar los tipos de recompensa. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingRewardTypes(false);
+    }
+  };
+
+  // Load users, memberships, transaction types, and reward types on component mount
   useEffect(() => {
     loadUsers();
     loadMemberships();
     loadPointsTransactionTypes();
+    loadRewardTypesData();
   }, []);
 
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
@@ -527,9 +547,35 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         break;
       case 'reward':
         if (editingItem) {
+          // Edit existing reward (local state only for now)
           setRewards(prev => prev.map(r => r.id === editingItem.id ? { ...r, ...formData } : r));
         } else {
-          setRewards(prev => [...prev, { ...formData, id: Date.now(), available: true, memberships: formData.memberships || ['gold', 'platinum', 'black'], imageUrl: formData.imageUrl || '' }]);
+          // Create new reward via API
+          try {
+            const rewardData = {
+              title: formData.title,
+              description: formData.description,
+              pointsRequired: parseInt(formData.pointsRequired),
+              categoryId: parseInt(formData.category), // Pass category ID
+              memberships: formData.memberships || [],
+              imageUrl: formData.imageUrl || '',
+              available: formData.available !== undefined ? formData.available : true
+            };
+
+            // Call API to create reward
+            await createReward(rewardData);
+            
+            // Reload rewards to get the updated list
+            // TODO: Implement loadRewards function when getAllRewards is integrated
+            
+            alert('Recompensa creada exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error creating reward:', error);
+            alert(error.response?.data?.message || error.message || 'Error al crear la recompensa. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         }
         break;
       case 'promotion':
@@ -1088,31 +1134,45 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 </div>
                 <div className="form-group">
                   <label>Categoría</label>
-                  <select name="category" value={formData.category || 'Descuento'} onChange={handleFormChange}>
-                    <option value="Descuento">Descuento</option>
-                    <option value="Servicio">Servicio</option>
-                    <option value="Producto">Producto</option>
+                  <select 
+                    name="category" 
+                    value={formData.category || ''} 
+                    onChange={handleFormChange}
+                    required
+                    disabled={loadingRewardTypes}
+                  >
+                    <option value="">{loadingRewardTypes ? 'Cargando...' : 'Seleccione una categoría'}</option>
+                    {rewardTypes.map(rewardType => (
+                      <option key={rewardType.id} value={rewardType.id}>
+                        {rewardType.type}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group">
                   <label>Membresías que pueden ver esta recompensa</label>
                   <div className="memberships-checkboxes">
-                    {['gold', 'platinum', 'black'].map(m => (
-                      <label key={m} className={`membership-checkbox ${m}`}>
-                        <input 
-                          type="checkbox" 
-                          checked={(formData.memberships || []).includes(m)}
-                          onChange={(e) => {
-                            const current = formData.memberships || [];
-                            const updated = e.target.checked 
-                              ? [...current, m]
-                              : current.filter(x => x !== m);
-                            setFormData(prev => ({ ...prev, memberships: updated }));
-                          }}
-                        />
-                        {m.charAt(0).toUpperCase() + m.slice(1)}
-                      </label>
-                    ))}
+                    {loadingMemberships ? (
+                      <p>Cargando membresías...</p>
+                    ) : (
+                      memberships.map(membership => (
+                        <label key={membership.id} className={`membership-checkbox ${membership.name.toLowerCase()}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={(formData.memberships || []).includes(membership.id)}
+                            onChange={(e) => {
+                              const membershipId = membership.id;
+                              const current = formData.memberships || [];
+                              const updated = e.target.checked 
+                                ? [...current, membershipId]
+                                : current.filter(x => x !== membershipId);
+                              setFormData(prev => ({ ...prev, memberships: updated }));
+                            }}
+                          />
+                          {membership.name}
+                        </label>
+                      ))
+                    )}
                   </div>
                 </div>
                 <div className="form-group">
@@ -1160,7 +1220,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.pointsRequired || !(formData.memberships || []).length || !formData.imageUrl}
+                    disabled={!formData.title || !formData.description || !formData.pointsRequired || !formData.category || !(formData.memberships || []).length || !formData.imageUrl}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -1243,7 +1303,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       <header className="manager-header">
         <div className="header-left">
           <img src={logoImage} alt="Grupo FJ Logo" className="header-logo" />
-          <h1>Panel de Administración</h1>
+          <h1>AUTOVIP Panel de Administración</h1>
         </div>
         <button className="logout-btn" onClick={handleLogout}>
           <FaSignOutAlt /> Cerrar Sesión
