@@ -261,7 +261,6 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           _original: reward
         };
       });
-      console.log(processedRewards);
       setRewards(processedRewards);
     } catch (error) {
       console.error('Failed to load rewards:', error);
@@ -340,12 +339,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setShowModal(true);
     } else if (type === 'reward' && item) {
       // When editing a reward, we need to get the category ID and membership IDs from the original data
-      const categoryId = item._original?.category_id;
-      const membershipIds = item._original?.memberships || [];
+      let categoryId = item._original?.categoryId || item._original?.category_id;
+      
+      // Fallback: if categoryId is not found, try to find it by matching the category name
+      if (!categoryId && item.category) {
+        const foundCategory = rewardTypes.find(rt => rt.type === item.category);
+        categoryId = foundCategory?.id;
+      }
+      
+      // Get membership IDs from original data
+      let membershipIds = item._original?.memberships || [];
+      
+      // Fallback: if membership IDs are not found, try to find them by matching membership names
+      if (membershipIds.length === 0 && item.memberships && Array.isArray(item.memberships)) {
+        membershipIds = item.memberships.map(membershipName => {
+          const foundMembership = memberships.find(m => m.name.toLowerCase() === membershipName.toLowerCase());
+          return foundMembership?.id;
+        }).filter(Boolean);
+      }
+      
       setFormData({
         ...item,
         category: categoryId,
-        memberships: membershipIds
+        memberships: membershipIds,
+        imageUrl: item.imageUrl || item._original?.imageUrl || item._original?.image_url || ''
       });
       setShowModal(true);
     } else {
@@ -1686,7 +1703,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     filteredRewards.map(reward => (
                   <tr key={reward.id}>
                     <td>
-                      <div className="reward-image-cell" onClick={() => openImageModal(reward, 'reward')}>
+                      <div className="reward-image-cell">
                         {reward.imageUrl ? (
                           <img src={reward.imageUrl} alt={reward.title} className="reward-thumbnail" />
                         ) : (
@@ -1713,9 +1730,6 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </span>
                     </td>
                     <td className="actions">
-                      <button className="btn-image" onClick={() => openImageModal(reward, 'reward')} title="Gestionar imagen">
-                        <FaImage />
-                      </button>
                       <button className="btn-edit" onClick={() => openModal('reward', reward)} title="Editar">
                         <FaEdit />
                       </button>
