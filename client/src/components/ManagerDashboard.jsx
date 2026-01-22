@@ -22,7 +22,7 @@ import {
   updateReward, 
   deleteReward, 
   uploadImage } from '../services/autovipRewards';
-import { createPromotion } from '../services/autovipPromotions';
+import { createPromotion, getAllPromotions } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -63,6 +63,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [loadingTransactionTypes, setLoadingTransactionTypes] = useState(false);
   const [loadingRewardTypes, setLoadingRewardTypes] = useState(false);
   const [loadingRewards, setLoadingRewards] = useState(false);
+  const [loadingPromotions, setLoadingPromotions] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -285,12 +286,46 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     loadRewardTypesData();
   }, []);
 
+  // Function to load all promotions
+  const loadPromotions = async () => {
+    setLoadingPromotions(true);
+    try {
+      const promotionsData = await getAllPromotions();
+      // Process promotions data to match component expectations
+      const processedPromotions = promotionsData.map(promotion => {
+        return {
+          id: promotion.id,
+          title: promotion.title,
+          description: promotion.description,
+          validUntil: promotion.expires_at || promotion.validUntil || '',
+          imageUrl: promotion.imageUrl || '',
+          expires_at: promotion.expires_at,
+          imageKey: promotion.imageKey,
+          createdAt: promotion.createdAt,
+          updatedAt: promotion.updatedAt,
+          _original: promotion
+        };
+      });
+      setPromotions(processedPromotions);
+    } catch (error) {
+      console.error('Failed to load promotions:', error);
+      alert('Error al cargar las promociones. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingPromotions(false);
+    }
+  };
+
   // Load rewards after memberships and reward types are loaded
   useEffect(() => {
     if (memberships.length > 0 && rewardTypes.length > 0) {
       loadRewards();
     }
   }, [memberships, rewardTypes]);
+
+  // Load promotions on component mount
+  useEffect(() => {
+    loadPromotions();
+  }, []);
 
   // Rewards state - memberships array indicates which membership levels can see/redeem this reward
   const [rewards, setRewards] = useState([]);
@@ -302,10 +337,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // Promotions state
-  const [promotions, setPromotions] = useState([
-    { id: 1, title: 'Doble Puntos', description: 'Gana el doble de puntos este mes', validUntil: '2024-12-31', badge: 'Nuevo', imageUrl: 'https://picsum.photos/seed/promo1/200/150' },
-    { id: 2, title: 'Fin de Año', description: '500 puntos extra en mantenimiento completo', validUntil: '2024-12-25', badge: 'Popular', imageUrl: 'https://picsum.photos/seed/promo2/200/150' },
-  ]);
+  const [promotions, setPromotions] = useState([]);
 
   // Form states
   const [formData, setFormData] = useState({});
@@ -698,9 +730,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             await createPromotion(promotionData);
             
             // Reload promotions to get the updated list
-            // TODO: Implement getAllPromotions when API is ready
-            // For now, update local state
-            setPromotions(prev => [...prev, { ...formData, id: Date.now(), imageUrl: formData.imageUrl || '' }]);
+            await loadPromotions();
             
             alert('Promoción creada exitosamente.');
             closeModal(); // Close modal only on success
@@ -851,7 +881,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     const matchesValidUntil = !promoValidUntilFilter || p.validUntil === promoValidUntilFilter;
     
     let matchesExpired = true;
-    if (promoExpiredFilter !== 'all') {
+    if (promoExpiredFilter !== 'all' && p.validUntil) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const validUntilDate = new Date(p.validUntil);
@@ -1801,18 +1831,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
         {activeTab === 'promotions' && (
           <div className="data-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>Título</th>
-                  <th>Descripción</th>
-                  <th>Válido hasta</th>
-                  <th><FaCog /> Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPromotions.map(promo => (
+            {loadingPromotions ? (
+              <div style={{ padding: '2rem', textAlign: 'center' }}>
+                <p>Cargando promociones...</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Imagen</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Válido hasta</th>
+                    <th><FaCog /> Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPromotions.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+                        No se encontraron promociones
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredPromotions.map(promo => (
                   <tr key={promo.id}>
                     <td>
                       <div className="reward-image-cell">
@@ -1827,7 +1869,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     </td>
                     <td><strong>{promo.title}</strong></td>
                     <td>{promo.description}</td>
-                    <td>{new Date(promo.validUntil).toLocaleDateString('es-ES')}</td>
+                    <td>{promo.validUntil ? new Date(promo.validUntil).toLocaleDateString('es-ES') : 'N/A'}</td>
                     <td className="actions">
                       <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
                         <FaEdit />
@@ -1837,9 +1879,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
       </main>

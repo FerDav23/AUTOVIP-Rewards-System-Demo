@@ -2,6 +2,31 @@ import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
 
 /**
+ * Get all promotions
+ * @returns {Promise<Array>} Array of promotion objects
+ */
+export async function getAllPromotions() {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    const response = await client.get('/promotions/');
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch promotions:', error.message);
+    throw error;
+  }
+}
+
+/**
  * Create a new promotion
  * @param {Object} promotionData - Promotion data object
  * @param {string} promotionData.title - Promotion title
