@@ -22,7 +22,7 @@ import {
   updateReward, 
   deleteReward, 
   uploadImage } from '../services/autovipRewards';
-import { createPromotion, getAllPromotions, deletePromotion } from '../services/autovipPromotions';
+import { createPromotion, getAllPromotions, updatePromotion, deletePromotion } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -405,6 +405,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         imageUrl: item.imageUrl || item._original?.imageUrl || item._original?.image_url || ''
       });
       setShowModal(true);
+    } else if (type === 'promotion' && item) {
+      // When editing a promotion, map expires_at to validUntil
+      setFormData({
+        ...item,
+        validUntil: item.expires_at || item.validUntil || item._original?.expires_at || item._original?.valid_until || '',
+        imageUrl: item.imageUrl || item._original?.imageUrl || item._original?.image_url || ''
+      });
+      setShowModal(true);
     } else {
       setFormData(item || {});
       setShowModal(true);
@@ -708,9 +716,35 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         break;
       case 'promotion':
         if (editingItem) {
-          // TODO: Implement update promotion when API is ready
-          setPromotions(prev => prev.map(p => p.id === editingItem.id ? { ...p, ...formData } : p));
-          closeModal();
+          // Update existing promotion via API
+          try {
+            const promotionData = {
+              title: formData.title,
+              description: formData.description,
+              validUntil: formData.validUntil
+            };
+
+            // Include image file if provided, otherwise use imageUrl
+            if (formData.imageFile) {
+              promotionData.imageFile = formData.imageFile;
+            } else if (formData.imageUrl !== undefined) {
+              promotionData.imageUrl = formData.imageUrl;
+            }
+
+            // Call API to update promotion
+            await updatePromotion(editingItem.id, promotionData);
+            
+            // Reload promotions to get the updated list
+            await loadPromotions();
+            
+            alert('Promoción actualizada exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error updating promotion:', error);
+            alert(error.response?.data?.message || error.message || 'Error al actualizar la promoción. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         } else {
           // Create new promotion via API
           try {
