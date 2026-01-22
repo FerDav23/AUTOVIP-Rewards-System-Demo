@@ -22,7 +22,7 @@ import {
   updateReward, 
   deleteReward, 
   uploadImage } from '../services/autovipRewards';
-import { createPromotion, getAllPromotions } from '../services/autovipPromotions';
+import { createPromotion, getAllPromotions, deletePromotion } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -48,7 +48,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [rewardDescriptionFilter, setRewardDescriptionFilter] = useState('');
   const [promoTitleFilter, setPromoTitleFilter] = useState('');
   const [promoDescriptionFilter, setPromoDescriptionFilter] = useState('');
-  const [promoValidUntilFilter, setPromoValidUntilFilter] = useState('');
+  const [promoDesdeFilter, setPromoDesdeFilter] = useState('');
+  const [promoHastaFilter, setPromoHastaFilter] = useState('');
   const [promoExpiredFilter, setPromoExpiredFilter] = useState('all');
   
   // Modal states
@@ -835,7 +836,18 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         }
         break;
       case 'promotion':
-        setPromotions(prev => prev.filter(p => p.id !== id));
+        try {
+          // Delete promotion via API
+          await deletePromotion(id);
+          
+          // Reload promotions to get the updated list
+          await loadPromotions();
+          
+          alert('Promoción eliminada exitosamente.');
+        } catch (error) {
+          console.error('Error deleting promotion:', error);
+          alert(error.response?.data?.message || error.message || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
+        }
         break;
     }
   };
@@ -878,24 +890,63 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const filteredPromotions = promotions.filter(p => {
     const matchesTitle = !promoTitleFilter || p.title.toLowerCase().includes(promoTitleFilter.toLowerCase());
     const matchesDescription = !promoDescriptionFilter || p.description.toLowerCase().includes(promoDescriptionFilter.toLowerCase());
-    const matchesValidUntil = !promoValidUntilFilter || p.validUntil === promoValidUntilFilter;
     
-    let matchesExpired = true;
-    if (promoExpiredFilter !== 'all' && p.validUntil) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    // Date range filtering (desde - hasta)
+    let matchesDateRange = true;
+    if (p.validUntil) {
       const validUntilDate = new Date(p.validUntil);
       validUntilDate.setHours(0, 0, 0, 0);
-      const isExpired = validUntilDate < today;
       
-      if (promoExpiredFilter === 'valid') {
-        matchesExpired = !isExpired;
-      } else if (promoExpiredFilter === 'expired') {
-        matchesExpired = isExpired;
+      // If desde is provided, check if validUntil is >= desde
+      if (promoDesdeFilter) {
+        const desdeDate = new Date(promoDesdeFilter);
+        desdeDate.setHours(0, 0, 0, 0);
+        if (validUntilDate < desdeDate) {
+          matchesDateRange = false;
+        }
+      }
+      
+      // If hasta is provided, check if validUntil is <= hasta
+      if (promoHastaFilter && matchesDateRange) {
+        const hastaDate = new Date(promoHastaFilter);
+        hastaDate.setHours(0, 0, 0, 0);
+        if (validUntilDate > hastaDate) {
+          matchesDateRange = false;
+        }
+      }
+    } else {
+      // If promotion has no validUntil date, only show it if no date filters are set
+      // or if estado filter is set to 'na'
+      if (promoDesdeFilter || promoHastaFilter) {
+        matchesDateRange = false;
       }
     }
     
-    return matchesTitle && matchesDescription && matchesValidUntil && matchesExpired;
+    // Estado filter (valid, expired, N/A)
+    let matchesExpired = true;
+    if (promoExpiredFilter !== 'all') {
+      if (!p.validUntil) {
+        // No date means N/A - only match if filter is 'na'
+        matchesExpired = promoExpiredFilter === 'na';
+      } else {
+        // Has date - check if valid or expired
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const validUntilDate = new Date(p.validUntil);
+        validUntilDate.setHours(0, 0, 0, 0);
+        const isExpired = validUntilDate < today;
+        
+        if (promoExpiredFilter === 'valid') {
+          matchesExpired = !isExpired;
+        } else if (promoExpiredFilter === 'expired') {
+          matchesExpired = isExpired;
+        } else if (promoExpiredFilter === 'na') {
+          matchesExpired = false; // N/A only applies to promotions without dates
+        }
+      }
+    }
+    
+    return matchesTitle && matchesDescription && matchesDateRange && matchesExpired;
   });
 
   const renderModal = () => {
@@ -1429,8 +1480,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <textarea name="description" value={formData.description || ''} onChange={handleFormChange} autoComplete="off" required />
                 </div>
                 <div className="form-group">
-                  <label>Válido hasta</label>
-                  <input type="date" name="validUntil" value={formData.validUntil || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <label>Válido hasta (opcional)</label>
+                  <input type="date" name="validUntil" value={formData.validUntil || ''} onChange={handleFormChange} autoComplete="off" />
                 </div>
                 <div className="form-group">
                   <label>Imagen de la promoción</label>
@@ -1485,7 +1536,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.validUntil || (!formData.imageFile && !formData.imageUrl)}
+                    disabled={!formData.title || !formData.description || (!formData.imageFile && !formData.imageUrl)}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -1667,25 +1718,57 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 className="filter-input"
                 autoComplete="off"
               />
-              <input 
-                type="date" 
-                placeholder="Filtrar por válido hasta..." 
-                value={promoValidUntilFilter}
-                onChange={(e) => setPromoValidUntilFilter(e.target.value)}
-                className="filter-input"
-                autoComplete="off"
-              />
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  position: 'absolute', 
+                  top: '-18px', 
+                  left: '0', 
+                  fontSize: '0.85rem', 
+                  color: '#666', 
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>Desde</label>
+                <input 
+                  type="date" 
+                  placeholder="Desde..." 
+                  value={promoDesdeFilter}
+                  onChange={(e) => setPromoDesdeFilter(e.target.value)}
+                  className="filter-input"
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  position: 'absolute', 
+                  top: '-18px', 
+                  left: '0', 
+                  fontSize: '0.85rem', 
+                  color: '#666', 
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>Hasta</label>
+                <input 
+                  type="date" 
+                  placeholder="Hasta..." 
+                  value={promoHastaFilter}
+                  onChange={(e) => setPromoHastaFilter(e.target.value)}
+                  className="filter-input"
+                  autoComplete="off"
+                />
+              </div>
               <select value={promoExpiredFilter} onChange={(e) => setPromoExpiredFilter(e.target.value)}>
                 <option value="all">Todos los estados</option>
                 <option value="valid">Válidas</option>
                 <option value="expired">Expiradas</option>
+                <option value="na">N/A</option>
               </select>
               <button 
                 className="btn-clear-filters"
                 onClick={() => {
                   setPromoTitleFilter('');
                   setPromoDescriptionFilter('');
-                  setPromoValidUntilFilter('');
+                  setPromoDesdeFilter('');
+                  setPromoHastaFilter('');
                   setPromoExpiredFilter('all');
                 }}
               >

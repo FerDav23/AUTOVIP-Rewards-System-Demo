@@ -87,3 +87,33 @@ export async function createPromotion(promotionData) {
     throw error;
   }
 }
+
+/**
+ * Delete a promotion
+ * @param {number|string} promotionId - The promotion ID to delete
+ * @returns {Promise<void>}
+ */
+export async function deletePromotion(promotionId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!promotionId) {
+      throw new Error('Promotion ID is required');
+    }
+
+    const response = await client.delete(`/promotions/${promotionId}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to delete promotion ${promotionId}:`, error.message);
+    throw error;
+  }
+}
