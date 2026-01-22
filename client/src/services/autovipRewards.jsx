@@ -70,7 +70,6 @@ export async function createReward(rewardData) {
       clearExpiredToken();
       throw new Error('Session has expired. Please login again.');
     }
-    console.log(rewardData);
     // If image file is provided, use FormData; otherwise use JSON
     if (rewardData.imageFile) {
       const formData = new FormData();
