@@ -15,7 +15,14 @@ import {
   managePointTransaction,
   loadTransactionTypes,
 } from '../services/autovipUsers';
-import { getRewardTypes, createReward, getAllRewards, updateReward, deleteReward, uploadImage } from '../services/autovipRewards';
+import { 
+  getRewardTypes, 
+  createReward, 
+  getAllRewards, 
+  updateReward, 
+  deleteReward, 
+  uploadImage } from '../services/autovipRewards';
+import { createPromotion } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import { 
@@ -668,9 +675,41 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         break;
       case 'promotion':
         if (editingItem) {
+          // TODO: Implement update promotion when API is ready
           setPromotions(prev => prev.map(p => p.id === editingItem.id ? { ...p, ...formData } : p));
+          closeModal();
         } else {
-          setPromotions(prev => [...prev, { ...formData, id: Date.now(), imageUrl: formData.imageUrl || '' }]);
+          // Create new promotion via API
+          try {
+            const promotionData = {
+              title: formData.title,
+              description: formData.description,
+              validUntil: formData.validUntil
+            };
+
+            // Include image file if provided, otherwise use imageUrl
+            if (formData.imageFile) {
+              promotionData.imageFile = formData.imageFile;
+            } else if (formData.imageUrl) {
+              promotionData.imageUrl = formData.imageUrl;
+            }
+
+            // Call API to create promotion
+            await createPromotion(promotionData);
+            
+            // Reload promotions to get the updated list
+            // TODO: Implement getAllPromotions when API is ready
+            // For now, update local state
+            setPromotions(prev => [...prev, { ...formData, id: Date.now(), imageUrl: formData.imageUrl || '' }]);
+            
+            alert('Promoción creada exitosamente.');
+            closeModal(); // Close modal only on success
+            return; // Return early to avoid calling closeModal again
+          } catch (error) {
+            console.error('Error creating promotion:', error);
+            alert(error.response?.data?.message || error.message || 'Error al crear la promoción. Por favor, intente de nuevo.');
+            return; // Don't close modal on error
+          }
         }
         break;
     }
@@ -1366,34 +1405,48 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 <div className="form-group">
                   <label>Imagen de la promoción</label>
                   <div className="image-upload-inline">
-                    {formData.imageUrl ? (
-                      <img src={formData.imageUrl} alt="Preview" className="image-preview-small" />
-                    ) : (
-                      <div className="no-image-small">
-                        <FaImage />
-                      </div>
-                    )}
-                    <label className={`btn-upload-inline ${uploadingImage ? 'uploading' : ''}`}>
+                    {(() => {
+                      // Show preview from stored preview URL if available, otherwise show existing imageUrl
+                      const previewUrl = formData.imagePreviewUrl || formData.imageUrl;
+                      
+                      return previewUrl ? (
+                        <img src={previewUrl} alt="Preview" className="image-preview-small" />
+                      ) : (
+                        <div className="no-image-small">
+                          <FaImage />
+                        </div>
+                      );
+                    })()}
+                    <label className="btn-upload-inline">
                       <input 
                         type="file" 
                         accept="image/*" 
-                        onChange={async (e) => {
+                        onChange={(e) => {
                           const file = e.target.files[0];
-                          if (!file || !file.type.startsWith('image/')) return;
-                          setUploadingImage(true);
-                          try {
-                            const imageUrl = await uploadImage(file);
-                            setFormData(prev => ({ ...prev, imageUrl }));
-                          } catch (error) {
-                            alert('Error al subir la imagen.');
-                          } finally {
-                            setUploadingImage(false);
+                          if (!file) return;
+                          
+                          // Validate file type
+                          if (!file.type.startsWith('image/')) {
+                            alert('Por favor seleccione un archivo de imagen válido.');
+                            return;
                           }
+                          
+                          // Revoke previous preview URL if it was a blob
+                          if (formData.imagePreviewUrl && formData.imagePreviewUrl.startsWith('blob:')) {
+                            URL.revokeObjectURL(formData.imagePreviewUrl);
+                          }
+                          
+                          // Store file and create preview URL
+                          const previewUrl = URL.createObjectURL(file);
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            imageFile: file,
+                            imagePreviewUrl: previewUrl
+                          }));
                         }}
-                        disabled={uploadingImage}
                         hidden
                       />
-                      <FaImage /> {uploadingImage ? 'Subiendo...' : (formData.imageUrl ? 'Cambiar' : 'Subir imagen')}
+                      <FaImage /> {formData.imageFile || formData.imageUrl ? 'Cambiar' : 'Subir imagen'}
                     </label>
                   </div>
                 </div>
@@ -1402,7 +1455,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.validUntil || !formData.imageUrl}
+                    disabled={!formData.title || !formData.description || !formData.validUntil || (!formData.imageFile && !formData.imageUrl)}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -1762,7 +1815,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 {filteredPromotions.map(promo => (
                   <tr key={promo.id}>
                     <td>
-                      <div className="reward-image-cell" onClick={() => openImageModal(promo, 'promotion')}>
+                      <div className="reward-image-cell">
                         {promo.imageUrl ? (
                           <img src={promo.imageUrl} alt={promo.title} className="reward-thumbnail" />
                         ) : (
@@ -1776,9 +1829,6 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <td>{promo.description}</td>
                     <td>{new Date(promo.validUntil).toLocaleDateString('es-ES')}</td>
                     <td className="actions">
-                      <button className="btn-image" onClick={() => openImageModal(promo, 'promotion')} title="Gestionar imagen">
-                        <FaImage />
-                      </button>
                       <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
                         <FaEdit />
                       </button>
