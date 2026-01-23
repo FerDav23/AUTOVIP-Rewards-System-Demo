@@ -4,8 +4,19 @@ import { getColorsByMembership, shadows, borderRadius, spacing } from './colors'
  * Initialize CSS custom properties based on the colors config
  * @param {string} membershipType - Optional membership type ('gold', 'platinum', 'black')
  */
-export function initColors(membershipType = null) {
+export function initColors(membershipId = null) {
   const root = document.documentElement;
+  let membershipType = "default";
+
+  if (membershipId == 1) {
+    console.log('membershipId', membershipId);
+    membershipType = 'gold';
+  } else if (membershipId == 2) {
+    membershipType = 'black';
+  } else if (membershipId == 3) {
+    membershipType = 'platinum';
+  }
+
   const colors = getColorsByMembership(membershipType);
   
   // Set membership data attribute for CSS targeting

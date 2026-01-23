@@ -7,8 +7,7 @@ import ManagerDashboard from './components/ManagerDashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
 import UserProfile from './components/UserProfile';
-import { getCurrentUserMembership } from './services/user';
-import { initializeDummyUserData } from './services/dummyUsers';
+import { getMembershipByUserId } from './services/autovipUsers';
 import initColors from './config/init-colors';
 import './variables.css';
 import './base.css';
@@ -19,45 +18,59 @@ export default function App() {
   const [membership, setMembership] = useState(null);
   
   // Initialize colors based on user membership
-  const initializeColors = () => {
-    const currentMembership = getCurrentUserMembership();
-    setMembership(currentMembership);
-    initColors(currentMembership);
+  const initializeColors = async () => {
+    try {
+      const userId = localStorage.getItem('autovipUserID');
+      if (!userId) {
+        initColors(null);
+        return;
+      }
+      
+      // Parse userId if it's stored as JSON string
+      let parsedUserId;
+      try {
+        parsedUserId = JSON.parse(userId);
+      } catch (error) {
+        parsedUserId = userId;
+      }
+      
+      const currentMembership = await getMembershipByUserId(parsedUserId);
+      if (currentMembership && currentMembership.membership_id) {
+        setMembership(currentMembership.membership_id);
+        initColors(currentMembership.membership_id);
+      } else {
+        initColors(null);
+      }
+    } catch (error) {
+      console.error('Failed to initialize colors:', error);
+      initColors(null);
+    }
   };
   
   useEffect(() => {
-    // Initialize dummy user data in localStorage (always sets test membership)
-    initializeDummyUserData();
-    
-    // Always initialize colors based on membership (even if not authenticated, for testing)
-    initializeColors();
-    
     // Check if user is already authenticated
     const token = localStorage.getItem('authToken');
     if (token) {
       setIsAuthenticated(true);
+      initializeColors();
+    } else {
+      initColors(null);
+      setMembership(null);
     }
 
     // Listen for storage changes to update membership dynamically
-    const handleStorageChange = () => {
-      initializeColors();
+    const handleStorageChange = (e) => {
+      if (e.key === 'autovipUserID' || e.key === 'authToken') {
+        initializeColors();
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);
     
-    // Also check periodically for membership changes
-    const interval = setInterval(() => {
-      const currentMembership = getCurrentUserMembership();
-      if (currentMembership !== membership) {
-        initializeColors();
-      }
-    }, 1000);
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
     };
-  }, [membership]);
+  }, []);
   
   // Re-initialize colors when authentication state changes
   useEffect(() => {

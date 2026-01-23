@@ -57,6 +57,35 @@ export async function getMembershipById(membershipId) {
 }
 
 /**
+ * Get membership details by user ID
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<Object>} Membership object
+ */
+export async function getMembershipByUserId(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      return null;
+    }
+
+    const response = await client.get(`/autovip-users/membership/${userId}`);
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(`Failed to fetch membership for user ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+/**
  * Get the count of cars for a specific user
  * @param {number|string} userId - The user ID
  * @returns {Promise<number>} Number of cars for the user
