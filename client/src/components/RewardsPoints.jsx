@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
-import { getPointsByUserId } from '../services/autovipUsers';
+import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
 import './RewardsPoints.css';
 import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons/fa';
 
@@ -11,6 +11,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   // State for customer points - loaded from database
   const [customerPoints, setCustomerPoints] = useState(0);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
+  // State for rewards - loaded from database
+  const [rewards, setRewards] = useState([]);
+  const [isLoadingRewards, setIsLoadingRewards] = useState(true);
   const [userName] = useState(() => {
     const user = localStorage.getItem('user');
     return user ? user.replace(/"/g, '') : 'Cliente';
@@ -21,17 +24,18 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     return storedPassword ? storedPassword.replace(/"/g, '') : '';
   });
 
-  // Load user points from database
+  // Load user points and rewards from database
   useEffect(() => {
-    const loadUserPoints = async () => {
+    const loadUserData = async () => {
       try {
-        setIsLoadingPoints(true);
         const userId = localStorage.getItem('autovipUserID');
         
         if (!userId) {
           console.warn('No user ID found in localStorage');
           setCustomerPoints(0);
+          setRewards([]);
           setIsLoadingPoints(false);
+          setIsLoadingRewards(false);
           return;
         }
 
@@ -43,17 +47,42 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           parsedUserId = userId;
         }
 
-        const points = await getPointsByUserId(parsedUserId);
+        // Load points and rewards in parallel
+        setIsLoadingPoints(true);
+        setIsLoadingRewards(true);
+        
+        const [points, rewardsData] = await Promise.all([
+          getPointsByUserId(parsedUserId),
+          getRewardsByUserId(parsedUserId)
+        ]);
+
         setCustomerPoints(points || 0);
+        
+        // Map the rewards data to match the component's expected format
+        // Based on API structure: title, description, reward_type, points_cost, visible, imageUrl
+        const mappedRewards = rewardsData.map(reward => ({
+          id: reward.id,
+          title: reward.title,
+          description: reward.description,
+          pointsRequired: reward.points_cost || reward.points_required || 0,
+          category: reward.reward_type || reward.category?.name || reward.category_name || reward.category || 'General',
+          available: reward.visible !== undefined ? reward.visible === true : (reward.available !== undefined ? reward.available : true),
+          imageUrl: reward.imageUrl || reward.image_url || null
+        }));
+        
+        setRewards(mappedRewards);
+        console.log('mappedRewards', mappedRewards);
       } catch (error) {
-        console.error('Failed to load user points:', error);
+        console.error('Failed to load user data:', error);
         setCustomerPoints(0);
+        setRewards([]);
       } finally {
         setIsLoadingPoints(false);
+        setIsLoadingRewards(false);
       }
     };
 
-    loadUserPoints();
+    loadUserData();
   }, []);
 
   // Dummy data for promotions
@@ -81,57 +110,6 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     }
   ];
 
-  // Dummy data for rewards
-  const rewards = [
-    {
-      id: 1,
-      title: 'Descuento del 10%',
-      description: 'Aplica un descuento del 10% en tu próximo servicio',
-      pointsRequired: 500,
-      category: 'Descuento',
-      available: true
-    },
-    {
-      id: 2,
-      title: 'Mantenimiento Básico Gratis',
-      description: 'Obtén un mantenimiento básico completamente gratis',
-      pointsRequired: 1000,
-      category: 'Servicio',
-      available: true
-    },
-    {
-      id: 3,
-      title: 'Descuento del 20%',
-      description: 'Aplica un descuento del 20% en tu próximo servicio',
-      pointsRequired: 1500,
-      category: 'Descuento',
-      available: false
-    },
-    {
-      id: 4,
-      title: 'Kit de Limpieza Premium',
-      description: 'Recibe un kit completo de productos de limpieza para tu vehículo',
-      pointsRequired: 800,
-      category: 'Producto',
-      available: true
-    },
-    {
-      id: 5,
-      title: 'Inspección Gratuita',
-      description: 'Obtén una inspección completa de tu vehículo sin costo',
-      pointsRequired: 600,
-      category: 'Servicio',
-      available: true
-    },
-    {
-      id: 6,
-      title: 'Descuento del 30%',
-      description: 'Aplica un descuento del 30% en tu próximo servicio premium',
-      pointsRequired: 2000,
-      category: 'Descuento',
-      available: false
-    }
-  ];
 
   const handleLogout = () => {
     logout();
@@ -284,8 +262,26 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                   <span className="reward-unavailable-badge">No Disponible</span>
                 )}
               </div>
-              <div className="reward-icon">
-                <FaStar />
+              <div className="reward-image-container">
+                {reward.imageUrl ? (
+                  <img 
+                    src={reward.imageUrl} 
+                    alt={reward.title}
+                    className="reward-image"
+                    onError={(e) => {
+                      // Hide image and show fallback icon if image fails to load
+                      e.target.style.display = 'none';
+                      const container = e.target.parentElement;
+                      const fallback = container.querySelector('.reward-icon-fallback');
+                      if (fallback) {
+                        fallback.style.display = 'block';
+                      }
+                    }}
+                  />
+                ) : null}
+                <div className="reward-icon reward-icon-fallback" style={{ display: reward.imageUrl ? 'none' : 'block' }}>
+                  <FaStar />
+                </div>
               </div>
               <h4 className="reward-title">{reward.title}</h4>
               <p className="reward-description">{reward.description}</p>

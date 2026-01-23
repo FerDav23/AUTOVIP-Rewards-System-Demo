@@ -429,6 +429,38 @@ export async function getPointsByUserId(userId) {
 }
 
 /**
+ * Get rewards available for a specific user
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<Array>} Array of reward objects available for the user
+ */
+export async function getRewardsByUserId(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      return [];
+    }
+
+    const response = await client.get(`/autovip-users/rewards/${userId}`);
+    console.log('response.data.data', response.data.data);
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    // Return the array of rewards, or empty array if none
+    return response.data.data || [];
+  } catch (error) {
+    console.error(`Failed to fetch rewards for user ${userId}:`, error.message);
+    // Return empty array if there's an error (e.g., user has no rewards)
+    return [];
+  }
+}
+
+/**
  * Manage a points transaction for a user (add or remove points)
  * @param {number|string} userId - The user ID
  * @param {Object} transactionData - Transaction data object
