@@ -397,6 +397,38 @@ export async function loadTransactionTypes() {
 }
 
 /**
+ * Get points balance for a specific user
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<number>} User's current points balance
+ */
+export async function getPointsByUserId(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      return 0;
+    }
+
+    const response = await client.get(`/autovip-users/points/${userId}`);
+    
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+    // If the response is a number directly, return it
+    // If it's an object with a points property, return that
+    return typeof response.data.data.points_balance === 'number' ? response.data.data.points_balance : (response.data.data.points_balance || 0);
+  } catch (error) {
+    console.error(`Failed to fetch points for user ${userId}:`, error.message);
+    // Return 0 if there's an error (e.g., user has no points)
+    return 0;
+  }
+}
+
+/**
  * Manage a points transaction for a user (add or remove points)
  * @param {number|string} userId - The user ID
  * @param {Object} transactionData - Transaction data object

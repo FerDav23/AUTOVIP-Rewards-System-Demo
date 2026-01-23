@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
+import { getPointsByUserId } from '../services/autovipUsers';
 import './RewardsPoints.css';
 import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons/fa';
 
 export default function RewardsPoints({ setIsAuthenticated }) {
   const navigate = useNavigate();
   
-  // Dummy data for customer points
-  const [customerPoints] = useState(800);
+  // State for customer points - loaded from database
+  const [customerPoints, setCustomerPoints] = useState(0);
+  const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [userName] = useState(() => {
     const user = localStorage.getItem('user');
     return user ? user.replace(/"/g, '') : 'Cliente';
@@ -18,6 +20,41 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     const storedPassword = localStorage.getItem('password');
     return storedPassword ? storedPassword.replace(/"/g, '') : '';
   });
+
+  // Load user points from database
+  useEffect(() => {
+    const loadUserPoints = async () => {
+      try {
+        setIsLoadingPoints(true);
+        const userId = localStorage.getItem('autovipUserID');
+        
+        if (!userId) {
+          console.warn('No user ID found in localStorage');
+          setCustomerPoints(0);
+          setIsLoadingPoints(false);
+          return;
+        }
+
+        // Parse userId if it's stored as JSON string
+        let parsedUserId;
+        try {
+          parsedUserId = JSON.parse(userId);
+        } catch (error) {
+          parsedUserId = userId;
+        }
+
+        const points = await getPointsByUserId(parsedUserId);
+        setCustomerPoints(points || 0);
+      } catch (error) {
+        console.error('Failed to load user points:', error);
+        setCustomerPoints(0);
+      } finally {
+        setIsLoadingPoints(false);
+      }
+    };
+
+    loadUserPoints();
+  }, []);
 
   // Dummy data for promotions
   const promotions = [
