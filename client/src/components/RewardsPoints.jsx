@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
+import { getAllPromotions } from '../services/autovipPromotions';
 import './RewardsPoints.css';
 import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons/fa';
 
@@ -14,6 +15,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   // State for rewards - loaded from database
   const [rewards, setRewards] = useState([]);
   const [isLoadingRewards, setIsLoadingRewards] = useState(true);
+  // State for promotions - loaded from database
+  const [promotions, setPromotions] = useState([]);
+  const [isLoadingPromotions, setIsLoadingPromotions] = useState(true);
   const [userName] = useState(() => {
     const user = localStorage.getItem('user');
     return user ? user.replace(/"/g, '') : 'Cliente';
@@ -71,7 +75,6 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         }));
         
         setRewards(mappedRewards);
-        console.log('mappedRewards', mappedRewards);
       } catch (error) {
         console.error('Failed to load user data:', error);
         setCustomerPoints(0);
@@ -85,30 +88,40 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     loadUserData();
   }, []);
 
-  // Dummy data for promotions
-  const promotions = [
-    {
-      id: 1,
-      title: 'Doble Puntos en Mantenimientos',
-      description: 'Gana el doble de puntos en todos los servicios de mantenimiento durante este mes',
-      validUntil: '2024-12-31',
-      badge: 'Nuevo'
-    },
-    {
-      id: 2,
-      title: 'Promoción Especial de Fin de Año',
-      description: 'Acumula 500 puntos adicionales al realizar un mantenimiento completo',
-      validUntil: '2024-12-25',
-      badge: 'Popular'
-    },
-    {
-      id: 3,
-      title: 'Referidos = Puntos',
-      description: 'Invita a un amigo y ambos ganan 200 puntos al registrarse',
-      validUntil: '2024-12-20',
-      badge: 'Limitado'
-    }
-  ];
+  // Load promotions from database
+  useEffect(() => {
+    const loadPromotions = async () => {
+      try {
+        setIsLoadingPromotions(true);
+        const promotionsData = await getAllPromotions();
+        console.log('promotionsData', promotionsData);
+        
+        // Filter promotions: only show non-expired promotions and those with null expires_at
+        const currentDate = new Date();
+        const filteredPromotions = promotionsData.filter(promotion => {
+          // If expires_at is null, include it
+          if (promotion.expires_at === null || promotion.expires_at === undefined) {
+            return true;
+          }
+          
+          // If expires_at is a date string, check if it's in the future
+          const expiresDate = new Date(promotion.expires_at);
+          return expiresDate > currentDate;
+        });
+        
+        setPromotions(filteredPromotions);
+        console.log('filteredPromotions', filteredPromotions);
+      } catch (error) {
+        console.error('Failed to load promotions:', error);
+        setPromotions([]);
+      } finally {
+        setIsLoadingPromotions(false);
+      }
+    };
+
+    loadPromotions();
+  }, []);
+
 
 
   const handleLogout = () => {
@@ -313,16 +326,41 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             <h3>Promociones Activas</h3>
             </div>
             <div className="promotions-grid">
-            {promotions.map((promotion) => (
+            {isLoadingPromotions ? (
+              <p>Cargando promociones...</p>
+            ) : promotions.length === 0 ? (
+              <p>No hay promociones activas en este momento.</p>
+            ) : (
+              promotions.map((promotion) => (
                 <div key={promotion.id} className="promotion-card">
-                <div className="promotion-badge">{promotion.badge}</div>
-                <h4 className="promotion-title">{promotion.title}</h4>
-                <p className="promotion-description">{promotion.description}</p>
-                <div className="promotion-footer">
-                    <span className="promotion-date">Válido hasta: {new Date(promotion.validUntil).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  {promotion.imageUrl && (
+                    <div className="promotion-image-container">
+                      <img 
+                        src={promotion.imageUrl} 
+                        alt={promotion.title}
+                        className="promotion-image"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const container = e.target.parentElement;
+                          if (container) {
+                            container.style.display = 'none';
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                  <h4 className="promotion-title">{promotion.title}</h4>
+                  <p className="promotion-description">{promotion.description}</p>
+                  <div className="promotion-footer">
+                    {promotion.expires_at ? (
+                      <span className="promotion-date">Válido hasta: {new Date(promotion.expires_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    ) : (
+                      <span className="promotion-date">Válido permanentemente</span>
+                    )}
+                  </div>
                 </div>
-                </div>
-            ))}
+              ))
+            )}
             </div>
         </div>
       </div>

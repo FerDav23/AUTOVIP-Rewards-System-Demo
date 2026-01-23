@@ -446,7 +446,6 @@ export async function getRewardsByUserId(userId) {
     }
 
     const response = await client.get(`/autovip-users/rewards/${userId}`);
-    console.log('response.data.data', response.data.data);
     if (!response.data) {
       throw new Error('Invalid response format from server');
     }
@@ -496,7 +495,6 @@ export async function managePointTransaction(userId, transactionData) {
 
     // Get manager ID from localStorage
     const managerID = localStorage.getItem('managerID');
-    console.log('managerID', managerID);
     if (!managerID) {
       throw new Error('Manager ID not found. Please login again.');
     }

@@ -428,7 +428,6 @@
   margin: 0 0 12px 0;
   font-size: 1.2rem;
   font-weight: 600;
-  padding-right: 80px;
 }
 
 .promotion-description {
@@ -447,6 +446,34 @@
   color: var(--text-muted);
   font-size: 0.85rem;
   font-style: italic;
+}
+
+.promotion-image-container {
+  text-align: center;
+  margin: 0 0 15px 0;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--bg-light);
+}
+
+.promotion-image-container:empty {
+  min-height: 0;
+  margin: 0;
+}
+
+.promotion-image {
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Rewards Grid */

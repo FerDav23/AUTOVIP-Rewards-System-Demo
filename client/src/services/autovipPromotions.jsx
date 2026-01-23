@@ -43,7 +43,6 @@ export async function createPromotion(promotionData) {
       clearExpiredToken();
       throw new Error('Session has expired. Please login again.');
     }
-    console.log('promotionData', promotionData);
     // If image file is provided, use FormData; otherwise use JSON
     if (promotionData.imageFile) {
       const formData = new FormData();
