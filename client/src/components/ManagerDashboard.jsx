@@ -511,6 +511,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     const type = formData.transactionType;
     const reason = formData.reason || '';
     const transactionTypeId = formData.transactionTypeId;
+    const rewardId = formData.rewardId || null;
     
     if (amount <= 0) {
       alert('Ingrese una cantidad válida de puntos.');
@@ -531,12 +532,19 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
     try {
       // Call API to manage the points transaction
-      const updatedUser = await managePointTransaction(editingItem.id, {
+      const transactionData = {
         type,
         amount,
         reason,
         transactionTypeId
-      });
+      };
+      
+      // Include rewardId only if it's provided
+      if (rewardId) {
+        transactionData.rewardId = rewardId;
+      }
+      
+      const updatedUser = await managePointTransaction(editingItem.id, transactionData);
 
       // Update local state with the new user data
       await loadUsers();
@@ -550,10 +558,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         amount,
         reason,
         date: new Date().toISOString(),
-        balanceAfter: updatedUser.points_balance || updatedUser.points
+        balanceAfter: updatedUser.user.points_balance || updatedUser.user.points
       }]);
 
-      alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.points_balance || updatedUser.points}`);
+      alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.user.points_balance || updatedUser.user.points}`);
       
       // Reset form and close modal
       setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '', transactionTypeId: '', rewardId: '' });
@@ -1271,7 +1279,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <button 
                       type="button"
                       className={`type-btn add ${formData.transactionType === 'add' ? 'active' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, transactionType: 'add' }))}
+                      onClick={() => setFormData(prev => ({ ...prev, transactionType: 'add', rewardId: '' }))}
                     >
                       <FaPlus /> Agregar Puntos
                     </button>
@@ -1307,15 +1315,40 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     name="rewardId" 
                     value={formData.rewardId || ''} 
                     onChange={handleFormChange}
+                    disabled={formData.transactionType === 'add'}
                   >
-                    <option value="">Ninguna - No aplica</option>
-                    {rewards
-                      .filter(reward => reward.available)
-                      .map(reward => (
-                        <option key={reward.id} value={reward.id}>
-                          {reward.title} - {(reward.pointsRequired || 0).toLocaleString()} pts ({reward.category})
-                        </option>
-                      ))}
+                    {formData.transactionType === 'add' ? (
+                      <option value="">Recompensas no disponibles</option>
+                    ) : (
+                      <>
+                        <option value="">Ninguna - No aplica</option>
+                        {(() => {
+                          // Get user's membership ID
+                          const userMembershipId = editingItem._original?.membership_id;
+                          
+                          // Filter rewards: must be available AND user's membership must be in reward's memberships array
+                          return rewards
+                            .filter(reward => {
+                              // First check if reward is available
+                              if (!reward.available) return false;
+                              
+                              // If user has no membership, don't show any rewards
+                              if (!userMembershipId) return false;
+                              
+                              // Get reward's membership IDs from original data
+                              const rewardMembershipIds = reward._original?.memberships || [];
+                              
+                              // Check if user's membership ID is in the reward's memberships array
+                              return rewardMembershipIds.includes(userMembershipId);
+                            })
+                            .map(reward => (
+                              <option key={reward.id} value={reward.id}>
+                                {reward.title} - {(reward.pointsRequired || 0).toLocaleString()} pts ({reward.category})
+                              </option>
+                            ));
+                        })()}
+                      </>
+                    )}
                   </select>
                 </div>
                 <div className="form-group">
