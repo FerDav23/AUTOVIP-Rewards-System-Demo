@@ -69,12 +69,29 @@ export async function loginManager(username, password) {
     localStorage.setItem('managerID', JSON.stringify(response.data.data.id));
     localStorage.setItem('managerName', JSON.stringify(response.data.data.name));
     localStorage.setItem('managerUsername', JSON.stringify(response.data.data.username));
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error('Login manager failed:', error);
     throw error;
   }
 }
+
+export async function loginAutovipUser (username, password) {
+  try {
+    const response = await client.post('/autovip-users/login', { username, password });
+    storeTokenWithExpiration(response.data.data.token);
+    console.log('response.data.data', response.data.data);
+    localStorage.setItem('autovipUserID', JSON.stringify(response.data.data.id));
+    localStorage.setItem('autovipUserName', JSON.stringify(response.data.data.name));
+    localStorage.setItem('autovipUserCardNumber', JSON.stringify(response.data.data.card_number));
+    localStorage.setItem('autovipUserRucCi', JSON.stringify(response.data.data.ruc_ci));
+    return response.data.data;
+  } catch (error) {
+    console.error('Login autovip user failed:', error);
+    throw error;
+  }
+}
+
 
 export async function logout() {
   localStorage.removeItem('authToken');
@@ -92,6 +109,15 @@ export async function logoutManager() {
   localStorage.removeItem('managerID');
   localStorage.removeItem('managerName');
   localStorage.removeItem('managerUsername');
+}
+
+export async function logoutAutovipUser() {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('tokenExpiration');
+  localStorage.removeItem('autovipUserID');
+  localStorage.removeItem('autovipUserName');
+  localStorage.removeItem('autovipUserCardNumber');
+  localStorage.removeItem('autovipUserRucCi');
 }
 
 /**

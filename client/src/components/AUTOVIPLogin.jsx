@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/user';
+import { loginAutovipUser } from '../services/user';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
@@ -10,6 +11,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Remove root padding to make background cover full screen
@@ -37,7 +39,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
     setError('');
     
     try {
-      await login(username, password);
+      await loginAutovipUser(username, password);
       if (setIsAuthenticated) setIsAuthenticated(true);
       navigate('/rewards');
     } catch (err) {
@@ -78,14 +80,24 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
           </div>
           <div className="autovip-form-group">
             <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="off"
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="off"
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
           <button type="submit" className="autovip-login-button">Ingresar</button>
         
