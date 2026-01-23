@@ -1055,3 +1055,16 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+/* Character counter */
+.char-counter {
+  text-align: right;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.char-counter-warning {
+  color: #cf0000;
+  font-weight: 600;
+}
