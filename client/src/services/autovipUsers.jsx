@@ -401,16 +401,38 @@ export async function managePointTransaction(userId, transactionData) {
       throw new Error('Reason is required for the transaction');
     }
 
+    // Get manager ID from localStorage
+    const managerID = localStorage.getItem('managerID');
+    console.log('managerID', managerID);
+    if (!managerID) {
+      throw new Error('Manager ID not found. Please login again.');
+    }
+
+    // Parse manager ID (it's stored as JSON string)
+    let parsedManagerId;
+    try {
+      parsedManagerId = JSON.parse(managerID);
+    } catch (error) {
+      // If parsing fails, try using it directly
+      parsedManagerId = managerID;
+    }
+
     // Prepare the request payload
     const payload = {
       type: transactionData.type,
       amount: transactionData.amount,
-      reason: transactionData.reason
+      reason: transactionData.reason,
+      manager_id: parsedManagerId
     };
 
     // Add transaction type ID if provided
     if (transactionData.transactionTypeId) {
       payload.transaction_type_id = transactionData.transactionTypeId;
+    }
+
+    // Add reward ID if provided
+    if (transactionData.rewardId) {
+      payload.reward_id = transactionData.rewardId;
     }
 
     const response = await client.post(`/points-transactions/${userId}/transaction`, payload);
