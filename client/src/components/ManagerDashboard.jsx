@@ -1400,11 +1400,36 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
-                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <input 
+                    type="text" 
+                    name="title" 
+                    value={formData.title || ''} 
+                    onChange={handleFormChange} 
+                    autoComplete="off" 
+                    required 
+                    maxLength={100}
+                  />
+                  <div className="char-counter">
+                    <span className={((formData.title || '').length > 90) ? 'char-counter-warning' : ''}>
+                      {(formData.title || '').length} / 100
+                    </span>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Descripción</label>
-                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <textarea 
+                    name="description" 
+                    value={formData.description || ''} 
+                    onChange={handleFormChange} 
+                    autoComplete="off" 
+                    required 
+                    maxLength={255}
+                  />
+                  <div className="char-counter">
+                    <span className={((formData.description || '').length > 240) ? 'char-counter-warning' : ''}>
+                      {(formData.description || '').length} / 255
+                    </span>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Puntos Requeridos</label>
@@ -1540,11 +1565,36 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
-                  <input type="text" name="title" value={formData.title || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <input 
+                    type="text" 
+                    name="title" 
+                    value={formData.title || ''} 
+                    onChange={handleFormChange} 
+                    autoComplete="off" 
+                    required 
+                    maxLength={100}
+                  />
+                  <div className="char-counter">
+                    <span className={((formData.title || '').length > 90) ? 'char-counter-warning' : ''}>
+                      {(formData.title || '').length} / 100
+                    </span>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Descripción</label>
-                  <textarea name="description" value={formData.description || ''} onChange={handleFormChange} autoComplete="off" required />
+                  <textarea 
+                    name="description" 
+                    value={formData.description || ''} 
+                    onChange={handleFormChange} 
+                    autoComplete="off" 
+                    required 
+                    maxLength={255}
+                  />
+                  <div className="char-counter">
+                    <span className={((formData.description || '').length > 240) ? 'char-counter-warning' : ''}>
+                      {(formData.description || '').length} / 255
+                    </span>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Válido hasta (opcional)</label>
