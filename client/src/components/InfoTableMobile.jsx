@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getHistorialData } from "../services/user";
-import { Loading, NoData } from './TableStates';
+import { NoData } from './TableStates';
+import Loading from './Loading';
 import './InfoTableMobile.css';
 
 const ReporteHistorialMobile = ({placa, startDate, endDate, codigo, descripcion}) => {
@@ -89,7 +90,7 @@ const ReporteHistorialMobile = ({placa, startDate, endDate, codigo, descripcion}
 
       <div className="mobile-cards-container">
         {isLoading ? (
-          <Loading />
+          <Loading message="Cargando historial de mantenimiento..." />
         ) : historial.length === 0 ? (
           <NoData />
         ) : (
