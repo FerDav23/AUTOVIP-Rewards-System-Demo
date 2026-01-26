@@ -460,6 +460,35 @@ export async function getRewardsByUserId(userId) {
 }
 
 /**
+ * Get user information by user ID
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<Object>} User object with name, card_number, ruc_ci, and membership
+ */
+export async function getUserInformation(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    const response = await client.get(`/autovip-users/${userId}`);
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(`Failed to fetch user information for user ${userId}:`, error.message);
+    throw error;
+  }
+}
+
+/**
  * Manage a points transaction for a user (add or remove points)
  * @param {number|string} userId - The user ID
  * @param {Object} transactionData - Transaction data object

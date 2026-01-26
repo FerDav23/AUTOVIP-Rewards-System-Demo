@@ -97,7 +97,6 @@ export default function RewardsPoints({ setIsAuthenticated }) {
       try {
         setIsLoadingPromotions(true);
         const promotionsData = await getAllPromotions();
-        console.log('promotionsData', promotionsData);
         
         // Filter promotions: only show non-expired promotions and those with null expires_at
         const currentDate = new Date();
@@ -113,7 +112,6 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         });
         
         setPromotions(filteredPromotions);
-        console.log('filteredPromotions', filteredPromotions);
       } catch (error) {
         console.error('Failed to load promotions:', error);
         setPromotions([]);
