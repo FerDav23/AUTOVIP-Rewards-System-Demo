@@ -523,11 +523,27 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       return;
     }
 
+    const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(transactionTypeId));
+    const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
+    
+    if (isCanje && !rewardId) {
+      alert('Por favor seleccione una recompensa para la categoría "Canje".');
+      return;
+    }
+
     const user = users.find(u => u.id === editingItem.id);
 
     if (type === 'remove' && amount > user.points) {
       alert(`El usuario solo tiene ${user.points} puntos disponibles.`);
       return;
+    }
+    
+    if (isCanje && rewardId) {
+      const selectedReward = rewards.find(r => r.id === parseInt(rewardId));
+      if (selectedReward?.pointsRequired !== amount) {
+        alert(`Los puntos deben coincidir con los puntos de la recompensa seleccionada (${selectedReward.pointsRequired} puntos).`);
+        return;
+      }
     }
 
     try {
@@ -1279,14 +1295,34 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <button 
                       type="button"
                       className={`type-btn add ${formData.transactionType === 'add' ? 'active' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, transactionType: 'add', rewardId: '' }))}
+                      onClick={() => {
+                        const currentTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                        const isGanado = currentTxType?.type?.toLowerCase() === 'ganado';
+                        
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          transactionType: 'add',
+                          transactionTypeId: isGanado ? prev.transactionTypeId : '',
+                          rewardId: ''
+                        }));
+                      }}
                     >
                       <FaPlus /> Agregar Puntos
                     </button>
                     <button 
                       type="button"
                       className={`type-btn remove ${formData.transactionType === 'remove' ? 'active' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, transactionType: 'remove' }))}
+                      onClick={() => {
+                        const currentTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                        const isGanado = currentTxType?.type?.toLowerCase() === 'ganado';
+                        
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          transactionType: 'remove',
+                          transactionTypeId: isGanado ? '' : prev.transactionTypeId,
+                          rewardId: ''
+                        }));
+                      }}
                     >
                       <FaMinus /> Quitar Puntos
                     </button>
@@ -1297,76 +1333,149 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <select 
                     name="transactionTypeId" 
                     value={formData.transactionTypeId || ''} 
-                    onChange={handleFormChange}
+                    onChange={(e) => {
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        transactionTypeId: e.target.value, 
+                        rewardId: '', 
+                        pointsAmount: '' 
+                      }));
+                    }}
                     required
                     disabled={loadingTransactionTypes}
                   >
                     <option value="">{loadingTransactionTypes ? 'Cargando...' : 'Seleccione una categoría'}</option>
-                    {transactionTypes.map(txType => (
-                      <option key={txType.id} value={txType.id}>
-                        {txType.type}
-                      </option>
-                    ))}
+                    {transactionTypes
+                      .filter(txType => {
+                        if (formData.transactionType === 'add') {
+                          return txType.type.toLowerCase() === 'ganado';
+                        }
+                        if (formData.transactionType === 'remove') {
+                          return txType.type.toLowerCase() !== 'ganado';
+                        }
+                        return true;
+                      })
+                      .map(txType => (
+                        <option key={txType.id} value={txType.id}>
+                          {txType.type}
+                        </option>
+                      ))}
                   </select>
                 </div>
+                
+                {(() => {
+                  const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                  const categoryName = selectedTxType?.type?.toLowerCase() || '';
+                  const isAjuste = categoryName === 'ajuste' || categoryName === 'ajust';
+                  
+                  return isAjuste ? (
+                    <div className="warning-message" style={{
+                      padding: '12px',
+                      backgroundColor: '#fff3cd',
+                      border: '1px solid #ffc107',
+                      borderRadius: '4px',
+                      marginBottom: '16px',
+                      color: '#856404'
+                    }}>
+                      <strong>⚠️ Advertencia:</strong> Este modo ({selectedTxType.type}) debe usarse únicamente para corrección de puntos y no para agregar nuevos puntos o canjear recompensas.
+                    </div>
+                  ) : null;
+                })()}
+                
                 <div className="form-group">
-                  <label>Recompensa asociada (opcional)</label>
-                  <select 
-                    name="rewardId" 
-                    value={formData.rewardId || ''} 
-                    onChange={handleFormChange}
-                    disabled={formData.transactionType === 'add'}
-                  >
-                    {formData.transactionType === 'add' ? (
-                      <option value="">Recompensas no disponibles</option>
-                    ) : (
+                  {(() => {
+                    const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                    const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
+                    
+                    return (
                       <>
-                        <option value="">Ninguna - No aplica</option>
-                        {(() => {
-                          // Get user's membership ID
-                          const userMembershipId = editingItem._original?.membership_id;
-                          
-                          // Filter rewards: must be available AND user's membership must be in reward's memberships array
-                          return rewards
-                            .filter(reward => {
-                              // First check if reward is available
-                              if (!reward.available) return false;
-                              
-                              // If user has no membership, don't show any rewards
-                              if (!userMembershipId) return false;
-                              
-                              // Get reward's membership IDs from original data
-                              const rewardMembershipIds = reward._original?.memberships || [];
-                              
-                              // Check if user's membership ID is in the reward's memberships array
-                              return rewardMembershipIds.includes(userMembershipId);
-                            })
-                            .map(reward => (
-                              <option key={reward.id} value={reward.id}>
-                                {reward.title} - {(reward.pointsRequired || 0).toLocaleString()} pts ({reward.category})
-                              </option>
-                            ));
-                        })()}
+                        <label>
+                          Recompensa asociada
+                          {isCanje ? <span style={{ color: 'red' }}> *</span> : ' (opcional)'}
+                        </label>
+                        <select 
+                          name="rewardId" 
+                          value={formData.rewardId || ''} 
+                          onChange={(e) => {
+                            const selectedRewardId = e.target.value;
+                            const selectedReward = rewards.find(r => r.id === parseInt(selectedRewardId));
+                            
+                            if (!selectedRewardId) {
+                              setFormData(prev => ({ ...prev, rewardId: '', pointsAmount: '' }));
+                            } else if (isCanje && selectedReward) {
+                              setFormData(prev => ({ 
+                                ...prev, 
+                                rewardId: selectedRewardId,
+                                pointsAmount: selectedReward.pointsRequired?.toString() || ''
+                              }));
+                            } else {
+                              setFormData(prev => ({ ...prev, rewardId: selectedRewardId }));
+                            }
+                          }}
+                          disabled={formData.transactionType === 'add'}
+                          required={isCanje}
+                        >
+                          {formData.transactionType === 'add' ? (
+                            <option value="">Recompensas no disponibles</option>
+                          ) : (
+                            <>
+                              <option value="">{isCanje ? 'Seleccione una recompensa' : 'Ninguna - No aplica'}</option>
+                              {(() => {
+                                const userMembershipId = editingItem._original?.membership_id;
+                                
+                                return rewards
+                                  .filter(reward => {
+                                    if (!reward.available || !userMembershipId) return false;
+                                    const rewardMembershipIds = reward._original?.memberships || [];
+                                    return rewardMembershipIds.includes(userMembershipId);
+                                  })
+                                  .map(reward => (
+                                    <option key={reward.id} value={reward.id}>
+                                      {reward.title} - {(reward.pointsRequired || 0).toLocaleString()} pts ({reward.category})
+                                    </option>
+                                  ));
+                              })()}
+                            </>
+                          )}
+                        </select>
                       </>
-                    )}
-                  </select>
+                    );
+                  })()}
                 </div>
                 <div className="form-group">
-                  <label>Cantidad de puntos</label>
-                  <input 
-                    type="text" 
-                    name="pointsAmount" 
-                    value={formData.pointsAmount || ''} 
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '' || /^\d+$/.test(val)) {
-                        setFormData(prev => ({ ...prev, pointsAmount: val }));
-                      }
-                    }}
-                    autoComplete="off"
-                    required 
-                    placeholder="Ej: 100"
-                  />
+                  {(() => {
+                    const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                    const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
+                    const isDisabled = isCanje && formData.rewardId;
+                    
+                    return (
+                      <>
+                        <label>Cantidad de puntos</label>
+                        <input 
+                          type="text" 
+                          name="pointsAmount" 
+                          value={formData.pointsAmount || ''} 
+                          onChange={(e) => {
+                            if (isDisabled) return;
+                            const val = e.target.value;
+                            if (val === '' || /^\d+$/.test(val)) {
+                              setFormData(prev => ({ ...prev, pointsAmount: val }));
+                            }
+                          }}
+                          autoComplete="off"
+                          required 
+                          placeholder="Ej: 100"
+                          disabled={isDisabled}
+                          style={isDisabled ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
+                        />
+                        {isDisabled && (
+                          <small style={{ color: '#666', display: 'block', marginTop: '4px' }}>
+                            Los puntos se establecen automáticamente según la recompensa seleccionada.
+                          </small>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="form-group">
                   <label>Razón / Descripción</label>
@@ -1384,7 +1493,17 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className={`btn-submit ${formData.transactionType === 'remove' ? 'btn-remove' : ''}`}
-                    disabled={!formData.transactionType || !formData.transactionTypeId || !formData.pointsAmount || !formData.reason}
+                    disabled={(() => {
+                      const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
+                      const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
+                      const requiresReward = isCanje && !formData.rewardId;
+                      
+                      return !formData.transactionType || 
+                             !formData.transactionTypeId || 
+                             !formData.pointsAmount || 
+                             !formData.reason ||
+                             requiresReward;
+                    })()}
                   >
                     <FaCheck /> Confirmar Transacción
                   </button>
