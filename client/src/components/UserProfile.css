@@ -254,6 +254,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
 }
 
 .info-label {
@@ -407,19 +408,19 @@
 }
 
 .vehicle-card {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
-  background-color: var(--primary-color); /* Fallback */
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  background-color: #FFFFFF;
+  border-radius: 12px;
   padding: 20px;
   position: relative;
-  color: var(--text-on-primary);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  color: var(--text-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .vehicle-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .vehicle-card-actions {
@@ -433,9 +434,9 @@
 
 .edit-vehicle-btn,
 .delete-vehicle-btn {
-  background-color: rgba(255, 255, 255, 0.25);
-  color: var(--text-on-primary);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: #FFFFFF;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   width: 35px;
   height: 35px;
   border-radius: 50%;
@@ -453,7 +454,7 @@
 .edit-vehicle-btn svg,
 .delete-vehicle-btn svg {
   font-size: 1rem;
-  color: var(--text-on-primary);
+  color: var(--text-color);
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -461,8 +462,8 @@
 
 .edit-vehicle-btn:hover,
 .delete-vehicle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: var(--light-grey);
+  border-color: var(--primary-color);
   transform: scale(1.15) translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -471,6 +472,7 @@
   font-size: 2.5rem;
   margin-bottom: 15px;
   opacity: 0.9;
+  color: var(--text-color);
 }
 
 .vehicle-info {
@@ -483,12 +485,14 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: bold;
+  color: var(--text-color);
 }
 
 .vehicle-details {
   margin: 0;
   font-size: 0.95rem;
   opacity: 0.9;
+  color: var(--text-color);
 }
 
 /* Empty State */
@@ -517,12 +521,13 @@
 /* Billing Table */
 .billing-table-container {
   overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .billing-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   border-radius: var(--border-radius-md);
   overflow: hidden;
@@ -544,6 +549,7 @@
 .billing-table tbody tr {
   border-bottom: 1px solid var(--border-color);
   transition: background-color 0.2s;
+  background-color: white;
 }
 
 .billing-table tbody tr:hover {
@@ -558,7 +564,7 @@
 
 .amount-cell {
   font-weight: bold;
-  color: var(--primary-color);
+  color: white;
 }
 
 .invoice-cell {
