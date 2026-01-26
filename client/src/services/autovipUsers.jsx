@@ -506,7 +506,6 @@ export async function getAllRedeemedRewardsByUserId(userId) {
     }
 
     const response = await client.get(`/reward-redemptions/user/${userId}`);
-    console.log('response', response.data.data);
     if (!response.data) {
       throw new Error('Invalid response format from server');
     }
