@@ -1,27 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout, getCurrentUserMembership, getCurrentUserCardNumber, getCurrentUserEmail, getCurrentUserPhoneNumber } from '../services/user';
+import { logout } from '../services/user';
+import { getUserInformation, getAllCarsByUserId } from '../services/autovipUsers';
 import './UserProfile.css';
-import { FaUser, FaCar, FaTrash, FaPlus, FaReceipt, FaChartLine, FaGift, FaTimes, FaEdit, FaCreditCard, FaCrown, FaPhone } from 'react-icons/fa';
+import { 
+  FaUser, FaCar, FaReceipt, 
+  FaChartLine, FaGift, FaCreditCard, 
+  FaCrown, FaIdCard 
+} from 'react-icons/fa';
 
 export default function UserProfile({ setIsAuthenticated }) {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('');
   const [membershipType, setMembershipType] = useState('');
   const [cardNumber, setCardNumber] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [rucCi, setRucCi] = useState('');
   const [vehicles, setVehicles] = useState([]);
-  const [showAddVehicle, setShowAddVehicle] = useState(false);
-  const [showEditVehicle, setShowEditVehicle] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState(null);
-  const [newVehicle, setNewVehicle] = useState({
-    placa: '',
-    marca: '',
-    modelo: '',
-    año: '',
-    color: ''
-  });
 
   // Dummy billing/payment history data
   const [billingHistory] = useState([
@@ -64,135 +58,74 @@ export default function UserProfile({ setIsAuthenticated }) {
   ]);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      setUserName(user.replace(/"/g, ''));
-    }
+    const loadUserInformation = async () => {
+      try {
+        // Get user ID from localStorage
+        const autovipUserID = localStorage.getItem('autovipUserID');
+        
+        if (!autovipUserID) {
+          console.warn('No autovipUserID found in localStorage');
+          return;
+        }
 
-    // Load membership data
-    const membership = getCurrentUserMembership();
-    const card = getCurrentUserCardNumber();
-    const email = getCurrentUserEmail();
-    const phone = getCurrentUserPhoneNumber();
-    
-    if (membership) {
-      setMembershipType(membership);
-    }
-    if (card) {
-      setCardNumber(card);
-    }
-    if (email) {
-      setUserEmail(email);
-    }
-    if (phone) {
-      setPhoneNumber(phone);
-    }
+        // Parse the user ID (it's stored as JSON string)
+        let userId;
+        try {
+          userId = JSON.parse(autovipUserID);
+        } catch (error) {
+          userId = autovipUserID;
+        }
 
-    // Load vehicles from localStorage
-    const savedVehicles = localStorage.getItem('userVehicles');
-    if (savedVehicles) {
-      setVehicles(JSON.parse(savedVehicles));
-    }
+        // Fetch user information from API
+        const userInfo = await getUserInformation(userId);
+        
+        if (userInfo) {
+          // Set user information from API response
+          if (userInfo.name) {
+            setUserName(userInfo.name);
+          }
+          if (userInfo.card_number) {
+            setCardNumber(userInfo.card_number);
+          }
+          if (userInfo.ruc_ci) {
+            setRucCi(userInfo.ruc_ci);
+          }
+          if (userInfo.membership) {
+            // If membership is an object, get its name or type
+            if (typeof userInfo.membership === 'object' && userInfo.membership !== null) {
+              setMembershipType(userInfo.membership.name || userInfo.membership.type || '');
+            } else {
+              setMembershipType(userInfo.membership);
+            }
+          }
+        }
+
+        // Load vehicles from API
+        const vehiclesData = await getAllCarsByUserId(userId);
+        if (vehiclesData && Array.isArray(vehiclesData)) {
+          // Map API response fields to component format
+          const mappedVehicles = vehiclesData.map((vehicle) => ({
+            id: vehicle.id || vehicle.plate, // Use id if available, otherwise use plate as fallback
+            placa: vehicle.plate || '',
+            marca: vehicle.make || '',
+            modelo: vehicle.model || '',
+            año: vehicle.year || '',
+            color: vehicle.color || ''
+          }));
+          setVehicles(mappedVehicles);
+        }
+      } catch (error) {
+        console.error('Failed to load user information:', error);
+      }
+    };
+
+    loadUserInformation();
   }, []);
 
   const handleLogout = () => {
     logout();
     setIsAuthenticated(false);
     navigate('/login');
-  };
-
-  const handleAddVehicle = () => {
-    if (vehicles.length >= 5) {
-      alert('Solo puedes agregar hasta 5 vehículos a tu perfil.');
-      return;
-    }
-
-    if (!newVehicle.placa || !newVehicle.marca || !newVehicle.modelo) {
-      alert('Por favor completa al menos la placa, marca y modelo.');
-      return;
-    }
-
-    const vehicle = {
-      id: Date.now(),
-      ...newVehicle
-    };
-
-    const updatedVehicles = [...vehicles, vehicle];
-    setVehicles(updatedVehicles);
-    localStorage.setItem('userVehicles', JSON.stringify(updatedVehicles));
-    
-    setNewVehicle({
-      placa: '',
-      marca: '',
-      modelo: '',
-      año: '',
-      color: ''
-    });
-    setShowAddVehicle(false);
-  };
-
-  const handleEditVehicle = (vehicle) => {
-    setEditingVehicle(vehicle);
-    setNewVehicle({
-      placa: vehicle.placa,
-      marca: vehicle.marca,
-      modelo: vehicle.modelo,
-      año: vehicle.año || '',
-      color: vehicle.color || ''
-    });
-    setShowEditVehicle(true);
-  };
-
-  const handleUpdateVehicle = () => {
-    if (!newVehicle.placa || !newVehicle.marca || !newVehicle.modelo) {
-      alert('Por favor completa al menos la placa, marca y modelo.');
-      return;
-    }
-
-    const updatedVehicles = vehicles.map(v => 
-      v.id === editingVehicle.id ? { ...v, ...newVehicle } : v
-    );
-    setVehicles(updatedVehicles);
-    localStorage.setItem('userVehicles', JSON.stringify(updatedVehicles));
-    
-    setNewVehicle({
-      placa: '',
-      marca: '',
-      modelo: '',
-      año: '',
-      color: ''
-    });
-    setEditingVehicle(null);
-    setShowEditVehicle(false);
-  };
-
-  const handleCloseModals = () => {
-    setShowAddVehicle(false);
-    setShowEditVehicle(false);
-    setEditingVehicle(null);
-    setNewVehicle({
-      placa: '',
-      marca: '',
-      modelo: '',
-      año: '',
-      color: ''
-    });
-  };
-
-  const handleDeleteVehicle = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este vehículo?')) {
-      const updatedVehicles = vehicles.filter(v => v.id !== id);
-      setVehicles(updatedVehicles);
-      localStorage.setItem('userVehicles', JSON.stringify(updatedVehicles));
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewVehicle(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
   const formatDate = (dateString) => {
@@ -258,10 +191,6 @@ export default function UserProfile({ setIsAuthenticated }) {
               <span className="info-value">{userName || 'Cliente'}</span>
             </div>
             <div className="user-info-item">
-              <span className="info-label">Email:</span>
-              <span className="info-value">{userEmail || (userName ? `${userName.toLowerCase()}@example.com` : 'cliente@example.com')}</span>
-            </div>
-            <div className="user-info-item">
               <span className="info-label">Tipo de Membresía:</span>
               <span className={`info-value ${getMembershipBadgeClass(membershipType)}`}>
                 <FaCrown className="membership-icon" />
@@ -276,9 +205,9 @@ export default function UserProfile({ setIsAuthenticated }) {
             </div>
             <div className="user-info-item">
               <span className="info-label">
-                <FaPhone className="info-icon" /> Teléfono:
+                <FaIdCard className="info-icon" /> RUC/C.I.:
               </span>
-              <span className="info-value">{phoneNumber || 'No disponible'}</span>
+              <span className="info-value">{rucCi || 'No disponible'}</span>
             </div>
           </div>
         </div>
@@ -290,14 +219,6 @@ export default function UserProfile({ setIsAuthenticated }) {
             <h3 className="centered-title">
               Mis Vehículos {vehicles.length > 0 && <span className="count-badge">({vehicles.length}/5)</span>}
             </h3>
-            {vehicles.length < 5 && (
-              <button 
-                className="add-vehicle-btn"
-                onClick={() => setShowAddVehicle(true)}
-              >
-                <FaPlus /> Agregar Vehículo
-              </button>
-            )}
           </div>
 
           {vehicles.length === 0 ? (
@@ -310,36 +231,6 @@ export default function UserProfile({ setIsAuthenticated }) {
             <div className="vehicles-grid">
               {vehicles.map((vehicle) => (
                 <div key={vehicle.id} className="vehicle-card">
-                  <div className="vehicle-card-actions">
-                    <div
-                      className="edit-vehicle-btn"
-                      onClick={() => handleEditVehicle(vehicle)}
-                      title="Editar vehículo"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          handleEditVehicle(vehicle);
-                        }
-                      }}
-                    >
-                      <FaEdit />
-                    </div>
-                    <div
-                      className="delete-vehicle-btn"
-                      onClick={() => handleDeleteVehicle(vehicle.id)}
-                      title="Eliminar vehículo"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          handleDeleteVehicle(vehicle.id);
-                        }
-                      }}
-                    >
-                      <FaTrash />
-                    </div>
-                  </div>
                   <div className="vehicle-icon">
                     <FaCar />
                   </div>
@@ -403,173 +294,6 @@ export default function UserProfile({ setIsAuthenticated }) {
         </div>
       </div>
 
-      {/* Add Vehicle Modal */}
-      {showAddVehicle && (
-        <div className="modal-overlay" onClick={handleCloseModals}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Agregar Nuevo Vehículo</h3>
-              <button className="modal-close-btn" onClick={handleCloseModals}>
-                <FaTimes />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Placa *</label>
-                  <input
-                    type="text"
-                    name="placa"
-                    value={newVehicle.placa}
-                    onChange={handleInputChange}
-                    placeholder="ABC-123"
-                    maxLength={10}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Marca *</label>
-                  <input
-                    type="text"
-                    name="marca"
-                    value={newVehicle.marca}
-                    onChange={handleInputChange}
-                    placeholder="Toyota"
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Modelo *</label>
-                  <input
-                    type="text"
-                    name="modelo"
-                    value={newVehicle.modelo}
-                    onChange={handleInputChange}
-                    placeholder="Corolla"
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Año</label>
-                  <input
-                    type="number"
-                    name="año"
-                    value={newVehicle.año}
-                    onChange={handleInputChange}
-                    placeholder="2020"
-                    min="1900"
-                    max={new Date().getFullYear() + 1}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Color</label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={newVehicle.color}
-                    onChange={handleInputChange}
-                    placeholder="Blanco"
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button onClick={handleAddVehicle} className="save-btn">
-                Guardar Vehículo
-              </button>
-              <button onClick={handleCloseModals} className="cancel-btn">
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Vehicle Modal */}
-      {showEditVehicle && (
-        <div className="modal-overlay" onClick={handleCloseModals}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Editar Vehículo</h3>
-              <button className="modal-close-btn" onClick={handleCloseModals}>
-                <FaTimes />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Placa *</label>
-                  <input
-                    type="text"
-                    name="placa"
-                    value={newVehicle.placa}
-                    onChange={handleInputChange}
-                    placeholder="ABC-123"
-                    maxLength={10}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Marca *</label>
-                  <input
-                    type="text"
-                    name="marca"
-                    value={newVehicle.marca}
-                    onChange={handleInputChange}
-                    placeholder="Toyota"
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Modelo *</label>
-                  <input
-                    type="text"
-                    name="modelo"
-                    value={newVehicle.modelo}
-                    onChange={handleInputChange}
-                    placeholder="Corolla"
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Año</label>
-                  <input
-                    type="number"
-                    name="año"
-                    value={newVehicle.año}
-                    onChange={handleInputChange}
-                    placeholder="2020"
-                    min="1900"
-                    max={new Date().getFullYear() + 1}
-                    autoComplete="off"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Color</label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={newVehicle.color}
-                    onChange={handleInputChange}
-                    placeholder="Blanco"
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button onClick={handleUpdateVehicle} className="save-btn">
-                Actualizar Vehículo
-              </button>
-              <button onClick={handleCloseModals} className="cancel-btn">
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

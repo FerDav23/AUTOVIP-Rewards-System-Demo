@@ -9,7 +9,6 @@ export function initColors(membershipId = null) {
   let membershipType = "default";
 
   if (membershipId == 1) {
-    console.log('membershipId', membershipId);
     membershipType = 'gold';
   } else if (membershipId == 2) {
     membershipType = 'black';
