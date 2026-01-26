@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { getUserInformation, getAllCarsByUserId, getAllRedeemedRewardsByUserId } from '../services/autovipUsers';
 import './UserProfile.css';
+import Loading from './Loading';
 import { 
   FaUser, FaCar, FaReceipt, 
   FaChartLine, FaGift, FaCreditCard, 
@@ -17,15 +18,18 @@ export default function UserProfile({ setIsAuthenticated }) {
   const [rucCi, setRucCi] = useState('');
   const [vehicles, setVehicles] = useState([]);
   const [redeemedRewards, setRedeemedRewards] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUserInformation = async () => {
       try {
+        setIsLoading(true);
         // Get user ID from localStorage
         const autovipUserID = localStorage.getItem('autovipUserID');
         
         if (!autovipUserID) {
           console.warn('No autovipUserID found in localStorage');
+          setIsLoading(false);
           return;
         }
 
@@ -83,6 +87,8 @@ export default function UserProfile({ setIsAuthenticated }) {
         }
       } catch (error) {
         console.error('Failed to load user information:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -125,8 +131,10 @@ export default function UserProfile({ setIsAuthenticated }) {
     return `membership-badge membership-${type.toLowerCase()}`;
   };
 
+
   return (
     <div className="profile-container">
+      {isLoading && <Loading message="Cargando información del perfil..." fullScreen={true} />}
       <div className="profile-header">
         <div className="profile-title-section">
           <FaUser className="profile-icon" />

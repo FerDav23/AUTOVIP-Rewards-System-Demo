@@ -4,6 +4,7 @@ import { logout } from '../services/user';
 import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
 import { getAllPromotions } from '../services/autovipPromotions';
 import './RewardsPoints.css';
+import Loading from './Loading';
 import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons/fa';
 
 export default function RewardsPoints({ setIsAuthenticated }) {
@@ -217,6 +218,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
       {/* Customer Points Display */}
       <div className="points-display-section">
+        {isLoadingPoints ? (
+          <Loading message="Cargando puntos..." fullScreen={true} />
+        ) : (
         <div className="points-card">
           <div className="points-icon">
             <FaCoins />
@@ -263,6 +267,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
 
@@ -274,7 +279,10 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           <h3>Recompensas Disponibles</h3>
         </div>
         <div className="rewards-grid">
-          {rewards.map((reward) => (
+          {isLoadingRewards ? (
+            <Loading message="Cargando recompensas..." fullScreen={true}/>
+          ) : (
+          rewards.map((reward) => (
             <div 
               key={reward.id} 
               className={`reward-card ${!reward.available ? 'unavailable' : ''} ${canAfford(reward.pointsRequired) && reward.available ? 'affordable' : ''}`}
@@ -324,7 +332,8 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                 </button>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </div>
     </div>
@@ -337,7 +346,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             </div>
             <div className="promotions-grid">
             {isLoadingPromotions ? (
-              <p>Cargando promociones...</p>
+              <Loading message="Cargando promociones..." />
             ) : promotions.length === 0 ? (
               <p>No hay promociones activas en este momento.</p>
             ) : (

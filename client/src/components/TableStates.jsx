@@ -1,5 +1,6 @@
 import React from 'react';
 import './TableStates.css';
+import LoadingComponent from './Loading';
 
 export const NoData = () => {
   return (
@@ -11,11 +12,7 @@ export const NoData = () => {
   );
 };
 
+// Re-export the new Loading component for backward compatibility
 export const Loading = () => {
-  return (
-    <div className="loading-container">
-      <div className="loading-spinner"></div>
-      <p>Cargando datos...</p>
-    </div>
-  );
+  return <LoadingComponent message="Cargando datos..." size="medium" />;
 }; 

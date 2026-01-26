@@ -25,6 +25,7 @@ import {
 import { createPromotion, getAllPromotions, updatePromotion, deletePromotion } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
+import Loading from './Loading';
 import { 
   FaUsers, FaCar, FaGift, FaTag, FaCoins, FaPlus, FaTrash, 
   FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage
@@ -1182,9 +1183,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               )}
               
               {loadingCars ? (
-                <div style={{ padding: '2rem', textAlign: 'center' }}>
-                  <p>Cargando vehículos...</p>
-                </div>
+                <Loading message="Cargando vehículos..." fullScreen={true} />
               ) : (
                 <div className="cars-list">
                   {getUserCars(editingItem.id).map(car => (
@@ -2017,9 +2016,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         {activeTab === 'users' && (
           <div className="data-table">
             {loadingUsers ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>
-                <p>Cargando usuarios...</p>
-              </div>
+              <Loading message="Cargando usuarios..." />
             ) : (
               <table>
                 <thead>
@@ -2077,9 +2074,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         {activeTab === 'rewards' && (
           <div className="data-table">
             {loadingRewards ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>
-                <p>Cargando recompensas...</p>
-              </div>
+              <Loading message="Cargando recompensas..." />
             ) : (
               <table>
                 <thead>
@@ -2151,9 +2146,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         {activeTab === 'promotions' && (
           <div className="data-table">
             {loadingPromotions ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>
-                <p>Cargando promociones...</p>
-              </div>
+              <Loading message="Cargando promociones..." />
             ) : (
               <table>
                 <thead>

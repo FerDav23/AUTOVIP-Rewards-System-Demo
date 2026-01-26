@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fetchReport } from '../services/api';
+import Loading from './Loading';
 
 export default function ReportForm({ onPdf }) {
   const [placa, setPlaca] = useState('');
@@ -22,17 +23,21 @@ export default function ReportForm({ onPdf }) {
     }
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={placa}
-        onChange={e => setPlaca(e.target.value)}
-        placeholder="Placa"
-        required
-      />
-      <button type="submit" disabled={loading}>
-        {loading ? 'Generando...' : 'Generar PDF'}
-      </button>
-      {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
-    </form>
+    <>
+      {loading && <Loading message="Generando PDF..." fullScreen={true} />}
+      <form onSubmit={handleSubmit}>
+        <input
+          value={placa}
+          onChange={e => setPlaca(e.target.value)}
+          placeholder="Placa"
+          required
+          disabled={loading}
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Generando...' : 'Generar PDF'}
+        </button>
+        {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
+      </form>
+    </>
   );
 }
