@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
-import { getUserInformation, getAllCarsByUserId } from '../services/autovipUsers';
+import { getUserInformation, getAllCarsByUserId, getAllRedeemedRewardsByUserId } from '../services/autovipUsers';
 import './UserProfile.css';
 import { 
   FaUser, FaCar, FaReceipt, 
@@ -16,46 +16,7 @@ export default function UserProfile({ setIsAuthenticated }) {
   const [cardNumber, setCardNumber] = useState('');
   const [rucCi, setRucCi] = useState('');
   const [vehicles, setVehicles] = useState([]);
-
-  // Dummy billing/payment history data
-  const [billingHistory] = useState([
-    {
-      id: 1,
-      date: '2024-12-15',
-      service: 'Mantenimiento Completo',
-      vehicle: 'ABC-123',
-      amount: 150.00,
-      status: 'Pagado',
-      invoice: 'INV-2024-001'
-    },
-    {
-      id: 2,
-      date: '2024-11-20',
-      service: 'Cambio de Aceite',
-      vehicle: 'XYZ-789',
-      amount: 45.00,
-      status: 'Pagado',
-      invoice: 'INV-2024-002'
-    },
-    {
-      id: 3,
-      date: '2024-10-10',
-      service: 'Revisión General',
-      vehicle: 'ABC-123',
-      amount: 80.00,
-      status: 'Pagado',
-      invoice: 'INV-2024-003'
-    },
-    {
-      id: 4,
-      date: '2024-09-05',
-      service: 'Alineación y Balanceo',
-      vehicle: 'DEF-456',
-      amount: 120.00,
-      status: 'Pagado',
-      invoice: 'INV-2024-004'
-    }
-  ]);
+  const [redeemedRewards, setRedeemedRewards] = useState([]);
 
   useEffect(() => {
     const loadUserInformation = async () => {
@@ -113,6 +74,12 @@ export default function UserProfile({ setIsAuthenticated }) {
             color: vehicle.color || ''
           }));
           setVehicles(mappedVehicles);
+        }
+
+        // Load redeemed rewards from API
+        const redeemedRewardsData = await getAllRedeemedRewardsByUserId(userId);
+        if (redeemedRewardsData && Array.isArray(redeemedRewardsData)) {
+          setRedeemedRewards(redeemedRewardsData);
         }
       } catch (error) {
         console.error('Failed to load user information:', error);
@@ -248,43 +215,37 @@ export default function UserProfile({ setIsAuthenticated }) {
           )}
         </div>
 
-        {/* Billing History Section */}
+        {/* Rewards History Section */}
         <div className="profile-section">
           <div className="section-header">
-            <FaReceipt className="section-icon" />
-            <h3>Historial de Facturación</h3>
+            <FaGift className="section-icon" />
+            <h3>Historial de Premios Ganados</h3>
           </div>
-          {billingHistory.length === 0 ? (
+          {redeemedRewards.length === 0 ? (
             <div className="empty-state">
-              <FaReceipt className="empty-icon" />
-              <p>No hay historial de facturación disponible.</p>
+              <FaGift className="empty-icon" />
+              <p>No hay historial de premios ganados disponible.</p>
             </div>
           ) : (
             <div className="billing-table-container">
               <table className="billing-table">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Servicio</th>
-                    <th>Vehículo</th>
-                    <th>Monto</th>
-                    <th>Estado</th>
-                    <th>Factura</th>
+                    <th>Premio</th>
+                    <th>Puntos Antes</th>
+                    <th>Puntos Usados</th>
+                    <th>Puntos Después</th>
+                    <th>Fecha de Canje</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {billingHistory.map((bill) => (
-                    <tr key={bill.id}>
-                      <td>{formatDate(bill.date)}</td>
-                      <td>{bill.service}</td>
-                      <td>{bill.vehicle}</td>
-                      <td className="amount-cell">{formatCurrency(bill.amount)}</td>
-                      <td>
-                        <span className={`status-badge ${bill.status.toLowerCase()}`}>
-                          {bill.status}
-                        </span>
-                      </td>
-                      <td className="invoice-cell">{bill.invoice}</td>
+                  {redeemedRewards.map((reward, index) => (
+                    <tr key={index}>
+                      <td>{reward.reward_title || 'N/A'}</td>
+                      <td className="amount-cell">{reward.points_before?.toLocaleString() || '0'}</td>
+                      <td className="amount-cell">{reward.points_used?.toLocaleString() || '0'}</td>
+                      <td className="amount-cell">{reward.points_after?.toLocaleString() || '0'}</td>
+                      <td>{reward.redeemedAt ? formatDate(reward.redeemedAt) : 'N/A'}</td>
                     </tr>
                   ))}
                 </tbody>

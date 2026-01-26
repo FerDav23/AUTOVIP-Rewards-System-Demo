@@ -489,6 +489,38 @@ export async function getUserInformation(userId) {
 }
 
 /**
+ * Get all redeemed rewards for a specific user
+ * @param {number|string} userId - The user ID
+ * @returns {Promise<Array>} Array of redeemed reward objects with reward_title, points_before, points_used, points_after, redeemedAt
+ */
+export async function getAllRedeemedRewardsByUserId(userId) {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!userId) {
+      return [];
+    }
+
+    const response = await client.get(`/reward-redemptions/user/${userId}`);
+    console.log('response', response.data.data);
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    // Return the array of redeemed rewards, or empty array if none
+    return response.data.data || [];
+  } catch (error) {
+    console.error(`Failed to fetch redeemed rewards for user ${userId}:`, error.message);
+    // Return empty array if there's an error (e.g., user has no redeemed rewards)
+    return [];
+  }
+}
+
+/**
  * Manage a points transaction for a user (add or remove points)
  * @param {number|string} userId - The user ID
  * @param {Object} transactionData - Transaction data object
