@@ -35,7 +35,14 @@ const membershipColors = {
     
     // Error colors
     errorBg: '#FFF0E6',            // Warm error background
-    errorText: '#CC6600'           // Warm error text
+    errorText: '#CC6600',          // Warm error text
+    
+    // Progress ring colors - High contrast for visibility
+    progressRingBg: '#B8860B',    // Darker yellow (goldenrod) for background ring
+    progressRingFill: '#FFFFFF',    // Bright gold for progress fill
+    
+    // Progress label colors
+    progressLabelColor: '#2C1810'   // Dark text for gold membership
   },
   platinum: {
     // Primary colors - Darker metallic platinum for better text contrast
@@ -71,7 +78,14 @@ const membershipColors = {
     
     // Error colors
     errorBg: '#FFF0F0',            // Light error background
-    errorText: '#D32F2F'           // Standard error red
+    errorText: '#D32F2F',          // Standard error red
+    
+    // Progress ring colors - High contrast for visibility
+    progressRingBg: '#C0C0C0',    // Light silver for background ring
+    progressRingFill: '#FFFFFF',    // White for progress fill
+    
+    // Progress label colors
+    progressLabelColor: '#FFFFFF'   // White text for platinum membership
   },
   black: {
     // Primary colors - Metallic black/charcoal tones
@@ -137,7 +151,14 @@ const baseColors = {
   
   // Error colors
   errorBg: '#fff0f0',
-  errorText: '#d32f2f'
+  errorText: '#d32f2f',
+  
+  // Progress ring colors - Default fallback
+  progressRingBg: '#cccccc',
+  progressRingFill: '#ffffff',
+  
+  // Progress label colors - Default fallback
+  progressLabelColor: '#ffffff'
 };
 
 // Default colors (fallback)
