@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/user';
+import Alert from './Alert';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import './Login.css';
@@ -40,7 +41,7 @@ export default function Login({ setIsAuthenticated }) {
           <img src={logoCIMImg} alt="CIM Logo" className="login-logo" />
         </div>
         <h2>Iniciar Sesión</h2>
-        {error && <div className="error-message">{error}</div>}
+        {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="username">Usuario</label>

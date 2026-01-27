@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import client from '../services/apiClient';
+import Alert from './Alert';
 import './CreateManager.css';
 
 export default function CreateManager() {
@@ -107,9 +108,11 @@ export default function CreateManager() {
           <button type="submit" className="create-manager-btn">Create Manager</button>
         </form>
         {message && (
-          <div className={`create-manager-message ${messageType}`}>
-            {message}
-          </div>
+          <Alert 
+            variant={messageType === 'error' ? 'error' : messageType === 'success' ? 'success' : 'info'} 
+            message={message} 
+            dismissible={true}
+          />
         )}
       </div>
     </div>

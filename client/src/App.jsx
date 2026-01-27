@@ -7,6 +7,8 @@ import ManagerDashboard from './components/ManagerDashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
 import UserProfile from './components/UserProfile';
+import { AlertProvider } from './components/AlertContext';
+import { ConfirmProvider } from './components/ConfirmContext';
 import { getMembershipByUserId } from './services/autovipUsers';
 import { verifyToken } from './services/user';
 import initColors from './config/init-colors';
@@ -94,41 +96,45 @@ export default function App() {
   }, [isAuthenticated]);
 
   return (
-    <div className="app-container">
-      <Routes>
-        <Route
-          path="/"
-          element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
-        />
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
-        />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <Dashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
-        />
-         <Route 
-          path="/qr-login" 
-          element={<QrBridge setIsAuthenticated={setIsAuthenticated} />}
-        />
-        <Route
-          path="/rewards" 
-          element={isAuthenticated ? <RewardsPoints setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/profile"
-          element={isAuthenticated ? <UserProfile setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/manager-login"
-          element={isAuthenticated ? <Navigate to="/manager-dashboard" /> : <ManagerLogin setIsAuthenticated={setIsAuthenticated} />}
-        />
-        <Route
-          path="/manager-dashboard"
-          element={isAuthenticated ? <ManagerDashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/manager-login" />}
-        />
-      </Routes>
-    </div>
+    <AlertProvider>
+      <ConfirmProvider>
+        <div className="app-container">
+          <Routes>
+            <Route
+              path="/"
+              element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
+            />
+            <Route
+              path="/login"
+              element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
+            />
+            <Route
+              path="/dashboard"
+              element={isAuthenticated ? <Dashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+            />
+             <Route 
+              path="/qr-login" 
+              element={<QrBridge setIsAuthenticated={setIsAuthenticated} />}
+            />
+            <Route
+              path="/rewards" 
+              element={isAuthenticated ? <RewardsPoints setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/profile"
+              element={isAuthenticated ? <UserProfile setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/manager-login"
+              element={isAuthenticated ? <Navigate to="/manager-dashboard" /> : <ManagerLogin setIsAuthenticated={setIsAuthenticated} />}
+            />
+            <Route
+              path="/manager-dashboard"
+              element={isAuthenticated ? <ManagerDashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/manager-login" />}
+            />
+          </Routes>
+        </div>
+      </ConfirmProvider>
+    </AlertProvider>
   );
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
+import { useAlert } from './AlertContext';
+import { useConfirm } from './ConfirmContext';
 import { 
   getAllAutoVipUsers, 
   getMembershipById, 
@@ -30,9 +32,12 @@ import {
   FaUsers, FaCar, FaGift, FaTag, FaCoins, FaPlus, FaTrash, 
   FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage
 } from 'react-icons/fa';
+import Alert from './Alert';
 
 export default function ManagerDashboard({ setIsAuthenticated }) {
   const navigate = useNavigate();
+  const { showError, showSuccess, showWarning } = useAlert();
+  const { showConfirm } = useConfirm();
   const [activeTab, setActiveTab] = useState('users');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -137,7 +142,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setCurrentUserIdForCars(userId);
     } catch (error) {
       console.error('Failed to load cars:', error);
-      alert('Error al cargar los vehículos. Por favor, intente de nuevo.');
+      showError('Error al cargar los vehículos. Por favor, intente de nuevo.');
       setCars([]);
       setCurrentUserIdForCars(null);
     } finally {
@@ -195,7 +200,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setUsers(processedUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
-      alert('Error al cargar los usuarios. Por favor, intente de nuevo.');
+      showError('Error al cargar los usuarios. Por favor, intente de nuevo.');
     } finally {
       setLoadingUsers(false);
     }
@@ -209,7 +214,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setMemberships(membershipsData);
     } catch (error) {
       console.error('Failed to load memberships:', error);
-      alert('Error al cargar las membresías. Por favor, intente de nuevo.');
+      showError('Error al cargar las membresías. Por favor, intente de nuevo.');
     } finally {
       setLoadingMemberships(false);
     }
@@ -223,7 +228,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setTransactionTypes(transactionTypesData);
     } catch (error) {
       console.error('Failed to load transaction types:', error);
-      alert('Error al cargar los tipos de transacción. Por favor, intente de nuevo.');
+      showError('Error al cargar los tipos de transacción. Por favor, intente de nuevo.');
     } finally {
       setLoadingTransactionTypes(false);
     }
@@ -237,7 +242,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setRewardTypes(rewardTypesData);
     } catch (error) {
       console.error('Failed to load reward types:', error);
-      alert('Error al cargar los tipos de recompensa. Por favor, intente de nuevo.');
+      showError('Error al cargar los tipos de recompensa. Por favor, intente de nuevo.');
     } finally {
       setLoadingRewardTypes(false);
     }
@@ -274,7 +279,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setRewards(processedRewards);
     } catch (error) {
       console.error('Failed to load rewards:', error);
-      alert('Error al cargar las recompensas. Por favor, intente de nuevo.');
+      showError('Error al cargar las recompensas. Por favor, intente de nuevo.');
     } finally {
       setLoadingRewards(false);
     }
@@ -311,7 +316,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setPromotions(processedPromotions);
     } catch (error) {
       console.error('Failed to load promotions:', error);
-      alert('Error al cargar las promociones. Por favor, intente de nuevo.');
+      showError('Error al cargar las promociones. Por favor, intente de nuevo.');
     } finally {
       setLoadingPromotions(false);
     }
@@ -448,7 +453,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     e.preventDefault();
     const userId = editingItem.id;
     if (!canAddCarToUser(userId)) {
-      alert(`Este usuario ya tiene ${MAX_CARS_PER_USER} vehículos registrados (máximo permitido).`);
+      showWarning(`Este usuario ya tiene ${MAX_CARS_PER_USER} vehículos registrados (máximo permitido).`);
       return;
     }
 
@@ -473,21 +478,28 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       // Clear form
       setFormData({ userId: userId });
       
-      alert('Vehículo agregado exitosamente.');
+      showSuccess('Vehículo agregado exitosamente.');
     } catch (error) {
       console.error('Error adding vehicle:', error);
-      alert(error.response?.data?.message || error.message || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
     }
   };
 
   const handleDeleteCar = async (carId) => {
     const userId = editingItem.id;
     if (!canDeleteCarFromUser(userId)) {
-      alert(`No se puede eliminar. El usuario debe tener al menos ${MIN_CARS_PER_USER} vehículo registrado.`);
+      showWarning(`No se puede eliminar. El usuario debe tener al menos ${MIN_CARS_PER_USER} vehículo registrado.`);
       return;
     }
 
-    if (!confirm('¿Estás seguro de eliminar este vehículo?')) return;
+    const confirmed = await showConfirm('¿Estás seguro de eliminar este vehículo?', {
+      title: 'Eliminar Vehículo',
+      variant: 'danger',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    });
+    
+    if (!confirmed) return;
 
     try {
       // Delete vehicle via API
@@ -499,10 +511,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       // Update user's car count in the users list
       await loadUsers();
 
-      alert('Vehículo eliminado exitosamente.');
+      showSuccess('Vehículo eliminado exitosamente.');
     } catch (error) {
       console.error('Error deleting vehicle:', error);
-      alert(error.response?.data?.message || error.message || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
     }
   };
 
@@ -515,12 +527,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     const rewardId = formData.rewardId || null;
     
     if (amount <= 0) {
-      alert('Ingrese una cantidad válida de puntos.');
+      showWarning('Ingrese una cantidad válida de puntos.');
       return;
     }
 
     if (!transactionTypeId) {
-      alert('Por favor seleccione un tipo de transacción.');
+      showWarning('Por favor seleccione un tipo de transacción.');
       return;
     }
 
@@ -528,21 +540,21 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
     
     if (isCanje && !rewardId) {
-      alert('Por favor seleccione una recompensa para la categoría "Canje".');
+      showWarning('Por favor seleccione una recompensa para la categoría "Canje".');
       return;
     }
 
     const user = users.find(u => u.id === editingItem.id);
 
     if (type === 'remove' && amount > user.points) {
-      alert(`El usuario solo tiene ${user.points} puntos disponibles.`);
+      showWarning(`El usuario solo tiene ${user.points} puntos disponibles.`);
       return;
     }
     
     if (isCanje && rewardId) {
       const selectedReward = rewards.find(r => r.id === parseInt(rewardId));
       if (selectedReward?.pointsRequired !== amount) {
-        alert(`Los puntos deben coincidir con los puntos de la recompensa seleccionada (${selectedReward.pointsRequired} puntos).`);
+        showWarning(`Los puntos deben coincidir con los puntos de la recompensa seleccionada (${selectedReward.pointsRequired} puntos).`);
         return;
       }
     }
@@ -578,14 +590,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         balanceAfter: updatedUser.user.points_balance || updatedUser.user.points
       }]);
 
-      alert(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.user.points_balance || updatedUser.user.points}`);
+      showSuccess(`${type === 'add' ? 'Se agregaron' : 'Se quitaron'} ${amount} puntos exitosamente. Nuevo saldo: ${updatedUser.user.points_balance || updatedUser.user.points}`);
       
       // Reset form and close modal
       setFormData({ userId: editingItem.id, transactionType: 'add', pointsAmount: '', reason: '', transactionTypeId: '', rewardId: '' });
       closeModal();
     } catch (error) {
       console.error('Error managing points transaction:', error);
-      alert(error.response?.data?.message || error.message || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
     }
   };
 
@@ -602,7 +614,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             const selectedMembership = memberships.find(m => m.id === membershipId);
             
             if (!selectedMembership) {
-              alert('Por favor seleccione una membresía válida.');
+              showWarning('Por favor seleccione una membresía válida.');
               return;
             }
 
@@ -619,12 +631,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload users to get the updated list
             await loadUsers();
             
-            alert('Usuario actualizado exitosamente.');
+            showSuccess('Usuario actualizado exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating user:', error);
-            alert(error.response?.data?.message || error.message || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -635,7 +647,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             const selectedMembership = memberships.find(m => m.id === membershipId);
             
             if (!selectedMembership) {
-              alert('Por favor seleccione una membresía válida.');
+              showWarning('Por favor seleccione una membresía válida.');
               return;
             }
 
@@ -660,12 +672,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload users to get the updated list
             await loadUsers();
             
-            alert('Usuario creado exitosamente.');
+            showSuccess('Usuario creado exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error creating user:', error);
-            alert(error.response?.data?.message || error.message || 'Error al crear el usuario. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al crear el usuario. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -696,12 +708,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload rewards to get the updated list
             await loadRewards();
             
-            alert('Recompensa actualizada exitosamente.');
+            showSuccess('Recompensa actualizada exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating reward:', error);
-            alert(error.response?.data?.message || error.message || 'Error al actualizar la recompensa. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al actualizar la recompensa. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -729,12 +741,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload rewards to get the updated list
             await loadRewards();
             
-            alert('Recompensa creada exitosamente.');
+            showSuccess('Recompensa creada exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error creating reward:', error);
-            alert(error.response?.data?.message || error.message || 'Error al crear la recompensa. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al crear la recompensa. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -762,12 +774,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload promotions to get the updated list
             await loadPromotions();
             
-            alert('Promoción actualizada exitosamente.');
+            showSuccess('Promoción actualizada exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating promotion:', error);
-            alert(error.response?.data?.message || error.message || 'Error al actualizar la promoción. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al actualizar la promoción. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -792,12 +804,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload promotions to get the updated list
             await loadPromotions();
             
-            alert('Promoción creada exitosamente.');
+            showSuccess('Promoción creada exitosamente.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error creating promotion:', error);
-            alert(error.response?.data?.message || error.message || 'Error al crear la promoción. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || 'Error al crear la promoción. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -824,7 +836,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Por favor seleccione un archivo de imagen válido.');
+      showWarning('Por favor seleccione un archivo de imagen válido.');
       return;
     }
 
@@ -855,7 +867,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         setImageModalItem(prev => ({ ...prev, imageUrl }));
       }
     } catch (error) {
-      alert('Error al subir la imagen. Intente de nuevo.');
+      showError('Error al subir la imagen. Intente de nuevo.');
       console.error('Upload error:', error);
     } finally {
       setUploadingImage(false);
@@ -863,7 +875,21 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   };
 
   const handleDelete = async (type, id) => {
-    if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
+    const elementNames = {
+      user: 'usuario',
+      reward: 'recompensa',
+      promotion: 'promoción'
+    };
+    
+    const elementName = elementNames[type] || 'elemento';
+    const confirmed = await showConfirm(`¿Estás seguro de eliminar este ${elementName}?`, {
+      title: 'Eliminar Elemento',
+      variant: 'danger',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    });
+    
+    if (!confirmed) return;
     
     switch (type) {
       case 'user':
@@ -874,10 +900,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           // Update local state
           setUsers(prev => prev.filter(u => u.id !== id));
           
-          alert('Usuario eliminado exitosamente.');
+          showSuccess('Usuario eliminado exitosamente.');
         } catch (error) {
           console.error('Error deleting user:', error);
-          alert(error.response?.data?.message || error.message || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
         }
         break;
       case 'reward':
@@ -888,10 +914,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           // Update local state
           await loadRewards();
           
-          alert('Recompensa eliminada exitosamente.');
+          showSuccess('Recompensa eliminada exitosamente.');
         } catch (error) {
           console.error('Error deleting reward:', error);
-          alert(error.response?.data?.message || error.message || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
         }
         break;
       case 'promotion':
@@ -902,10 +928,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           // Reload promotions to get the updated list
           await loadPromotions();
           
-          alert('Promoción eliminada exitosamente.');
+          showSuccess('Promoción eliminada exitosamente.');
         } catch (error) {
           console.error('Error deleting promotion:', error);
-          alert(error.response?.data?.message || error.message || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
         }
         break;
     }
@@ -1368,16 +1394,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   const isAjuste = categoryName === 'ajuste' || categoryName === 'ajust';
                   
                   return isAjuste ? (
-                    <div className="warning-message" style={{
-                      padding: '12px',
-                      backgroundColor: '#fff3cd',
-                      border: '1px solid #ffc107',
-                      borderRadius: '4px',
-                      marginBottom: '16px',
-                      color: '#856404'
-                    }}>
-                      <strong>⚠️ Advertencia:</strong> Este modo ({selectedTxType.type}) debe usarse únicamente para corrección de puntos y no para agregar nuevos puntos o canjear recompensas.
-                    </div>
+                    <Alert
+                      variant="warning"
+                      message={`Este modo (${selectedTxType.type}) debe usarse únicamente para corrección de puntos y no para agregar nuevos puntos o canjear recompensas.`}
+                      dismissible={false}
+                    />
                   ) : null;
                 })()}
                 
@@ -1633,7 +1654,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           
                           // Validate file type
                           if (!file.type.startsWith('image/')) {
-                            alert('Por favor seleccione un archivo de imagen válido.');
+                            showWarning('Por favor seleccione un archivo de imagen válido.');
                             return;
                           }
                           
@@ -1743,7 +1764,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           
                           // Validate file type
                           if (!file.type.startsWith('image/')) {
-                            alert('Por favor seleccione un archivo de imagen válido.');
+                            showWarning('Por favor seleccione un archivo de imagen válido.');
                             return;
                           }
                           
