@@ -8,6 +8,7 @@ import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
 import UserProfile from './components/UserProfile';
 import { getMembershipByUserId } from './services/autovipUsers';
+import { verifyToken } from './services/user';
 import initColors from './config/init-colors';
 import './variables.css';
 import './base.css';
@@ -51,8 +52,18 @@ export default function App() {
     // Check if user is already authenticated
     const token = localStorage.getItem('authToken');
     if (token) {
-      setIsAuthenticated(true);
-      initializeColors();
+      // Verify token is still valid
+      verifyToken()
+        .then(() => {
+          setIsAuthenticated(true);
+          initializeColors();
+        })
+        .catch((error) => {
+          console.error('Token verification failed:', error);
+          setIsAuthenticated(false);
+          initColors(null);
+          setMembership(null);
+        });
     } else {
       initColors(null);
       setMembership(null);
