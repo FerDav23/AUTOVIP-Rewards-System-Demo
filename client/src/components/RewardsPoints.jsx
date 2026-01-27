@@ -26,9 +26,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     return user ? user.replace(/"/g, '') : 'Cliente';
   });
 
-  const [password] = useState(() => {
-    const storedPassword = localStorage.getItem('password');
-    return storedPassword ? storedPassword.replace(/"/g, '') : '';
+  const [rucCi] = useState(() => {
+    const storedRucCi = localStorage.getItem('autovipUserRucCi');
+    return storedRucCi ? storedRucCi.replace(/"/g, '') : '';
   });
 
   // State for redemption modal
@@ -205,7 +205,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
   const handleNavigateToDashboard = () => {
     const BASE_URL = "https://sistema.cim-clientes.com/qr-login";
-    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&password=${encodeURIComponent(password)}`;
+    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&password=${encodeURIComponent(rucCi)}`;
     window.open(url, '_blank');
   };
 

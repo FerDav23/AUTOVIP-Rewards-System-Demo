@@ -131,6 +131,11 @@ export default function UserProfile({ setIsAuthenticated }) {
     return `membership-badge membership-${type.toLowerCase()}`;
   };
 
+  const handleNavigateToDashboard = () => {
+    const BASE_URL = "https://sistema.cim-clientes.com/qr-login";
+    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&password=${encodeURIComponent(rucCi)}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="profile-container">
@@ -141,8 +146,8 @@ export default function UserProfile({ setIsAuthenticated }) {
           <h2>Mi Perfil</h2>
         </div>
         <div className="header-actions">
-          <button onClick={() => navigate('/dashboard')} className="nav-btn">
-            <FaChartLine /> Historial
+          <button onClick={handleNavigateToDashboard} className="nav-btn">
+            <FaChartLine /> Historial de Mantenimiento
           </button>
           <button onClick={() => navigate('/rewards')} className="nav-btn">
             <FaGift /> Recompensas
