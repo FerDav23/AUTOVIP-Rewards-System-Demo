@@ -80,7 +80,6 @@ export async function loginAutovipUser (username, password) {
   try {
     const response = await client.post('/autovip-users/login', { username, password });
     storeTokenWithExpiration(response.data.data.token);
-    console.log('response.data.data', response.data.data);
     localStorage.setItem('autovipUserID', JSON.stringify(response.data.data.id));
     localStorage.setItem('autovipUserName', JSON.stringify(response.data.data.name));
     localStorage.setItem('autovipUserCardNumber', JSON.stringify(response.data.data.card_number));
