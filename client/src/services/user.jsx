@@ -195,6 +195,34 @@ export async function getHistorialData(placa, startDate, endDate) {
   }
 }
 
+/**
+ * Verify if the current token is still valid by making an API call
+ * @returns {Promise<void>} Resolves if token is valid, rejects if invalid
+ */
+export async function verifyToken() {
+  try {
+    // Check if token is expired before making request
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Token has expired. Please login again.');
+    }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No token found. Please login again.');
+    }
+
+    // Make a request to verify the token
+    // Using a common verification endpoint pattern
+    // Adjust the endpoint if your API uses a different path
+    await client.get('/users/verify');
+  } catch (error) {
+    // If verification fails, clear the token
+    clearExpiredToken();
+    throw error;
+  }
+}
+
 // Export utility functions for use in other components
 export { isTokenExpired, clearExpiredToken, getValidToken };
 
