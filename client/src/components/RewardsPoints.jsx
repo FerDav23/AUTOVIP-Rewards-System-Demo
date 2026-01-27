@@ -22,7 +22,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   const [promotions, setPromotions] = useState([]);
   const [isLoadingPromotions, setIsLoadingPromotions] = useState(true);
   const [userName] = useState(() => {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('autovipUserName');
     return user ? user.replace(/"/g, '') : 'Cliente';
   });
 
@@ -149,11 +149,25 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   };
 
   const handleWhatsAppContact = () => {
-    // URL will be added later - empty for now
-    const whatsappUrl = '';
-    if (whatsappUrl) {
-      window.open(whatsappUrl, '_blank');
-    }
+    if (!selectedReward) return;
+    const supportNumber = '593991469530'; // Replace with actual support WhatsApp number (country code + number, no + or spaces)
+    const rucCi = localStorage.getItem('autovipUserRucCi')?.replace(/"/g, '') ?? '';
+    // Emojis via Unicode code points so they display correctly regardless of file encoding
+    const gift = '\u{1F381}', trophy = '\u{1F3C6}', star = '\u{2B50}', folder = '\u{1F4C2}', memo = '\u{1F4DD}', user = '\u{1F464}';
+    const message = [
+      `${gift} Hola, deseo canjear mis puntos por la siguiente recompensa:\n`,
+      `${trophy} *Recompensa:* ${selectedReward.title}`,
+      `${star} *Puntos requeridos:* ${selectedReward.pointsRequired}`,
+      `${folder} *Categoría:* ${selectedReward.category || 'N/A'}`,
+      selectedReward.description ? `${memo} *Descripción:* ${selectedReward.description}` : '',
+      '',
+      `${user} *Mis datos:*`,
+      `- Nombre: ${userName}`,
+      rucCi ? `- RUC/C.I.: ${rucCi}` : ''
+    ].filter(Boolean).join('\n');
+    // Use api.whatsapp.com/send instead of wa.me - wa.me has a known bug where emojis display incorrectly on desktop/Web
+    const url = `https://api.whatsapp.com/send?phone=${supportNumber}&text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   };
 
   const canAfford = (pointsRequired) => {
