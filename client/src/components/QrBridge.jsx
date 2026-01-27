@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/user";
+import { loginAutovipUser } from "../services/user";
 import Alert from './Alert';
 import './QrBridge.css';
 
@@ -17,7 +17,7 @@ export default function QrBridge({ setIsAuthenticated }) {
     try {
         setError('');
         setStatus("Iniciando sesión…");
-        await login(usernameStr, passwordStr);
+        await loginAutovipUser(usernameStr, passwordStr);
         if (setIsAuthenticated) setIsAuthenticated(true);
         navigate('/rewards');
       } catch (err) {
