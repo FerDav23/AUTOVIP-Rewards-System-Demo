@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
+import { useAlert } from './AlertContext';
 import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
 import { getAllPromotions } from '../services/autovipPromotions';
 import './RewardsPoints.css';
@@ -9,6 +10,7 @@ import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons
 
 export default function RewardsPoints({ setIsAuthenticated }) {
   const navigate = useNavigate();
+  const { showError, showWarning } = useAlert();
   
   // State for customer points - loaded from database
   const [customerPoints, setCustomerPoints] = useState(0);
@@ -136,9 +138,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     if (customerPoints >= reward.pointsRequired && reward.available) {
       setSelectedReward(reward);
     } else if (!reward.available) {
-      alert('Este premio no está disponible en este momento.');
+      showWarning('Este premio no está disponible en este momento.');
     } else {
-      alert(`No tienes suficientes puntos. Necesitas ${reward.pointsRequired} puntos.`);
+      showWarning(`No tienes suficientes puntos. Necesitas ${reward.pointsRequired} puntos.`);
     }
   };
 

@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
+import Alert from './Alert';
 import './AUTOVIPLogin.css';
 
 export default function AUTOVIPLogin({ setIsAuthenticated }) {
@@ -65,7 +66,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
         </div>
         <h1 className="autovip-welcome-title">Bienvenido al Sistema AUTOVIP</h1>
         <h2>Iniciar Sesión</h2>
-        {error && <div className="autovip-error-message">{error}</div>}
+        {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="autovip-form-group">
             <label htmlFor="username">Usuario</label>

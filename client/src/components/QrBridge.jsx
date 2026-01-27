@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/user";
+import Alert from './Alert';
 import './QrBridge.css';
 
 export default function QrBridge({ setIsAuthenticated }) {
@@ -54,7 +55,7 @@ export default function QrBridge({ setIsAuthenticated }) {
     <div className="qr-bridge-container">
       <div className="qr-bridge-form">
         <h2>Inicio de Sesión</h2>
-        {error && <div className="error-message">{error}</div>}
+        {error && <Alert variant="error" message={error} dismissible={true} />}
         <div className={`status-message ${getStatusClass()}`}>
           <p>{status}</p>
         </div>

@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
+import Alert from './Alert';
 import './ManagerLogin.css';
 
 export default function ManagerLogin({ setIsAuthenticated }) {
@@ -67,7 +68,7 @@ export default function ManagerLogin({ setIsAuthenticated }) {
           AUTOVIP<br />Panel de Administración
         </h1>
         <h2>Acceso Gerentes</h2>
-        {error && <div className="manager-error-message">{error}</div>}
+        {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="manager-form-group">
             <label htmlFor="username">Usuario</label>
