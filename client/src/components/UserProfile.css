@@ -179,7 +179,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding-bottom: 15px;
   border-bottom: 1px solid var(--border-color);
   position: relative;
@@ -629,6 +629,169 @@
   .billing-table th,
   .billing-table td {
     padding: 8px;
+  }
+}
+
+/* Mobile / Phone-friendly special shapes (colors preserved via vars) */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 20px 18px max(25px, env(safe-area-inset-bottom, 20px));
+    border-radius: 24px;
+    overflow: visible;
+  }
+
+  .profile-container::before {
+    border-radius: 24px;
+  }
+
+  .profile-container::after {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    top: -35px;
+    right: -35px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .profile-section {
+    border-radius: 22px;
+    padding: 22px 18px;
+    overflow: visible;
+  }
+
+  .profile-section::after {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+    bottom: -25px;
+    left: -25px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Pill-shaped buttons for thumb-friendly taps */
+  .nav-btn,
+  .logout-btn {
+    border-radius: 999px;
+    min-height: 48px;
+    padding: 12px 20px;
+  }
+
+  .add-vehicle-btn,
+  .save-btn {
+    border-radius: 999px;
+    min-height: 48px;
+    padding: 12px 20px;
+  }
+
+  .cancel-btn {
+    border-radius: 999px;
+    min-height: 48px;
+    padding: 12px 20px;
+  }
+
+  /* Rounded info items and cards */
+  .user-info-item {
+    position: relative;
+    border-radius: 18px;
+    padding: 14px 16px;
+    padding-left: 20px;
+  }
+
+  .user-info-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    border-radius: 0 4px 4px 0;
+    background: linear-gradient(180deg, var(--gradient-start), var(--gradient-end));
+    opacity: 0.6;
+  }
+
+  .vehicle-card {
+    border-radius: 22px;
+    padding: 22px 18px;
+    overflow: visible;
+  }
+
+  .vehicle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 70px;
+    height: 70px;
+    border-bottom-left-radius: 100%;
+    background: transparent;
+    box-shadow: inset -6px -6px 0 -3px rgba(0, 0, 0, 0.04);
+    pointer-events: none;
+  }
+
+  .edit-vehicle-btn,
+  .delete-vehicle-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+
+  .billing-table-container {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .modal-content {
+    border-radius: 24px;
+  }
+
+  .form-group input {
+    border-radius: 14px;
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+}
+
+/* Extra phone tweaks for small screens */
+@media (max-width: 480px) {
+  .profile-container {
+    border-radius: 28px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .profile-container::after {
+    width: 90px;
+    height: 90px;
+    top: -28px;
+    right: -28px;
+  }
+
+  .profile-section {
+    border-radius: 24px;
+  }
+
+  .profile-section::after {
+    width: 65px;
+    height: 65px;
+    bottom: -18px;
+    left: -18px;
+  }
+
+  .vehicle-card {
+    border-radius: 24px;
+  }
+
+  .user-info-item {
+    border-radius: 20px;
   }
 }
 

@@ -32,6 +32,9 @@
   --gradient-start: var(--color-gradient-start, var(--primary-color));
   --gradient-mid: var(--color-gradient-mid, var(--primary-color));
   --gradient-end: var(--color-gradient-end, var(--primary-hover));
+
+  /* Slider pagination dots – active state (per membership style) */
+  --slider-dot-active: var(--color-slider-dot-active, var(--primary-color));
   
   /* Spacing */
   --spacing-xs: var(--space-xs);
