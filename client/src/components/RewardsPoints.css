@@ -950,7 +950,6 @@
     margin-bottom: 8px;
     line-height: 1.4;
     padding: 0 10px;
-    -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -1045,7 +1044,6 @@
     font-size: 0.85rem;
     line-height: 1.4;
     margin-bottom: 8px;
-    -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
