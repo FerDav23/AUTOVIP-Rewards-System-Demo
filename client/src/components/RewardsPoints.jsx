@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { useAlert } from './AlertContext';
@@ -6,7 +6,7 @@ import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers'
 import { getAllPromotions } from '../services/autovipPromotions';
 import './RewardsPoints.css';
 import Loading from './Loading';
-import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser } from 'react-icons/fa';
+import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser, FaAngleDoubleRight } from 'react-icons/fa';
 
 export default function RewardsPoints({ setIsAuthenticated }) {
   const navigate = useNavigate();
@@ -33,6 +33,80 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
   // State for redemption modal
   const [selectedReward, setSelectedReward] = useState(null);
+  // Category filter for rewards (mobile pill filters)
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const rewardCategories = useMemo(() =>
+    [...new Set(rewards.map((r) => r.category).filter(Boolean))],
+    [rewards]
+  );
+  const displayedRewards = selectedCategory
+    ? rewards.filter((r) => r.category === selectedCategory)
+    : rewards;
+
+  const [currentRewardIndex, setCurrentRewardIndex] = useState(0);
+  const [currentPromotionIndex, setCurrentPromotionIndex] = useState(0);
+  const rewardsGridRef = useRef(null);
+  const promotionsGridRef = useRef(null);
+
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth <= 768
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const handle = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', handle);
+    handle();
+    return () => mq.removeEventListener('change', handle);
+  }, []);
+
+  const count = displayedRewards.length;
+  const infiniteRewards = count > 1 ? [...displayedRewards, ...displayedRewards] : displayedRewards;
+  const promoCount = promotions.length;
+  const infinitePromotions = promoCount > 1 ? [...promotions, ...promotions] : promotions;
+  const rewardsToShow = isMobile ? infiniteRewards : displayedRewards;
+  const promotionsToShow = isMobile ? infinitePromotions : promotions;
+
+  const handleRewardsScroll = useCallback(() => {
+    const el = rewardsGridRef.current;
+    if (!el || count <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    if (el.scrollLeft >= setWidth - 20) el.scrollLeft -= setWidth;
+    const cardWidth = setWidth / count;
+    const idx = Math.min(count - 1, Math.floor(el.scrollLeft / cardWidth + 0.5));
+    setCurrentRewardIndex(idx);
+  }, [count]);
+
+  const handlePromotionsScroll = useCallback(() => {
+    const el = promotionsGridRef.current;
+    if (!el || promoCount <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    if (el.scrollLeft >= setWidth - 20) el.scrollLeft -= setWidth;
+    const cardWidth = setWidth / promoCount;
+    const idx = Math.min(promoCount - 1, Math.floor(el.scrollLeft / cardWidth + 0.5));
+    setCurrentPromotionIndex(idx);
+  }, [promoCount]);
+
+  const scrollRewardsTo = useCallback((index) => {
+    const el = rewardsGridRef.current;
+    if (!el || count <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    const cardWidth = setWidth / count;
+    el.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    setCurrentRewardIndex(index);
+  }, [count]);
+
+  const scrollPromotionsTo = useCallback((index) => {
+    const el = promotionsGridRef.current;
+    if (!el || promoCount <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    const cardWidth = setWidth / promoCount;
+    el.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    setCurrentPromotionIndex(index);
+  }, [promoCount]);
+
+  useEffect(() => { setCurrentRewardIndex(0); }, [count]);
+  useEffect(() => { setCurrentPromotionIndex(0); }, [promoCount]);
 
   // Load user points and rewards from database
   useEffect(() => {
@@ -232,7 +306,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     <div className="rewards-container">
       
 
-      {/* Customer Points Display */}
+      {/* Customer Points Display – mobile: big number + "puntos" (reference style) */}
       <div className="points-display-section">
         {isLoadingPoints ? (
           <Loading message="Cargando puntos..." fullScreen={true} />
@@ -243,13 +317,16 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           </div>
           <div className="points-content">
             <h3 className="points-label">Tus Puntos</h3>
-            <p className="points-value">{customerPoints.toLocaleString()}</p>
+            <p className="points-value">
+              {customerPoints.toLocaleString()}
+              <span className="points-units-mobile"> puntos</span>
+            </p>
             <p className="points-subtitle">¡Sigue acumulando puntos y canjéalos por increíbles recompensas!</p>
           </div>
           {nextReward && (
             <div className="next-reward-counter">
               <div className="circular-progress">
-                <svg className="progress-ring" width="120" height="120">
+                <svg className="progress-ring" viewBox="0 0 120 120" width="120" height="120">
                   <circle
                     className="progress-ring-circle-bg"
                     strokeWidth="8"
@@ -289,21 +366,58 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
      
     <div className="rewards-container">
-      <div className="section-container">
-        <div className="section-header rewards-header">
-          <FaGift className="section-icon" />
-          <h3>Recompensas Disponibles</h3>
+      <div className="section-container rewards-section">
+        <div className="section-header rewards-header section-header-with-hint">
+          <span className="section-title-wrap">
+            <FaGift className="section-icon" />
+            <h3>Recompensas disponibles</h3>
+          </span>
+          {!isLoadingRewards && rewards.length > 0 && (
+            <span className="slider-hint" aria-hidden="true">
+              Desliza para ver más <FaAngleDoubleRight className="slider-hint-arrow" />
+            </span>
+          )}
         </div>
-        <div className="rewards-grid">
+        {!isLoadingRewards && rewards.length > 0 && rewardCategories.length > 0 && (
+          <div className="category-pills" role="tablist" aria-label="Filtrar por categoría">
+            <button
+              type="button"
+              role="tab"
+              className={`category-pill ${!selectedCategory ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(null)}
+            >
+              Todos
+            </button>
+            {rewardCategories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                role="tab"
+                className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="slider-viewport">
+        <div
+          ref={rewardsGridRef}
+          className="rewards-grid"
+          onScroll={handleRewardsScroll}
+          role="region"
+          aria-label="Recompensas disponibles"
+        >
           {isLoadingRewards ? (
             <Loading message="Cargando recompensas..." fullScreen={true}/>
           ) : (
-          rewards.map((reward) => (
-            <div 
-              key={reward.id} 
-              className={`reward-card ${!reward.available ? 'unavailable' : ''} ${canAfford(reward.pointsRequired) && reward.available ? 'affordable' : ''}`}
+          rewardsToShow.map((reward, i) => (
+            <div
+              key={count > 1 && isMobile && i >= count ? `${reward.id}-dup` : reward.id} 
+              className={`reward-card reward-card-coupon ${!reward.available ? 'unavailable' : ''} ${canAfford(reward.pointsRequired) && reward.available ? 'affordable' : ''}`}
             >
-              <div className="reward-header">
+              <div className="reward-card-header-bar">
                 <span className="reward-category">{reward.category}</span>
                 {!reward.available && (
                   <span className="reward-unavailable-badge">No Disponible</span>
@@ -351,23 +465,56 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           ))
           )}
         </div>
+        {!isLoadingRewards && count > 1 && (
+          <div className="slider-dots" role="tablist" aria-label="Elemento actual">
+            {displayedRewards.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === currentRewardIndex}
+                aria-label={`Elemento ${i + 1} de ${count}`}
+                className={`slider-dot ${i === currentRewardIndex ? 'active' : ''}`}
+                onClick={() => scrollRewardsTo(i)}
+              />
+            ))}
+          </div>
+        )}
+        </div>
       </div>
     </div>
 
     <div className="rewards-container">
         <div className="section-container promotions-section">
-            <div className="section-header promotions-header">
-            <FaTag className="section-icon promotion-icon" />
-            <h3>Promociones Activas</h3>
+            <div className="section-header promotions-header section-header-with-hint">
+            <span className="section-title-wrap">
+              <FaTag className="section-icon promotion-icon" />
+              <h3>Promociones activas</h3>
+            </span>
+            {!isLoadingPromotions && promotions.length > 0 && (
+              <span className="slider-hint" aria-hidden="true">
+                Desliza para ver más <FaAngleDoubleRight className="slider-hint-arrow" />
+              </span>
+            )}
             </div>
-            <div className="promotions-grid">
+            <div className="slider-viewport">
+            <div
+              ref={promotionsGridRef}
+              className="promotions-grid"
+              onScroll={handlePromotionsScroll}
+              role="region"
+              aria-label="Promociones activas"
+            >
             {isLoadingPromotions ? (
               <Loading message="Cargando promociones..." />
-            ) : promotions.length === 0 ? (
-              <p>No hay promociones activas en este momento.</p>
+            ) : promoCount === 0 ? (
+              <p className="promotions-empty">No hay promociones activas en este momento.</p>
             ) : (
-              promotions.map((promotion) => (
-                <div key={promotion.id} className="promotion-card">
+              promotionsToShow.map((promotion, i) => (
+                <div key={promoCount > 1 && isMobile && i >= promoCount ? `${promotion.id}-dup` : promotion.id} className="promotion-card promotion-card-coupon">
+                  <div className="promotion-card-header-bar">
+                    <span className="promotion-card-header-label">Promoción</span>
+                  </div>
                   {promotion.imageUrl && (
                     <div className="promotion-image-container">
                       <img 
@@ -395,6 +542,22 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                   </div>
                 </div>
               ))
+            )}
+            </div>
+            {!isLoadingPromotions && promoCount > 1 && (
+              <div className="slider-dots" role="tablist" aria-label="Elemento actual">
+                {promotions.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === currentPromotionIndex}
+                    aria-label={`Elemento ${i + 1} de ${promoCount}`}
+                    className={`slider-dot ${i === currentPromotionIndex ? 'active' : ''}`}
+                    onClick={() => scrollPromotionsTo(i)}
+                  />
+                ))}
+              </div>
             )}
             </div>
         </div>

@@ -42,7 +42,10 @@ const membershipColors = {
     progressRingFill: '#FFFFFF',    // Bright gold for progress fill
     
     // Progress label colors
-    progressLabelColor: '#2C1810'   // Dark text for gold membership
+    progressLabelColor: '#2C1810',   // Dark text for gold membership
+
+    // Slider pagination dots – active state
+    sliderDotActive: '#BFC8CF'       // Silver for active dot
   },
   platinum: {
     // Primary colors - Darker metallic platinum for better text contrast
@@ -85,7 +88,10 @@ const membershipColors = {
     progressRingFill: '#FFFFFF',    // White for progress fill
     
     // Progress label colors
-    progressLabelColor: '#FFFFFF'   // White text for platinum membership
+    progressLabelColor: '#FFFFFF',   // White text for platinum membership
+
+    // Slider pagination dots – active state
+    sliderDotActive: '#606060'      // Darker metallic for active dot
   },
   black: {
     // Primary colors - Metallic black/charcoal tones
@@ -121,7 +127,10 @@ const membershipColors = {
     
     // Error colors
     errorBg: '#FFF0F0',            // Light error background
-    errorText: '#D32F2F'           // Standard error red
+    errorText: '#D32F2F',          // Standard error red
+
+    // Slider pagination dots – active state
+    sliderDotActive: '#B3E5FC'     // Lighter light blue for active dot
   }
 };
 
@@ -166,7 +175,8 @@ const defaultColors = {
   primary: '#cf0000',
   primaryDark: '#a50000',
   primaryHover: '#a50000',
-  accent: '#ca0000'
+  accent: '#ca0000',
+  sliderDotActive: '#cf0000'
 };
 
 /**
