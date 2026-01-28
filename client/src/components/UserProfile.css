@@ -1,4 +1,8 @@
 /* User Profile Styles */
+.profile-wrapper {
+  width: 100%;
+}
+
 .profile-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -148,13 +152,12 @@
 .profile-section {
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
   background-color: var(--bg-light); /* Fallback */
-  border-radius: var(--border-radius-md);
-  padding: 25px;
   border-radius: 8px;
+  padding: 25px;
   box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.40);
-  border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .profile-section::before {
@@ -168,6 +171,8 @@
   pointer-events: none;
   animation: liquidShimmer 3s infinite;
   box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  z-index: 0;
 }
 
 @keyframes liquidShimmer {
@@ -252,9 +257,8 @@
   padding: 12px;
   background-color: var(--bg-light);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .info-label {
@@ -265,139 +269,6 @@
 
 .info-value {
   color: var(--text-color);
-}
-
-/* Add Vehicle Button */
-.add-vehicle-btn {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
-  background-color: var(--primary-color); /* Fallback */
-  color: var(--text-on-primary);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-.add-vehicle-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s;
-}
-
-.add-vehicle-btn:hover::before {
-  left: 100%;
-}
-
-.add-vehicle-btn:hover {
-  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.form-group label {
-  font-weight: bold;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-.form-group input {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
-  background-color: var(--primary-color); /* Fallback */
-  color: var(--text-on-primary);
-  border: none;
-  padding: 10px 20px;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-.save-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s;
-}
-
-.save-btn:hover::before {
-  left: 100%;
-}
-
-.save-btn:hover {
-  background: linear-gradient(135deg, var(--gradient-end), var(--gradient-mid), var(--gradient-start));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.cancel-btn {
-  background-color: var(--bg-light);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  padding: 10px 20px;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.cancel-btn:hover {
-  background-color: var(--light-grey);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Vehicles Grid */
@@ -421,51 +292,6 @@
 .vehicle-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.vehicle-card-actions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-.edit-vehicle-btn,
-.delete-vehicle-btn {
-  background-color: #FFFFFF;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  font-size: 1rem;
-  flex-shrink: 0;
-  user-select: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.edit-vehicle-btn svg,
-.delete-vehicle-btn svg {
-  font-size: 1rem;
-  color: var(--text-color);
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-}
-
-.edit-vehicle-btn:hover,
-.delete-vehicle-btn:hover {
-  background-color: var(--light-grey);
-  border-color: var(--primary-color);
-  transform: scale(1.15) translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .vehicle-icon {
@@ -564,61 +390,158 @@
 
 .amount-cell {
   font-weight: bold;
-  color: white;
+  color: var(--text-color);
 }
 
-.invoice-cell {
-  font-family: monospace;
-  color: var(--text-light);
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.status-badge.pagado {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-badge.pendiente {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-badge.cancelado {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-/* Responsive Design */
+/* Responsive Design – match RewardsPoints mobile layout */
 @media (max-width: 768px) {
+  /* Full-bleed wrapper like RewardsPoints .rewards-wrapper */
+  .profile-wrapper {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+    padding: 16px 5vw max(50px, env(safe-area-inset-bottom, 20px));
+    box-sizing: border-box;
+  }
+
+  .profile-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .profile-container::before {
+    display: none;
+  }
+
+  .profile-content {
+    gap: 16px;
+  }
+
   .profile-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+
+  .profile-title-section {
+    justify-content: center;
+    width: 100%;
   }
 
   .header-actions {
     width: 100%;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+    border-radius: 999px;
+    min-height: 48px;
+    padding: 12px 20px;
   }
 
   .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 14px 14px 0 0;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .section-header h3.centered-title {
+    position: static;
+    transform: none;
+    left: auto;
   }
 
-  .vehicles-grid {
+  /* Vehicles horizontal slider on mobile (like RewardsPoints) */
+  .vehicles-section .slider-viewport {
+    position: relative;
+    margin: 0 -2px;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .vehicles-section .slider-viewport:has(.vehicle-card) {
+    overflow: visible;
+  }
+
+  .vehicles-section .vehicles-grid:has(.vehicle-card) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 8px 5px 12px;
+    margin: 0;
+    min-height: 0;
+    scroll-padding-inline: 12px;
+  }
+
+  .vehicles-section .vehicles-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vehicles-section .vehicles-grid .vehicle-card {
+    flex: 0 0 auto;
+    width: min(320px, 88vw);
+    min-width: min(280px, 85vw);
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
+  }
+
+  .vehicles-section .slider-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .vehicles-section .slider-dot {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background-color: var(--light-grey);
+    color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .vehicles-section .slider-dot:hover {
+    background-color: var(--border-color);
+  }
+
+  .vehicles-section .slider-dot.active {
+    background-color: var(--slider-dot-active, var(--primary-color));
+  }
+
+  /* Fallback: vehicles grid as single column when no slider (empty or 1 item) */
+  .vehicles-grid:not(:has(.vehicle-card)) {
     grid-template-columns: 1fr;
   }
 
@@ -630,96 +553,40 @@
   .billing-table td {
     padding: 8px;
   }
-}
 
-/* Mobile / Phone-friendly special shapes (colors preserved via vars) */
-@media (max-width: 768px) {
-  .profile-container {
-    padding: 20px 18px max(25px, env(safe-area-inset-bottom, 20px));
-    border-radius: 24px;
-    overflow: visible;
-  }
-
-  .profile-container::before {
-    border-radius: 24px;
-  }
-
-  .profile-container::after {
-    content: '';
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-    top: -35px;
-    right: -35px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
+  /* Sections as cards like RewardsPoints .rewards-container */
   .profile-section {
-    border-radius: 22px;
-    padding: 22px 18px;
-    overflow: visible;
+    border-radius: 20px;
+    padding: 10px 14px;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-sizing: border-box;
   }
 
   .profile-section::after {
     content: '';
     position: absolute;
-    width: 90px;
-    height: 90px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
-    bottom: -25px;
-    left: -25px;
+    top: -40px;
+    right: -40px;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Pill-shaped buttons for thumb-friendly taps */
-  .nav-btn,
-  .logout-btn {
-    border-radius: 999px;
-    min-height: 48px;
-    padding: 12px 20px;
-  }
-
-  .add-vehicle-btn,
-  .save-btn {
-    border-radius: 999px;
-    min-height: 48px;
-    padding: 12px 20px;
-  }
-
-  .cancel-btn {
-    border-radius: 999px;
-    min-height: 48px;
-    padding: 12px 20px;
-  }
-
-  /* Rounded info items and cards */
   .user-info-item {
     position: relative;
     border-radius: 18px;
-    padding: 14px 16px;
-    padding-left: 20px;
-  }
-
-  .user-info-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    border-radius: 0 4px 4px 0;
-    background: linear-gradient(180deg, var(--gradient-start), var(--gradient-end));
-    opacity: 0.6;
+    padding: 12px 14px 12px 16px;
   }
 
   .vehicle-card {
-    border-radius: 22px;
+    border-radius: 20px;
     padding: 22px 18px;
     overflow: visible;
   }
@@ -737,140 +604,136 @@
     pointer-events: none;
   }
 
-  .edit-vehicle-btn,
-  .delete-vehicle-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-  }
-
   .billing-table-container {
     border-radius: 20px;
     overflow: hidden;
   }
 
-  .modal-content {
-    border-radius: 24px;
+  /* Historial de Premios – fixed-height vertical scroll on mobile */
+  .premios-section:has(.premios-cards-list) {
+    display: flex;
+    flex-direction: column;
+    height: 540px;
+    min-height: 540px;
   }
 
-  .form-group input {
-    border-radius: 14px;
-    min-height: 48px;
-    padding: 12px 16px;
+  .premios-section .premios-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color, rgba(0,0,0,0.2)) transparent;
+  }
+
+  .premios-section .premios-cards-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .premios-section .premios-cards-list::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  .premios-section .premios-cards-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .premios-section .premios-cards-list::-webkit-scrollbar-thumb {
+    background: var(--border-color, rgba(0,0,0,0.2));
+    border-radius: 4px;
+  }
+
+  .premios-section .premios-cards-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted, rgba(0,0,0,0.35));
+  }
+
+  .premios-section .premios-cards-list .premio-card {
+    width: 100%;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .premios-section .premio-card-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .premios-section .premio-card-header .premio-card-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+
+  .premios-section .premio-card-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-color);
+  }
+
+  .premios-section .premio-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+
+  .premios-section .premio-card-row .premio-card-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .premios-section .premio-card-row .premio-card-value {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .premios-section .premio-card-date .premio-card-value {
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 }
 
-/* Extra phone tweaks for small screens */
 @media (max-width: 480px) {
-  .profile-container {
-    border-radius: 28px;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .profile-container::after {
-    width: 90px;
-    height: 90px;
-    top: -28px;
-    right: -28px;
+  .profile-wrapper {
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
 
   .profile-section {
-    border-radius: 24px;
+    border-radius: 18px;
+    padding: 12px 10px;
+    margin-bottom: 16px;
   }
 
   .profile-section::after {
-    width: 65px;
-    height: 65px;
-    bottom: -18px;
-    left: -18px;
+    width: 100px;
+    height: 100px;
+    top: -30px;
+    right: -30px;
   }
 
   .vehicle-card {
-    border-radius: 24px;
+    border-radius: 22px;
   }
 
   .user-info-item {
     border-radius: 20px;
   }
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-content {
-  background-color: var(--bg-light);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-hard);
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 25px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  color: var(--primary-color);
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.modal-close-btn {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-}
-
-.modal-close-btn:hover {
-  color: var(--primary-color);
-  background-color: var(--light-grey);
-  transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.modal-body {
-  padding: 25px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  padding: 20px 25px;
-  border-top: 1px solid var(--border-color);
 }
 
 /* Membership Badge Styles */

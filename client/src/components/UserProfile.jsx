@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { getUserInformation, getAllCarsByUserId, getAllRedeemedRewardsByUserId } from '../services/autovipUsers';
@@ -19,6 +19,46 @@ export default function UserProfile({ setIsAuthenticated }) {
   const [vehicles, setVehicles] = useState([]);
   const [redeemedRewards, setRedeemedRewards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentVehicleIndex, setCurrentVehicleIndex] = useState(0);
+  const vehiclesGridRef = useRef(null);
+
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth <= 768
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const handle = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', handle);
+    handle();
+    return () => mq.removeEventListener('change', handle);
+  }, []);
+
+  const vehicleCount = vehicles.length;
+  const infiniteVehicles = vehicleCount > 1 ? [...vehicles, ...vehicles] : vehicles;
+  const vehiclesToShow = isMobile ? infiniteVehicles : vehicles;
+
+  const handleVehiclesScroll = useCallback(() => {
+    const el = vehiclesGridRef.current;
+    if (!el || vehicleCount <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    if (el.scrollLeft >= setWidth - 20) el.scrollLeft -= setWidth;
+    const cardWidth = setWidth / vehicleCount;
+    const idx = Math.min(vehicleCount - 1, Math.floor(el.scrollLeft / cardWidth + 0.5));
+    setCurrentVehicleIndex(idx);
+  }, [vehicleCount]);
+
+  const scrollVehiclesTo = useCallback((index) => {
+    const el = vehiclesGridRef.current;
+    if (!el || vehicleCount <= 1) return;
+    const setWidth = el.scrollWidth / 2;
+    const cardWidth = setWidth / vehicleCount;
+    el.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    setCurrentVehicleIndex(index);
+  }, [vehicleCount]);
+
+  useEffect(() => {
+    setCurrentVehicleIndex(0);
+  }, [vehicleCount]);
 
   useEffect(() => {
     const loadUserInformation = async () => {
@@ -138,8 +178,9 @@ export default function UserProfile({ setIsAuthenticated }) {
   };
 
   return (
-    <div className="profile-container">
+    <div className="profile-wrapper">
       {isLoading && <Loading message="Cargando información del perfil..." fullScreen={true} />}
+      <div className="profile-container">
       <div className="profile-header">
         <div className="profile-title-section">
           <FaUser className="profile-icon" />
@@ -193,7 +234,7 @@ export default function UserProfile({ setIsAuthenticated }) {
         </div>
 
         {/* Vehicles Section */}
-        <div className="profile-section">
+        <div className="profile-section vehicles-section">
           <div className="section-header">
             <FaCar className="section-icon" />
             <h3 className="centered-title">
@@ -208,28 +249,54 @@ export default function UserProfile({ setIsAuthenticated }) {
               <p className="empty-subtitle">Agrega hasta 5 vehículos para un mejor seguimiento de tus servicios.</p>
             </div>
           ) : (
-            <div className="vehicles-grid">
-              {vehicles.map((vehicle) => (
-                <div key={vehicle.id} className="vehicle-card">
-                  <div className="vehicle-icon">
-                    <FaCar />
+            <div className="slider-viewport">
+              <div
+                ref={vehiclesGridRef}
+                className="vehicles-grid"
+                onScroll={handleVehiclesScroll}
+                role="region"
+                aria-label="Mis vehículos"
+              >
+                {vehiclesToShow.map((vehicle, i) => (
+                  <div
+                    key={vehicleCount > 1 && isMobile && i >= vehicleCount ? `${vehicle.id}-dup` : vehicle.id}
+                    className="vehicle-card"
+                  >
+                    <div className="vehicle-icon">
+                      <FaCar />
+                    </div>
+                    <div className="vehicle-info">
+                      <h4 className="vehicle-placa">{vehicle.placa}</h4>
+                      <p className="vehicle-details">
+                        {vehicle.marca} {vehicle.modelo}
+                        {vehicle.año && ` • ${vehicle.año}`}
+                        {vehicle.color && ` • ${vehicle.color}`}
+                      </p>
+                    </div>
                   </div>
-                  <div className="vehicle-info">
-                    <h4 className="vehicle-placa">{vehicle.placa}</h4>
-                    <p className="vehicle-details">
-                      {vehicle.marca} {vehicle.modelo}
-                      {vehicle.año && ` • ${vehicle.año}`}
-                      {vehicle.color && ` • ${vehicle.color}`}
-                    </p>
-                  </div>
+                ))}
+              </div>
+              {vehicleCount > 1 && (
+                <div className="slider-dots vehicles-slider-dots" role="tablist" aria-label="Vehículo actual">
+                  {vehicles.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      role="tab"
+                      aria-selected={i === currentVehicleIndex}
+                      aria-label={`Vehículo ${i + 1} de ${vehicleCount}`}
+                      className={`slider-dot ${i === currentVehicleIndex ? 'active' : ''}`}
+                      onClick={() => scrollVehiclesTo(i)}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
 
-        {/* Rewards History Section */}
-        <div className="profile-section">
+        {/* Rewards History Section – table on desktop, swipeable card slider on mobile */}
+        <div className="profile-section premios-section">
           <div className="section-header">
             <FaGift className="section-icon" />
             <h3>Historial de Premios Ganados</h3>
@@ -238,6 +305,33 @@ export default function UserProfile({ setIsAuthenticated }) {
             <div className="empty-state">
               <FaGift className="empty-icon" />
               <p>No hay historial de premios ganados disponible.</p>
+            </div>
+          ) : isMobile ? (
+            <div className="premios-cards-list" role="region" aria-label="Historial de premios ganados">
+              {redeemedRewards.map((reward, i) => (
+                <div key={i} className="premio-card">
+                  <div className="premio-card-header">
+                    <span className="premio-card-label">Premio</span>
+                    <span className="premio-card-value premio-card-title">{reward.reward_title || 'N/A'}</span>
+                  </div>
+                  <div className="premio-card-row">
+                    <span className="premio-card-label">Puntos antes</span>
+                    <span className="premio-card-value">{reward.points_before?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="premio-card-row">
+                    <span className="premio-card-label">Puntos usados</span>
+                    <span className="premio-card-value">{reward.points_used?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="premio-card-row">
+                    <span className="premio-card-label">Puntos después</span>
+                    <span className="premio-card-value">{reward.points_after?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="premio-card-row premio-card-date">
+                    <span className="premio-card-label">Fecha de canje</span>
+                    <span className="premio-card-value">{reward.redeemedAt ? formatDate(reward.redeemedAt) : 'N/A'}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="billing-table-container">
@@ -267,7 +361,7 @@ export default function UserProfile({ setIsAuthenticated }) {
           )}
         </div>
       </div>
-
+      </div>
     </div>
   );
 }

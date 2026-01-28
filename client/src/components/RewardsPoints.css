@@ -1097,6 +1097,14 @@
   gap: 6px;
 }
 
+@media (min-width: 769px) {
+  .section-title-wrap {
+    flex: 1;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 .slider-hint {
   display: none;
   align-items: center;

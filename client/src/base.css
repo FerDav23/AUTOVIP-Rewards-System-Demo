@@ -187,4 +187,10 @@ select:focus {
   box-sizing: border-box;
   min-height: 0;
   position: relative;
-} 
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding-top: 0;
+  }
+}
