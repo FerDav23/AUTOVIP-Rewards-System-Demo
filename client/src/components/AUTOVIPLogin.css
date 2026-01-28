@@ -39,6 +39,15 @@
   height: auto;
 }
 
+.autovip-login-logo-positioned {
+  max-width: 70px;
+  height: 70px;
+  position: absolute;
+  z-index: 1;
+  margin-right: 335px;
+  margin-top: -32px;
+}
+
 .autovip-welcome-title {
   margin: 0;
   margin-bottom: var(--spacing-md);
@@ -151,4 +160,44 @@
 .autovip-login-button:disabled {
   background-color: var(--disabled-color);
   cursor: not-allowed;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .autovip-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .autovip-login-form {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 24px 20px;
+    box-sizing: border-box;
+  }
+
+  .autovip-welcome-title {
+    font-size: 20px;
+  }
+
+  .autovip-login-form h2 {
+    font-size: 18px;
+  }
+
+  .autovip-login-logo-positioned {
+    margin-right: 80%;
+  }
+
+  .password-input-wrapper input {
+    padding-right: 10px !important;
+  }
+
+  .password-toggle-btn {
+    right: 0% !important;
+  }
 }
