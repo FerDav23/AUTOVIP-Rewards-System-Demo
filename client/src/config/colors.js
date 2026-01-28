@@ -45,7 +45,7 @@ const membershipColors = {
     progressLabelColor: '#2C1810',   // Dark text for gold membership
 
     // Slider pagination dots – active state
-    sliderDotActive: '#BFC8CF'       // Silver for active dot
+    sliderDotActive: '#B8FFCC'       // Lighter green for active dot
   },
   platinum: {
     // Primary colors - Darker metallic platinum for better text contrast
@@ -91,7 +91,7 @@ const membershipColors = {
     progressLabelColor: '#FFFFFF',   // White text for platinum membership
 
     // Slider pagination dots – active state
-    sliderDotActive: '#606060'      // Darker metallic for active dot
+    sliderDotActive: '#B3E5FC'       // Darker metallic for active dot
   },
   black: {
     // Primary colors - Metallic black/charcoal tones
