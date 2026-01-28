@@ -1,10 +1,17 @@
-// Dummy user data with membership types and card numbers
-// In production, this data would come from the database
+// ============================================
+// DEVELOPMENT ONLY - DUMMY USER DATA
+// ============================================
+// This file contains dummy/test data for development purposes only.
+// In production builds, this module is dynamically imported and will
+// not be included in the final bundle if not used.
+//
+// Dummy user data with membership types and card numbers.
+// In production, this data should come from the API/database.
 //
 // ============================================
 // TO TEST DIFFERENT MEMBERSHIP COLORS:
 // ============================================
-// Change the TEST_MEMBERSHIP constant below (line 69) to:
+// Change the TEST_MEMBERSHIP constant below (line 79) to:
 // - 'gold' for Gold membership (golden colors)
 // - 'platinum' for Platinum membership (silver/platinum colors)
 // - 'black' for Black membership (black/dark colors)

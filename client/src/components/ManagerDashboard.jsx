@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { useAlert } from './AlertContext';
 import { useConfirm } from './ConfirmContext';
+import logger from '../utils/logger';
 import { 
   getAllAutoVipUsers, 
   getMembershipById, 
@@ -141,7 +142,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setCars(processedCars);
       setCurrentUserIdForCars(userId);
     } catch (error) {
-      console.error('Failed to load cars:', error);
+      logger.logApiError(error, { context: 'Load cars' });
       showError('Error al cargar los vehículos. Por favor, intente de nuevo.');
       setCars([]);
       setCurrentUserIdForCars(null);
@@ -170,7 +171,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               const membershipData = await getMembershipById(user.membership_id);
               membership = membershipData?.name || 'undefined';
             } catch (error) {
-              console.warn(`Failed to load membership for user ${user.id}:`, error);
+              logger.warn(`Failed to load membership for user ${user.id}:`, error);
             }
           }
 
@@ -178,7 +179,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           try {
             carCount = await getCarsCountByUserId(user.id);
           } catch (error) {
-            console.warn(`Failed to load car count for user ${user.id}:`, error);
+            logger.warn(`Failed to load car count for user ${user.id}:`, error?.message || error);
           }
 
           // Transform user data to match component expectations

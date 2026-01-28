@@ -6,6 +6,7 @@ import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
 import Alert from './Alert';
+import logger from '../utils/logger';
 import './AUTOVIPLogin.css';
 
 export default function AUTOVIPLogin({ setIsAuthenticated }) {
@@ -44,7 +45,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
       if (setIsAuthenticated) setIsAuthenticated(true);
       navigate('/rewards');
     } catch (err) {
-      console.error('Error during login or navigation:', err);
+      logger.logAuthError(err, { context: 'AUTOVIP login' });
       setError('Credenciales inválidas');
     }
   };

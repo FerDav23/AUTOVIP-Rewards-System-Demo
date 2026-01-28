@@ -1,5 +1,6 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import logger from '../utils/logger';
 
 /**
  * Get all promotions
@@ -21,7 +22,7 @@ export async function getAllPromotions() {
 
     return response.data.data;
   } catch (error) {
-    console.error('Failed to fetch promotions:', error.message);
+    logger.logApiError(error, { context: 'Fetch promotions' });
     throw error;
   }
 }
@@ -82,7 +83,7 @@ export async function createPromotion(promotionData) {
       return response.data.data;
     }
   } catch (error) {
-    console.error('Failed to create promotion:', error.message);
+    logger.logApiError(error, { context: 'Create promotion' });
     throw error;
   }
 }
@@ -150,7 +151,7 @@ export async function updatePromotion(promotionId, promotionData) {
       return response.data.data;
     }
   } catch (error) {
-    console.error(`Failed to update promotion ${promotionId}:`, error.message);
+    logger.logApiError(`Failed to update promotion ${promotionId}:`, error.message);
     throw error;
   }
 }
@@ -180,7 +181,7 @@ export async function deletePromotion(promotionId) {
 
     return response.data;
   } catch (error) {
-    console.error(`Failed to delete promotion ${promotionId}:`, error.message);
+    logger.logApiError(error, { context: `Delete promotion ${promotionId}` });
     throw error;
   }
 }

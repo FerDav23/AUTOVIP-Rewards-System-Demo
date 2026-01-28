@@ -1,5 +1,6 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import logger from '../utils/logger';
 
 /**
  * Get all reward types
@@ -20,7 +21,7 @@ export async function getRewardTypes() {
 
     return response.data.data;
   } catch (error) {
-    console.error('Failed to fetch reward types:', error.message);
+    logger.logApiError(error, { context: 'Fetch reward types' });
     throw error;
   }
 }
@@ -45,7 +46,7 @@ export async function getAllRewards() {
 
     return response.data.data;
   } catch (error) {
-    console.error('Failed to fetch rewards:', error.message);
+    logger.logApiError(error, { context: 'Fetch rewards' });
     throw error;
   }
 }
@@ -121,7 +122,7 @@ export async function createReward(rewardData) {
       return response.data.data;
     }
   } catch (error) {
-    console.error('Failed to create reward:', error.message);
+    logger.logApiError('Failed to create reward:', error.message);
     throw error;
   }
 }
@@ -204,7 +205,7 @@ export async function updateReward(rewardId, rewardData) {
       return response.data.data;
     }
   } catch (error) {
-    console.error(`Failed to update reward ${rewardId}:`, error.message);
+    logger.logApiError(error, { context: `Update reward ${rewardId}` });
     throw error;
   }
 }
@@ -234,7 +235,7 @@ export async function deleteReward(rewardId) {
 
     return response.data;
   } catch (error) {
-    console.error(`Failed to delete reward ${rewardId}:`, error.message);
+    logger.logApiError(error, { context: `Delete reward ${rewardId}` });
     throw error;
   }
 }
@@ -277,7 +278,7 @@ export async function uploadImage(file) {
 
     return response.data.data.imageUrl;
   } catch (error) {
-    console.error('Failed to upload image:', error.message);
+    logger.logApiError(error, { context: 'Upload image' });
     throw error;
   }
 }

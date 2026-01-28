@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { fetchReport } from '../services/api';
 import Loading from './Loading';
+import logger from '../utils/logger';
 
 export default function ReportForm({ onPdf }) {
   const [placa, setPlaca] = useState('');
@@ -16,7 +17,7 @@ export default function ReportForm({ onPdf }) {
       const url = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }));
       onPdf(url);
     } catch (err) {
-      console.error('Error generating report:', err);
+      logger.logApiError(err, { context: 'Generate PDF report' });
       setError('Error al generar el reporte. Intente nuevamente.');
     } finally {
       setLoading(false);

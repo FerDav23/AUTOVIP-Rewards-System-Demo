@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { getUserInformation, getAllCarsByUserId, getAllRedeemedRewardsByUserId } from '../services/autovipUsers';
+import logger from '../utils/logger';
 import './UserProfile.css';
 import Loading from './Loading';
 import { 
@@ -68,7 +69,7 @@ export default function UserProfile({ setIsAuthenticated }) {
         const autovipUserID = localStorage.getItem('autovipUserID');
         
         if (!autovipUserID) {
-          console.warn('No autovipUserID found in localStorage');
+          logger.warn('No autovipUserID found in localStorage');
           setIsLoading(false);
           return;
         }
@@ -126,7 +127,7 @@ export default function UserProfile({ setIsAuthenticated }) {
           setRedeemedRewards(redeemedRewardsData);
         }
       } catch (error) {
-        console.error('Failed to load user information:', error);
+        logger.logApiError(error, { context: 'Load user information' });
       } finally {
         setIsLoading(false);
       }
