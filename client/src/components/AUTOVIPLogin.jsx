@@ -54,14 +54,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
       <AUTOVIPBackground />
       <div className="autovip-login-form">
         <div className="autovip-logo-container">
-          <img src={logoImg} alt="CIM Logo" className="autovip-login-logo" style={{ 
-            maxWidth: '70px', 
-            height: '70px', 
-            position: 'absolute',
-            zIndex: 1,
-            marginRight: '335px',
-            marginTop: '-32px'
-           }} />
+          <img src={logoImg} alt="CIM Logo" className="autovip-login-logo autovip-login-logo-positioned" />
           <img src={logoCIMImg} alt="CIM Logo" className="autovip-login-logo" />
         </div>
         <h1 className="autovip-welcome-title">Bienvenido al Sistema AUTOVIP</h1>
