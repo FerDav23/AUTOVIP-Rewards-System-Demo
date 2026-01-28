@@ -1,5 +1,5 @@
 import client from './apiClient';
-import { getUserData } from './dummyUsers';
+import logger from '../utils/logger';
 
 // Token expiration time in milliseconds (24 hours)
 const TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
@@ -46,18 +46,27 @@ export async function login(username, password) {
     localStorage.setItem('user', JSON.stringify(response.data.userName));
     localStorage.setItem('password', JSON.stringify(response.data.password));
     
-    // Store user membership data from dummy data (in production, this would come from the API)
-    const userData = getUserData(response.data.userName);
-    if (userData) {
-      localStorage.setItem('userMembership', userData.membershipType);
-      localStorage.setItem('userCardNumber', userData.cardNumber);
-      localStorage.setItem('userEmail', userData.email);
-      localStorage.setItem('userPhoneNumber', userData.phoneNumber || '');
+    // Only use dummy data in development mode
+    // In production, user data should come from the API response
+    if (import.meta.env.DEV) {
+      // Lazy load dummy data helper function
+      const dummyUsersModule = await import('./dummyUsers').catch(() => null);
+      if (dummyUsersModule?.getUserData) {
+        const userData = dummyUsersModule.getUserData(response.data.userName);
+        if (userData) {
+          localStorage.setItem('userMembership', userData.membershipType);
+          localStorage.setItem('userCardNumber', userData.cardNumber);
+          localStorage.setItem('userEmail', userData.email);
+          localStorage.setItem('userPhoneNumber', userData.phoneNumber || '');
+        }
+      }
     }
+    // TODO: In production, extract user data from API response instead of dummy data
+    // Example: if (response.data.user) { ... }
     
     return response.data;
   } catch (error) {
-    console.error('Login failed:', error);
+    logger.logAuthError(error, { context: 'User login' });
     throw error;
   }
 }
@@ -71,7 +80,7 @@ export async function loginManager(username, password) {
     localStorage.setItem('managerUsername', JSON.stringify(response.data.data.username));
     return response.data.data;
   } catch (error) {
-    console.error('Login manager failed:', error);
+    logger.logAuthError(error, { context: 'Manager login' });
     throw error;
   }
 }
@@ -86,7 +95,7 @@ export async function loginAutovipUser (username, password) {
     localStorage.setItem('autovipUserRucCi', JSON.stringify(response.data.data.ruc_ci));
     return response.data.data;
   } catch (error) {
-    console.error('Login autovip user failed:', error);
+    logger.logAuthError(error, { context: 'AutoVIP user login' });
     throw error;
   }
 }
@@ -189,7 +198,7 @@ export async function getHistorialData(placa, startDate, endDate) {
     const response = await client.get(`/report/historial/${placa}?startDate=${startDate}&endDate=${endDate}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch historial data:', error);  
+    logger.logApiError(error, { context: 'Fetch historial data' });
     throw error;
   }
 }

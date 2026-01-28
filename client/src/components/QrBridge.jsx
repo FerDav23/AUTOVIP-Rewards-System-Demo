@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAutovipUser } from "../services/user";
 import Alert from './Alert';
+import logger from '../utils/logger';
 import './QrBridge.css';
 
 export default function QrBridge({ setIsAuthenticated }) {
@@ -21,7 +22,7 @@ export default function QrBridge({ setIsAuthenticated }) {
         if (setIsAuthenticated) setIsAuthenticated(true);
         navigate('/rewards');
       } catch (err) {
-        console.error('Error during login or navigation:', err);
+        logger.logAuthError(err, { context: 'QR Bridge login' });
         setError('Credenciales inválidas, porfavor contactar al soporte.');
         setStatus("Error en la autenticación");
       }

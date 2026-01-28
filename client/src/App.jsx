@@ -7,10 +7,12 @@ import ManagerDashboard from './components/ManagerDashboard';
 import QrBridge from './components/QrBridge';
 import RewardsPoints from './components/RewardsPoints';
 import UserProfile from './components/UserProfile';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AlertProvider } from './components/AlertContext';
 import { ConfirmProvider } from './components/ConfirmContext';
 import { getMembershipByUserId } from './services/autovipUsers';
 import { verifyToken } from './services/user';
+import logger from './utils/logger';
 import initColors from './config/init-colors';
 import './variables.css';
 import './base.css';
@@ -45,7 +47,7 @@ export default function App() {
         initColors(null);
       }
     } catch (error) {
-      console.error('Failed to initialize colors:', error);
+      logger.error('Failed to initialize colors:', error);
       initColors(null);
     }
   };
@@ -61,7 +63,7 @@ export default function App() {
           initializeColors();
         })
         .catch((error) => {
-          console.error('Token verification failed:', error);
+          logger.logAuthError(error, { context: 'Token verification' });
           setIsAuthenticated(false);
           initColors(null);
           setMembership(null);
@@ -96,10 +98,11 @@ export default function App() {
   }, [isAuthenticated]);
 
   return (
-    <AlertProvider>
-      <ConfirmProvider>
-        <div className="app-container">
-          <Routes>
+    <ErrorBoundary>
+      <AlertProvider>
+        <ConfirmProvider>
+          <div className="app-container">
+            <Routes>
             <Route
               path="/"
               element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
@@ -132,9 +135,10 @@ export default function App() {
               path="/manager-dashboard"
               element={isAuthenticated ? <ManagerDashboard setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/manager-login" />}
             />
-          </Routes>
-        </div>
-      </ConfirmProvider>
-    </AlertProvider>
+            </Routes>
+          </div>
+        </ConfirmProvider>
+      </AlertProvider>
+    </ErrorBoundary>
   );
 }

@@ -4,6 +4,7 @@ import { logout } from '../services/user';
 import { useAlert } from './AlertContext';
 import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
 import { getAllPromotions } from '../services/autovipPromotions';
+import logger from '../utils/logger';
 import './RewardsPoints.css';
 import Loading from './Loading';
 import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser, FaAngleDoubleRight } from 'react-icons/fa';
@@ -115,7 +116,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         const userId = localStorage.getItem('autovipUserID');
         
         if (!userId) {
-          console.warn('No user ID found in localStorage');
+          logger.warn('No user ID found in localStorage');
           setCustomerPoints(0);
           setRewards([]);
           setIsLoadingPoints(false);
@@ -190,7 +191,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         
         setPromotions(filteredPromotions);
       } catch (error) {
-        console.error('Failed to load promotions:', error);
+        logger.logApiError(error, { context: 'Load promotions' });
         setPromotions([]);
       } finally {
         setIsLoadingPromotions(false);

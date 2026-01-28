@@ -1,5 +1,6 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import logger from '../utils/logger';
 
 /**
  * Get all AutoVIP users
@@ -21,7 +22,7 @@ export async function getAllAutoVipUsers() {
 
     return response.data.data;
   } catch (error) {
-    console.error('Failed to fetch AutoVIP users:', error.message);
+    logger.logApiError(error, { context: 'Fetch AutoVIP users' });
     throw error;
   }
 }
@@ -51,7 +52,7 @@ export async function getMembershipById(membershipId) {
 
     return response.data.data;
   } catch (error) {
-    console.error(`Failed to fetch membership ${membershipId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch membership ${membershipId}` });
     throw error;
   }
 }
@@ -80,7 +81,7 @@ export async function getMembershipByUserId(userId) {
 
     return response.data.data;
   } catch (error) {
-    console.error(`Failed to fetch membership for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch membership for user ${userId}` });
     throw error;
   }
 }
@@ -112,7 +113,7 @@ export async function getCarsCountByUserId(userId) {
     // If it's an object with a count property, return that
     return typeof response.data.data === 'number' ? response.data.data : (response.data.data.count || 0);
   } catch (error) {
-    console.error(`Failed to fetch car count for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch car count for user ${userId}` });
     // Return 0 if there's an error (e.g., user has no cars)
     return 0;
   }
@@ -143,7 +144,7 @@ export async function getAllCarsByUserId(userId) {
 
     return response.data.data || [];
   } catch (error) {
-    console.error(`Failed to fetch cars for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch cars for user ${userId}` });
     // Return empty array if there's an error
     return [];
   }
@@ -219,7 +220,7 @@ export async function createAutoVipUser(userData, vehicleData) {
 
     return response.data.data;
   } catch (error) {
-    console.error('Failed to create AutoVIP user:', error.message);
+    logger.logApiError(error, { context: 'Create AutoVIP user' });
     throw error;
   }
 }
@@ -291,7 +292,7 @@ export async function deleteUser(userId) {
 
     return response.data;
   } catch (error) {
-    console.error(`Failed to delete user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Delete user ${userId}` });
     throw error;
   }
 }
@@ -367,7 +368,7 @@ export async function deleteCarById(vehicleId) {
 
     return response.data;
   } catch (error) {
-    console.error(`Failed to delete vehicle ${vehicleId}:`, error.message);
+    logger.logApiError(error, { context: `Delete vehicle ${vehicleId}` });
     throw error;
   }
 }
@@ -422,7 +423,7 @@ export async function getPointsByUserId(userId) {
     // If it's an object with a points property, return that
     return typeof response.data.data.points_balance === 'number' ? response.data.data.points_balance : (response.data.data.points_balance || 0);
   } catch (error) {
-    console.error(`Failed to fetch points for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch points for user ${userId}` });
     // Return 0 if there's an error (e.g., user has no points)
     return 0;
   }
@@ -483,7 +484,7 @@ export async function getUserInformation(userId) {
 
     return response.data.data;
   } catch (error) {
-    console.error(`Failed to fetch user information for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch user information for user ${userId}` });
     throw error;
   }
 }
@@ -513,7 +514,7 @@ export async function getAllRedeemedRewardsByUserId(userId) {
     // Return the array of redeemed rewards, or empty array if none
     return response.data.data || [];
   } catch (error) {
-    console.error(`Failed to fetch redeemed rewards for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Fetch redeemed rewards for user ${userId}` });
     // Return empty array if there's an error (e.g., user has no redeemed rewards)
     return [];
   }
@@ -594,7 +595,7 @@ export async function managePointTransaction(userId, transactionData) {
 
     return response.data.data;
   } catch (error) {
-    console.error(`Failed to manage points transaction for user ${userId}:`, error.message);
+    logger.logApiError(error, { context: `Manage points transaction for user ${userId}` });
     throw error;
   }
 }
