@@ -173,8 +173,8 @@ export default function UserProfile({ setIsAuthenticated }) {
   };
 
   const handleNavigateToDashboard = () => {
-    const BASE_URL = "https://sistema.cim-clientes.com/qr-login";
-    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&password=${encodeURIComponent(rucCi)}`;
+    const BASE_URL = "https://historial-mant.cim-clientes.com/qr-login";
+    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
     window.open(url, '_blank');
   };
 
