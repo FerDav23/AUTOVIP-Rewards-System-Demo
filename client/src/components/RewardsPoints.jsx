@@ -129,6 +129,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         try {
           parsedUserId = JSON.parse(userId);
         } catch (error) {
+          console.error('Failed to parse user ID:', error);
           parsedUserId = userId;
         }
 
@@ -191,7 +192,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         
         setPromotions(filteredPromotions);
       } catch (error) {
-        logger.logApiError(error, { context: 'Load promotions' });
+        console.error('Failed to load promotions:', error);
         setPromotions([]);
       } finally {
         setIsLoadingPromotions(false);

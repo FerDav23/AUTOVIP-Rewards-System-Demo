@@ -45,7 +45,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
       if (setIsAuthenticated) setIsAuthenticated(true);
       navigate('/rewards');
     } catch (err) {
-      logger.logAuthError(err, { context: 'AUTOVIP login' });
+      console.error('Failed to login:', err);
       setError('Credenciales inválidas');
     }
   };
