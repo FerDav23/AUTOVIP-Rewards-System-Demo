@@ -9,12 +9,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 100000;
   animation: fadeIn 0.2s ease-out;
   padding: var(--spacing-md, 16px);
 }
 
 .confirm-modal {
+  position: relative;
+  z-index: 100000;
   background: white;
   border-radius: var(--border-radius-md, 8px);
   box-shadow: var(--box-shadow-hard, 0 10px 40px rgba(0, 0, 0, 0.2));
