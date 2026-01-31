@@ -274,6 +274,12 @@
   border-bottom: none;
 }
 
+/* Recompensas: wider Estado column so "No disponible" fits on one line */
+.rewards-table th.rewards-estado-col,
+.rewards-table td:nth-child(7) {
+  min-width: 155px;
+}
+
 /* Actions */
 .actions {
   display: flex;
