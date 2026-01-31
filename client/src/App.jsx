@@ -63,7 +63,7 @@ export default function App() {
           initializeColors();
         })
         .catch((error) => {
-          logger.logAuthError(error, { context: 'Token verification' });
+          console.error(error.response.data.message);
           setIsAuthenticated(false);
           initColors(null);
           setMembership(null);

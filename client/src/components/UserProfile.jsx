@@ -79,6 +79,7 @@ export default function UserProfile({ setIsAuthenticated }) {
         try {
           userId = JSON.parse(autovipUserID);
         } catch (error) {
+          console.error('Failed to parse user ID:', error);
           userId = autovipUserID;
         }
 
@@ -127,7 +128,7 @@ export default function UserProfile({ setIsAuthenticated }) {
           setRedeemedRewards(redeemedRewardsData);
         }
       } catch (error) {
-        logger.logApiError(error, { context: 'Load user information' });
+        console.error('Failed to load user information:', error);
       } finally {
         setIsLoading(false);
       }

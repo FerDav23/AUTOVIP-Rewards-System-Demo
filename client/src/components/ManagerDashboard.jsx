@@ -142,7 +142,6 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       setCars(processedCars);
       setCurrentUserIdForCars(userId);
     } catch (error) {
-      logger.logApiError(error, { context: 'Load cars' });
       showError('Error al cargar los vehículos. Por favor, intente de nuevo.');
       setCars([]);
       setCurrentUserIdForCars(null);
@@ -482,7 +481,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       showSuccess('Vehículo agregado exitosamente.');
     } catch (error) {
       console.error('Error adding vehicle:', error);
-      showError(error.response?.data?.message || error.message || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || error || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
     }
   };
 
@@ -515,7 +514,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       showSuccess('Vehículo eliminado exitosamente.');
     } catch (error) {
       console.error('Error deleting vehicle:', error);
-      showError(error.response?.data?.message || error.message || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || error || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
     }
   };
 
@@ -598,7 +597,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       closeModal();
     } catch (error) {
       console.error('Error managing points transaction:', error);
-      showError(error.response?.data?.message || error.message || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
+      showError(error.response?.data?.message || error.message || error || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
     }
   };
 
@@ -637,7 +636,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating user:', error);
-            showError(error.response?.data?.message || error.message || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -677,8 +676,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
+            console.log(error);
             console.error('Error creating user:', error);
-            showError(error.response?.data?.message || error.message || 'Error al crear el usuario. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al crear el usuario. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -714,7 +714,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating reward:', error);
-            showError(error.response?.data?.message || error.message || 'Error al actualizar la recompensa. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al actualizar la recompensa. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -747,7 +747,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error creating reward:', error);
-            showError(error.response?.data?.message || error.message || 'Error al crear la recompensa. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al crear la recompensa. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -780,7 +780,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error updating promotion:', error);
-            showError(error.response?.data?.message || error.message || 'Error al actualizar la promoción. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al actualizar la promoción. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         } else {
@@ -810,7 +810,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             return; // Return early to avoid calling closeModal again
           } catch (error) {
             console.error('Error creating promotion:', error);
-            showError(error.response?.data?.message || error.message || 'Error al crear la promoción. Por favor, intente de nuevo.');
+            showError(error.response?.data?.message || error.message || error || 'Error al crear la promoción. Por favor, intente de nuevo.');
             return; // Don't close modal on error
           }
         }
@@ -904,7 +904,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           showSuccess('Usuario eliminado exitosamente.');
         } catch (error) {
           console.error('Error deleting user:', error);
-          showError(error.response?.data?.message || error.message || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || error || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
         }
         break;
       case 'reward':
@@ -918,7 +918,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           showSuccess('Recompensa eliminada exitosamente.');
         } catch (error) {
           console.error('Error deleting reward:', error);
-          showError(error.response?.data?.message || error.message || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || error || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
         }
         break;
       case 'promotion':
@@ -932,7 +932,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           showSuccess('Promoción eliminada exitosamente.');
         } catch (error) {
           console.error('Error deleting promotion:', error);
-          showError(error.response?.data?.message || error.message || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
+          showError(error.response?.data?.message || error.message || error || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
         }
         break;
     }
@@ -1042,7 +1042,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       <div className="modal-overlay" onClick={closeModal}>
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <button className="modal-close" onClick={closeModal}><FaTimes /></button>
-          
+          <div className="modal-content-inner">
           {/* User Modal */}
           {modalType === 'user' && (
             <>
@@ -1063,14 +1063,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       // Remove all non-digit characters
                       const digitsOnly = val.replace(/\D/g, '');
                       // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
-                      if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                      if (digitsOnly === '' || /^[0-9]\d*$/.test(digitsOnly)) {
                         setFormData(prev => ({
                           ...prev,
                           cardNumber: digitsOnly
                         }));
                       }
                     }}
-                    pattern="[1-9]\d*"
+                    pattern="[0-9]\d*"
                     inputMode="numeric"
                     autoComplete="off" 
                     required 
@@ -1087,14 +1087,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       // Remove all non-digit characters
                       const digitsOnly = val.replace(/\D/g, '');
                       // Only update if it's empty or a positive integer (starts with 1-9, followed by any digits)
-                      if (digitsOnly === '' || /^[1-9]\d*$/.test(digitsOnly)) {
+                      if (digitsOnly === '' || /^[0-9]\d*$/.test(digitsOnly)) {
                         setFormData(prev => ({
                           ...prev,
                           rucCi: digitsOnly
                         }));
                       }
                     }}
-                    pattern="[1-9]\d*"
+                    pattern="[0-9]\d*"
                     inputMode="numeric"
                     autoComplete="off" 
                     required 
@@ -1141,14 +1141,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                             // Remove all non-digit characters
                             const digitsOnly = val.replace(/\D/g, '');
                             // Only update if it's empty or a 4-digit positive integer (starts with 1-9, followed by exactly 3 more digits)
-                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[1-9]\d{0,3}$/.test(digitsOnly))) {
+                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[0-9]\d{0,3}$/.test(digitsOnly))) {
                               setFormData(prev => ({
                                 ...prev,
                                 carAño: digitsOnly
                               }));
                             }
                           }}
-                          pattern="[1-9]\d{3}"
+                          pattern="[0-9]\d{3}"
                           inputMode="numeric"
                           autoComplete="off"
                           required 
@@ -1255,14 +1255,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                             // Remove all non-digit characters
                             const digitsOnly = val.replace(/\D/g, '');
                             // Only update if it's empty or a 4-digit positive integer (starts with 1-9, followed by exactly 3 more digits)
-                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[1-9]\d{0,3}$/.test(digitsOnly))) {
+                            if (digitsOnly === '' || (digitsOnly.length <= 4 && /^[0-9]\d{0,3}$/.test(digitsOnly))) {
                               setFormData(prev => ({
                                 ...prev,
                                 año: digitsOnly
                               }));
                             }
                           }}
-                          pattern="[1-9]\d{3}"
+                          pattern="[0-9]\d{3}"
                           inputMode="numeric"
                           autoComplete="off"
                           required
@@ -1801,6 +1801,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               </form>
             </>
           )}
+          </div>
         </div>
       </div>
     );
@@ -2229,6 +2230,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         <div className="modal-overlay" onClick={closeImageModal}>
           <div className="modal-content image-modal" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={closeImageModal}><FaTimes /></button>
+            <div className="modal-content-inner">
             <h3><FaImage /> Imagen de {imageModalType === 'reward' ? 'Recompensa' : 'Promoción'}</h3>
             <p className="modal-subtitle">{imageModalItem.title}</p>
             
@@ -2258,6 +2260,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
             <div className="modal-actions">
               <button type="button" className="btn-cancel" onClick={closeImageModal}>Cerrar</button>
+            </div>
             </div>
           </div>
         </div>

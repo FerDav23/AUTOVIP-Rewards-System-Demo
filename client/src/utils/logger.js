@@ -76,12 +76,10 @@ export const error = (...args) => {
  * Log API errors with context
  */
 export const logApiError = (error, context = {}) => {
+  console.log(error.message);
   const errorInfo = {
     message: error?.message || 'Unknown error',
-    status: error?.response?.status,
-    statusText: error?.response?.statusText,
-    url: error?.config?.url,
-    method: error?.config?.method,
+    success: error?.response?.success,
     ...context,
   };
   

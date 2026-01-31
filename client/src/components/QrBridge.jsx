@@ -22,7 +22,7 @@ export default function QrBridge({ setIsAuthenticated }) {
         if (setIsAuthenticated) setIsAuthenticated(true);
         navigate('/rewards');
       } catch (err) {
-        logger.logAuthError(err, { context: 'QR Bridge login' });
+        console.error('Failed to login:', err);
         setError('Credenciales inválidas, porfavor contactar al soporte.');
         setStatus("Error en la autenticación");
       }

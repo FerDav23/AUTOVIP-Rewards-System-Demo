@@ -1,6 +1,5 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
-import logger from '../utils/logger';
 
 /**
  * Get all reward types
@@ -21,8 +20,8 @@ export async function getRewardTypes() {
 
     return response.data.data;
   } catch (error) {
-    logger.logApiError(error, { context: 'Fetch reward types' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -46,8 +45,8 @@ export async function getAllRewards() {
 
     return response.data.data;
   } catch (error) {
-    logger.logApiError(error, { context: 'Fetch rewards' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -122,8 +121,8 @@ export async function createReward(rewardData) {
       return response.data.data;
     }
   } catch (error) {
-    logger.logApiError('Failed to create reward:', error.message);
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -205,8 +204,8 @@ export async function updateReward(rewardId, rewardData) {
       return response.data.data;
     }
   } catch (error) {
-    logger.logApiError(error, { context: `Update reward ${rewardId}` });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -235,8 +234,8 @@ export async function deleteReward(rewardId) {
 
     return response.data;
   } catch (error) {
-    logger.logApiError(error, { context: `Delete reward ${rewardId}` });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -278,7 +277,7 @@ export async function uploadImage(file) {
 
     return response.data.data.imageUrl;
   } catch (error) {
-    logger.logApiError(error, { context: 'Upload image' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }

@@ -1,5 +1,4 @@
 import client from './apiClient';
-import logger from '../utils/logger';
 
 // Token expiration time in milliseconds (24 hours)
 const TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
@@ -66,8 +65,8 @@ export async function login(username, password) {
     
     return response.data;
   } catch (error) {
-    logger.logAuthError(error, { context: 'User login' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -80,8 +79,8 @@ export async function loginManager(username, password) {
     localStorage.setItem('managerUsername', JSON.stringify(response.data.data.username));
     return response.data.data;
   } catch (error) {
-    logger.logAuthError(error, { context: 'Manager login' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -95,8 +94,8 @@ export async function loginAutovipUser (username, password) {
     localStorage.setItem('autovipUserRucCi', JSON.stringify(response.data.data.ruc_ci));
     return response.data.data;
   } catch (error) {
-    logger.logAuthError(error, { context: 'AutoVIP user login' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
@@ -198,8 +197,8 @@ export async function getHistorialData(placa, startDate, endDate) {
     const response = await client.get(`/report/historial/${placa}?startDate=${startDate}&endDate=${endDate}`);
     return response.data;
   } catch (error) {
-    logger.logApiError(error, { context: 'Fetch historial data' });
-    throw error;
+    console.error(error.response.data.message);
+    throw error.response.data.message;
   }
 }
 
