@@ -1039,7 +1039,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     if (!showModal) return null;
 
     return (
-      <div className="modal-overlay" onClick={closeModal}>
+      <div className="modal-overlay">
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <button className="modal-close" onClick={closeModal}><FaTimes /></button>
           <div className="modal-content-inner">
