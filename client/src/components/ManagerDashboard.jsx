@@ -2099,7 +2099,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             {loadingRewards ? (
               <Loading message="Cargando recompensas..." />
             ) : (
-              <table>
+              <table className="rewards-table">
                 <thead>
                   <tr>
                     <th>Imagen</th>
@@ -2108,7 +2108,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Puntos</th>
                     <th>Categoría</th>
                     <th>Membresías</th>
-                    <th>Estado</th>
+                    <th className="rewards-estado-col">Estado</th>
                     <th><FaCog /> Acciones</th>
                   </tr>
                 </thead>
