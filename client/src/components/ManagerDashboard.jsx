@@ -2092,12 +2092,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           </button>
                         </td>
                         <td className="actions">
-                          <button className="btn-edit" onClick={() => openModal('user', user)} title="Editar">
-                            <FaEdit />
-                          </button>
-                          <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar">
-                            <FaTrash />
-                          </button>
+                          <div className="actions-inner">
+                            <button className="btn-edit" onClick={() => openModal('user', user)} title="Editar">
+                              <FaEdit />
+                            </button>
+                            <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar">
+                              <FaTrash />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -2176,12 +2178,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </span>
                     </td>
                     <td className="actions">
-                      <button className="btn-edit" onClick={() => openModal('reward', reward)} title="Editar">
-                        <FaEdit />
-                      </button>
-                      <button className="btn-delete" onClick={() => handleDelete('reward', reward.id)} title="Eliminar">
-                        <FaTrash />
-                      </button>
+                      <div className="actions-inner">
+                        <button className="btn-edit" onClick={() => openModal('reward', reward)} title="Editar">
+                          <FaEdit />
+                        </button>
+                        <button className="btn-delete" onClick={() => handleDelete('reward', reward.id)} title="Eliminar">
+                          <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                     ))
@@ -2232,12 +2236,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <td>{promo.description}</td>
                     <td>{promo.validUntil ? new Date(promo.validUntil).toLocaleDateString('es-ES') : 'N/A'}</td>
                     <td className="actions">
-                      <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
-                        <FaEdit />
-                      </button>
-                      <button className="btn-delete" onClick={() => handleDelete('promotion', promo.id)} title="Eliminar">
-                        <FaTrash />
-                      </button>
+                      <div className="actions-inner">
+                        <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
+                          <FaEdit />
+                        </button>
+                        <button className="btn-delete" onClick={() => handleDelete('promotion', promo.id)} title="Eliminar">
+                          <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                     ))

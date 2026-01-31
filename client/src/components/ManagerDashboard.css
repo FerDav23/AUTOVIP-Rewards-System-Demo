@@ -334,8 +334,13 @@
   min-width: 155px;
 }
 
-/* Actions */
-.actions {
+/* Recompensas: center row content so separators align with Acciones buttons */
+.rewards-table tbody td {
+  vertical-align: middle;
+}
+
+/* Actions: use inner wrapper for flex so td keeps table-cell behavior and vertical-align works */
+.actions-inner {
   display: flex;
   gap: 8px;
 }
