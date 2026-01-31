@@ -1099,7 +1099,6 @@
   .section-title-wrap {
     flex: 1;
     width: 100%;
-    justify-content: space-between;
   }
 }
 
