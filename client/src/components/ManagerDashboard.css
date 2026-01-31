@@ -339,6 +339,16 @@
   vertical-align: middle;
 }
 
+/* Acciones column: wide enough for icon + "Acciones" on one line */
+.data-table th.actions-header,
+.data-table td.actions {
+  min-width: 140px;
+}
+
+.data-table th.actions-header {
+  white-space: nowrap;
+}
+
 /* Actions: use inner wrapper for flex so td keeps table-cell behavior and vertical-align works */
 .actions-inner {
   display: flex;

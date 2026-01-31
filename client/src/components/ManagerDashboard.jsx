@@ -2064,7 +2064,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Membresía</th>
                     <th>Vehículos</th>
                     <th>Puntos</th>
-                    <th><FaCog /> Acciones</th>
+                    <th className="actions-header"><FaCog /> Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2126,7 +2126,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Membresías</th>
                     <th className="rewards-visible-col">Visible</th>
                     <th className="rewards-estado-col">Estado</th>
-                    <th><FaCog /> Acciones</th>
+                    <th className="actions-header"><FaCog /> Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2208,7 +2208,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Título</th>
                     <th>Descripción</th>
                     <th>Válido hasta</th>
-                    <th><FaCog /> Acciones</th>
+                    <th className="actions-header"><FaCog /> Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
