@@ -37,13 +37,14 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   // Category filter for rewards (mobile pill filters)
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const availableRewards = useMemo(() => rewards.filter((r) => r.available), [rewards]);
   const rewardCategories = useMemo(() =>
-    [...new Set(rewards.map((r) => r.category).filter(Boolean))],
-    [rewards]
+    [...new Set(availableRewards.map((r) => r.category).filter(Boolean))],
+    [availableRewards]
   );
   const displayedRewards = selectedCategory
-    ? rewards.filter((r) => r.category === selectedCategory)
-    : rewards;
+    ? availableRewards.filter((r) => r.category === selectedCategory)
+    : availableRewards;
 
   const [currentRewardIndex, setCurrentRewardIndex] = useState(0);
   const [currentPromotionIndex, setCurrentPromotionIndex] = useState(0);
@@ -250,23 +251,12 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     return customerPoints >= pointsRequired;
   };
 
-  // Find the next reward the user can't afford yet
+  // Find the next reward the user can't afford yet (only among available/visible rewards)
   const getNextReward = () => {
-    // First, try to find available rewards the user can't afford
-    const unavailableAvailableRewards = rewards
-      .filter(reward => reward.available && !canAfford(reward.pointsRequired))
-      .sort((a, b) => a.pointsRequired - b.pointsRequired);
-    
-    if (unavailableAvailableRewards.length > 0) {
-      return unavailableAvailableRewards[0];
-    }
-    
-    // If user can afford all available rewards, show the next unavailable reward they can't afford
-    const unavailableRewards = rewards
+    const cantAfford = availableRewards
       .filter(reward => !canAfford(reward.pointsRequired))
       .sort((a, b) => a.pointsRequired - b.pointsRequired);
-    
-    return unavailableRewards.length > 0 ? unavailableRewards[0] : null;
+    return cantAfford.length > 0 ? cantAfford[0] : null;
   };
 
   const nextReward = getNextReward();
@@ -374,13 +364,13 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             <FaGift className="section-icon" />
             <h3>Recompensas disponibles</h3>
           </span>
-          {!isLoadingRewards && rewards.length > 0 && (
+          {!isLoadingRewards && availableRewards.length > 0 && (
             <span className="slider-hint" aria-hidden="true">
               Desliza para ver más <FaAngleDoubleRight className="slider-hint-arrow" />
             </span>
           )}
         </div>
-        {!isLoadingRewards && rewards.length > 0 && rewardCategories.length > 0 && (
+        {!isLoadingRewards && availableRewards.length > 0 && rewardCategories.length > 0 && (
           <div className="category-pills" role="tablist" aria-label="Filtrar por categoría">
             <button
               type="button"
@@ -417,13 +407,10 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           rewardsToShow.map((reward, i) => (
             <div
               key={count > 1 && isMobile && i >= count ? `${reward.id}-dup` : reward.id} 
-              className={`reward-card reward-card-coupon ${!reward.available ? 'unavailable' : ''} ${canAfford(reward.pointsRequired) && reward.available ? 'affordable' : ''}`}
+              className={`reward-card reward-card-coupon ${canAfford(reward.pointsRequired) ? 'affordable' : ''}`}
             >
               <div className="reward-card-header-bar">
                 <span className="reward-category">{reward.category}</span>
-                {!reward.available && (
-                  <span className="reward-unavailable-badge">No Disponible</span>
-                )}
               </div>
               <div className="reward-image-container">
                 {reward.imageUrl ? (
@@ -454,13 +441,11 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                   <span>{reward.pointsRequired.toLocaleString()} puntos</span>
                 </div>
                 <button
-                  className={`redeem-btn ${canAfford(reward.pointsRequired) && reward.available ? 'can-redeem' : 'cannot-redeem'}`}
+                  className={`redeem-btn ${canAfford(reward.pointsRequired) ? 'can-redeem' : 'cannot-redeem'}`}
                   onClick={() => handleRedeem(reward)}
-                  disabled={!reward.available || !canAfford(reward.pointsRequired)}
+                  disabled={!canAfford(reward.pointsRequired)}
                 >
-                  {!reward.available ? 'No Disponible' : 
-                   canAfford(reward.pointsRequired) ? 'Canjear' : 
-                   'Puntos Insuficientes'}
+                  {canAfford(reward.pointsRequired) ? 'Canjear' : 'Puntos Insuficientes'}
                 </button>
               </div>
             </div>

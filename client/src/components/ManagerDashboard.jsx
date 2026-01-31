@@ -24,7 +24,8 @@ import {
   getAllRewards, 
   updateReward, 
   deleteReward, 
-  uploadImage } from '../services/autovipRewards';
+  uploadImage,
+  toggleRewardVisibility } from '../services/autovipRewards';
 import { createPromotion, getAllPromotions, updatePromotion, deletePromotion } from '../services/autovipPromotions';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
@@ -271,6 +272,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           pointsRequired: reward.pointsRequired || 0,
           category: categoryName,
           available: reward.available ?? true,
+          visible: reward.visible ?? true,
           memberships: membershipNames,
           imageUrl: reward.imageUrl || '',
           _original: reward
@@ -935,6 +937,18 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           showError(error.response?.data?.message || error.message || error || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
         }
         break;
+    }
+  };
+
+  const handleRewardVisibilityChange = async (reward) => {
+    try {
+      await toggleRewardVisibility(reward.id);
+      const nextAvailable = !reward.available;
+      setRewards(prev => prev.map(r => r.id === reward.id ? { ...r, visible: nextAvailable, available: nextAvailable } : r));
+      showSuccess(nextAvailable ? 'Recompensa visible.' : 'Recompensa oculta.');
+    } catch (error) {
+      console.error('Error updating reward visibility:', error);
+      showError(error?.message || error?.response?.data?.message || 'Error al actualizar la visibilidad.');
     }
   };
 
@@ -2108,6 +2122,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Puntos</th>
                     <th>Categoría</th>
                     <th>Membresías</th>
+                    <th className="rewards-visible-col">Visible</th>
                     <th className="rewards-estado-col">Estado</th>
                     <th><FaCog /> Acciones</th>
                   </tr>
@@ -2115,7 +2130,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 <tbody>
                   {filteredRewards.length === 0 ? (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
+                      <td colSpan="9" style={{ textAlign: 'center', padding: '2rem' }}>
                         No se encontraron recompensas
                       </td>
                     </tr>
@@ -2143,6 +2158,17 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           <span key={m} className={`membership-badge ${m}`}>{m}</span>
                         ))}
                       </div>
+                    </td>
+                    <td className="rewards-visible-cell">
+                      <label className="switch">
+                        <input
+                          type="checkbox"
+                          checked={reward.available ?? true}
+                          onChange={() => handleRewardVisibilityChange(reward)}
+                          title={reward.available ? 'Ocultar' : 'Mostrar'}
+                        />
+                        <span className="slider" />
+                      </label>
                     </td>
                     <td>
                       <span className={`status-badge ${reward.available ? 'available' : 'unavailable'}`}>
