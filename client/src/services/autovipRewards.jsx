@@ -240,6 +240,35 @@ export async function deleteReward(rewardId) {
 }
 
 /**
+ * Toggle reward visibility. Backend reads current status and flips it (true ↔ false).
+ * @param {number|string} rewardId - The reward ID
+ * @returns {Promise<Object>} Updated reward object
+ */
+export async function toggleRewardVisibility(rewardId) {
+  try {
+    if (isTokenExpired()) {
+      clearExpiredToken();
+      throw new Error('Session has expired. Please login again.');
+    }
+
+    if (!rewardId) {
+      throw new Error('Reward ID is required');
+    }
+
+    const response = await client.patch(`/rewards/${rewardId}/toggle-visibility`);
+
+    if (!response.data) {
+      throw new Error('Invalid response format from server');
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error(error?.response?.data?.message ?? error.message);
+    throw error?.response?.data?.message ?? error;
+  }
+}
+
+/**
  * Upload an image to S3 via the backend
  * @param {File} file - The image file to upload
  * @returns {Promise<string>} The S3 URL of the uploaded image
