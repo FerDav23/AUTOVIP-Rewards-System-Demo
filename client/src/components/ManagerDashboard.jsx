@@ -36,6 +36,30 @@ import {
 } from 'react-icons/fa';
 import Alert from './Alert';
 
+// Country phone extensions with flags (Unicode emoji codepoints; flag and label show emoji, not country abbreviations)
+const PHONE_EXTENSIONS = [
+  { extension: '', flag: '\u{1F310}', label: '\u{1F310} Sin extensión' },
+  { extension: '+1', flag: '\u{1F1FA}\u{1F1F8}', label: '\u{1F1FA}\u{1F1F8} USA/Canadá' },
+  { extension: '+52', flag: '\u{1F1F2}\u{1F1FD}', label: '\u{1F1F2}\u{1F1FD} México' },
+  { extension: '+57', flag: '\u{1F1E8}\u{1F1F4}', label: '\u{1F1E8}\u{1F1F4} Colombia' },
+  { extension: '+58', flag: '\u{1F1FB}\u{1F1EA}', label: '\u{1F1FB}\u{1F1EA} Venezuela' },
+  { extension: '+51', flag: '\u{1F1F5}\u{1F1EA}', label: '\u{1F1F5}\u{1F1EA} Perú' },
+  { extension: '+593', flag: '\u{1F1EA}\u{1F1E8}', label: '\u{1F1EA}\u{1F1E8} Ecuador' },
+  { extension: '+591', flag: '\u{1F1E7}\u{1F1F4}', label: '\u{1F1E7}\u{1F1F4} Bolivia' },
+  { extension: '+56', flag: '\u{1F1E8}\u{1F1F1}', label: '\u{1F1E8}\u{1F1F1} Chile' },
+  { extension: '+54', flag: '\u{1F1E6}\u{1F1F7}', label: '\u{1F1E6}\u{1F1F7} Argentina' },
+  { extension: '+598', flag: '\u{1F1FA}\u{1F1FE}', label: '\u{1F1FA}\u{1F1FE} Uruguay' },
+  { extension: '+595', flag: '\u{1F1F5}\u{1F1FE}', label: '\u{1F1F5}\u{1F1FE} Paraguay' },
+  { extension: '+34', flag: '\u{1F1EA}\u{1F1F8}', label: '\u{1F1EA}\u{1F1F8} España' },
+  { extension: '+55', flag: '\u{1F1E7}\u{1F1F7}', label: '\u{1F1E7}\u{1F1F7} Brasil' },
+  { extension: '+506', flag: '\u{1F1E8}\u{1F1F7}', label: '\u{1F1E8}\u{1F1F7} Costa Rica' },
+  { extension: '+507', flag: '\u{1F1F5}\u{1F1E6}', label: '\u{1F1F5}\u{1F1E6} Panamá' },
+  { extension: '+502', flag: '\u{1F1EC}\u{1F1F9}', label: '\u{1F1EC}\u{1F1F9} Guatemala' },
+  { extension: '+503', flag: '\u{1F1F8}\u{1F1FB}', label: '\u{1F1F8}\u{1F1FB} El Salvador' },
+  { extension: '+504', flag: '\u{1F1ED}\u{1F1F3}', label: '\u{1F1ED}\u{1F1F3} Honduras' },
+  { extension: '+505', flag: '\u{1F1F3}\u{1F1EE}', label: '\u{1F1F3}\u{1F1EE} Nicaragua' },
+];
+
 export default function ManagerDashboard({ setIsAuthenticated }) {
   const navigate = useNavigate();
   const { showError, showSuccess, showWarning } = useAlert();
@@ -182,6 +206,11 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             logger.warn(`Failed to load car count for user ${user.id}:`, error?.message || error);
           }
 
+          // Combine phone_extension and phone into a single display string
+          const ext = user.phone_extension != null && user.phone_extension !== '' ? String(user.phone_extension).trim() : '';
+          const num = user.phone != null && user.phone !== '' ? String(user.phone).trim() : '';
+          const telefono = ext && num ? `${ext} ${num}` : ext || num || '';
+
           // Transform user data to match component expectations
           // Adjust field mappings based on your API response structure
           return {
@@ -192,6 +221,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             points: user.points_balance,
             membership: membership.toLowerCase(), // Ensure lowercase for consistency
             carCount: carCount, // Store car count in user object
+            telefono, // Combined phone_extension + phone for display
             // Store original user data for reference
             _original: user
           };
@@ -350,6 +380,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
   // Form states
   const [formData, setFormData] = useState({});
+  const [phoneExtensionDropdownOpen, setPhoneExtensionDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -378,11 +409,19 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       });
       setShowModal(true);
     } else if (type === 'user' && item) {
-      // When editing a user, we need to get the membership ID from the original data
+      // When editing a user, we need to get the membership ID and birthday from the original data
       const membershipId = item._original?.membership_id;
+      const cumpleanos = item.cumpleanos ?? item._original?.cumpleanos ?? item._original?.birthday ?? item.birthday ?? '';
+      // Normalize to YYYY-MM-DD if we have a date string
+      const cumpleanosValue = cumpleanos ? (cumpleanos.includes('T') ? cumpleanos.split('T')[0] : cumpleanos) : '';
+      const phoneExtension = item.phoneExtension ?? item._original?.phone_extension ?? item.phone_extension ?? '';
+      const phone = item.phone ?? item._original?.phone ?? '';
       setFormData({
         ...item,
-        membership: membershipId
+        membership: membershipId,
+        cumpleanos: cumpleanosValue,
+        phoneExtension: phoneExtension || '',
+        phone: (typeof phone === 'string' ? phone.replace(/\D/g, '').slice(0, 10) : '') || ''
       });
       setShowModal(true);
     } else if (type === 'reward' && item) {
@@ -436,6 +475,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     setShowModal(false);
     setEditingItem(null);
     setFormData({});
+    setPhoneExtensionDropdownOpen(false);
     // Clear cars state when closing modal
     if (modalType === 'cars') {
       setCars([]);
@@ -620,12 +660,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               return;
             }
 
+            // Validate optional birthday: if provided, must be valid and not in the future
+            if (formData.cumpleanos && formData.cumpleanos.trim() !== '') {
+              const birthDate = new Date(formData.cumpleanos);
+              if (isNaN(birthDate.getTime())) {
+                showWarning('La fecha de cumpleaños no es válida.');
+                return;
+              }
+              if (birthDate > new Date()) {
+                showWarning('La fecha de cumpleaños no puede ser futura.');
+                return;
+              }
+            }
+
             const userData = {
               name: formData.name,
               cardNumber: formData.cardNumber,
               rucCi: formData.rucCi,
               membershipId: selectedMembership.id
             };
+            if (formData.cumpleanos && formData.cumpleanos.trim() !== '') {
+              userData.cumpleanos = formData.cumpleanos;
+            }
+            if (formData.phoneExtension) userData.phoneExtension = formData.phoneExtension;
+            if (formData.phone != null && formData.phone !== '') userData.phone = formData.phone;
 
             // Call API to update user
             await updateUser(editingItem.id, userData);
@@ -653,12 +711,30 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               return;
             }
 
+            // Validate optional birthday: if provided, must be valid and not in the future
+            if (formData.cumpleanos && formData.cumpleanos.trim() !== '') {
+              const birthDate = new Date(formData.cumpleanos);
+              if (isNaN(birthDate.getTime())) {
+                showWarning('La fecha de cumpleaños no es válida.');
+                return;
+              }
+              if (birthDate > new Date()) {
+                showWarning('La fecha de cumpleaños no puede ser futura.');
+                return;
+              }
+            }
+
             const userData = {
               name: formData.name,
               cardNumber: formData.cardNumber,
               rucCi: formData.rucCi,
               membershipId: selectedMembership.id
             };
+            if (formData.cumpleanos && formData.cumpleanos.trim() !== '') {
+              userData.cumpleanos = formData.cumpleanos;
+            }
+            if (formData.phoneExtension) userData.phoneExtension = formData.phoneExtension;
+            if (formData.phone != null && formData.phone !== '') userData.phone = formData.phone;
 
             const vehicleData = {
               placa: formData.carPlaca,
@@ -678,7 +754,6 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
-            console.log(error);
             console.error('Error creating user:', error);
             showError(error.response?.data?.message || error.message || error || 'Error al crear el usuario. Por favor, intente de nuevo.');
             return; // Don't close modal on error
@@ -1130,6 +1205,96 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div className="form-group">
+                  <label>Cumpleaños (opcional)</label>
+                  <input 
+                    type="date" 
+                    name="cumpleanos" 
+                    value={formData.cumpleanos || ''} 
+                    onChange={handleFormChange} 
+                    autoComplete="off"
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Teléfono (opcional, máx. 10 dígitos)</label>
+                  <div className="phone-input-wrapper">
+                    <div 
+                      className={`phone-extension-dropdown ${phoneExtensionDropdownOpen ? 'open' : ''}`}
+                      onBlur={() => setPhoneExtensionDropdownOpen(false)}
+                      tabIndex={-1}
+                    >
+                      <button
+                        type="button"
+                        className="phone-extension-trigger"
+                        onClick={() => setPhoneExtensionDropdownOpen(prev => !prev)}
+                        aria-expanded={phoneExtensionDropdownOpen}
+                        aria-haspopup="listbox"
+                      >
+                        <span className="phone-extension-flag">
+                          {(PHONE_EXTENSIONS.find(o => o.extension === (formData.phoneExtension || '')) || PHONE_EXTENSIONS[0]).flag}
+                        </span>
+                      </button>
+                      {phoneExtensionDropdownOpen && (
+                        <ul 
+                          className="phone-extension-list" 
+                          role="listbox"
+                          onMouseDown={e => e.preventDefault()}
+                        >
+                          {PHONE_EXTENSIONS.map(opt => (
+                            <li
+                              key={opt.extension || 'none'}
+                              role="option"
+                              aria-selected={(formData.phoneExtension || '') === opt.extension}
+                              className={`phone-extension-option ${(formData.phoneExtension || '') === opt.extension ? 'selected' : ''}`}
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  phoneExtension: opt.extension,
+                                  ...(opt.extension ? {} : { phone: '' })
+                                }));
+                                setPhoneExtensionDropdownOpen(false);
+                              }}
+                            >
+                              <span className="phone-option-flag">{opt.flag}</span>
+                              <span className="phone-option-extension">{opt.extension || '—'}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <div className="phone-number-field">
+                      <span className="phone-extension-prefix" aria-hidden="true">
+                        {(PHONE_EXTENSIONS.find(o => o.extension === (formData.phoneExtension || '')) || PHONE_EXTENSIONS[0]).extension || ''}
+                        {(formData.phoneExtension || '') && ' '}
+                      </span>
+                      <input 
+                        type="text" 
+                        name="phone" 
+                        value={formData.phone || ''} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const digitsOnly = val.replace(/\D/g, '');
+                          if (digitsOnly.length <= 10) {
+                            setFormData(prev => ({
+                              ...prev,
+                              phone: digitsOnly
+                            }));
+                          }
+                        }}
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        placeholder={formData.phoneExtension ? '9876543210' : 'Elija extensión'}
+                        maxLength={10}
+                        className="phone-digits-input"
+                        required={false}
+                        aria-required="false"
+                        disabled={!formData.phoneExtension}
+                        aria-disabled={!formData.phoneExtension}
+                      />
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Car fields - only shown when creating a new user */}
@@ -2062,6 +2227,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <th>Número de Tarjeta</th>
                     <th>RUC/C.I.</th>
                     <th>Membresía</th>
+                    <th>Cumpleaños</th>
+                    <th>Teléfono</th>
                     <th>Vehículos</th>
                     <th>Puntos</th>
                     <th className="actions-header"><FaCog /> Acciones</th>
@@ -2070,17 +2237,27 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>
+                      <td colSpan="9" style={{ textAlign: 'center', padding: '2rem' }}>
                         No se encontraron usuarios
                       </td>
                     </tr>
                   ) : (
-                    filteredUsers.map(user => (
+                    filteredUsers.map(user => {
+                      const birthday = user.birthday ?? user._original?.birthday;
+                      const birthdayDisplay = birthday
+                        ? (() => {
+                            const d = new Date(birthday);
+                            return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                          })()
+                        : '-';
+                      return (
                       <tr key={user.id}>
                         <td>{user.name}</td>
                         <td>{user.cardNumber}</td>
                         <td>{user.rucCi}</td>
                         <td><span className={`membership-badge ${user.membership}`}>{user.membership}</span></td>
+                        <td>{birthdayDisplay}</td>
+                        <td>{user.telefono || '-'}</td>
                         <td>
                           <button className="btn-cars" onClick={() => openModal('cars', user)} title="Gestionar vehículos">
                             <FaCar /> {getUserCarCount(user.id)}/{MAX_CARS_PER_USER}
@@ -2102,7 +2279,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           </div>
                         </td>
                       </tr>
-                    ))
+                      );
+                    })
                   )}
                 </tbody>
               </table>

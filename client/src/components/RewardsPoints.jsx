@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/user';
 import { useAlert } from './AlertContext';
-import { getPointsByUserId, getRewardsByUserId } from '../services/autovipUsers';
+import { getPointsByUserId, getRewardsByUserId, getUserInformation } from '../services/autovipUsers';
 import { getAllPromotions } from '../services/autovipPromotions';
 import logger from '../utils/logger';
 import './RewardsPoints.css';
 import Loading from './Loading';
-import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser, FaAngleDoubleRight } from 'react-icons/fa';
+import { FaGift, FaTag, FaStar, FaCoins, FaChartLine, FaUser, FaAngleDoubleRight, FaCrown } from 'react-icons/fa';
+import BenefitsModal from './BenefitsModal';
 
 export default function RewardsPoints({ setIsAuthenticated }) {
   const navigate = useNavigate();
@@ -34,6 +35,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
   // State for redemption modal
   const [selectedReward, setSelectedReward] = useState(null);
+  // State for benefits modal and membership (for benefits content)
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
+  const [membershipType, setMembershipType] = useState('');
   // Category filter for rewards (mobile pill filters)
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -144,6 +148,17 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         ]);
 
         setCustomerPoints(points || 0);
+
+        // Load user membership for benefits modal
+        try {
+          const userInfo = await getUserInformation(parsedUserId);
+          if (userInfo?.membership) {
+            const m = userInfo.membership;
+            setMembershipType(typeof m === 'object' && m !== null ? (m.name || m.type || '') : m);
+          }
+        } catch (_) {
+          // Keep membershipType empty; modal will show gold as fallback
+        }
         
         // Map the rewards data to match the component's expected format
         // Based on API structure: title, description, reward_type, points_cost, visible, imageUrl
@@ -227,7 +242,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
   const handleWhatsAppContact = () => {
     if (!selectedReward) return;
-    const supportNumber = '593991469530'; // Replace with actual support WhatsApp number (country code + number, no + or spaces)
+    const supportNumber = '593981718630'; // Replace with actual support WhatsApp number (country code + number, no + or spaces)
     const rucCi = localStorage.getItem('autovipUserRucCi')?.replace(/"/g, '') ?? '';
     // Emojis via Unicode code points so they display correctly regardless of file encoding
     const gift = '\u{1F381}', trophy = '\u{1F3C6}', star = '\u{2B50}', folder = '\u{1F4C2}', memo = '\u{1F4DD}', user = '\u{1F464}';
@@ -282,10 +297,13 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   return (
     <div className="rewards-wrapper">
     <div className="rewards-header">
-        <h2>Sistema de Puntos y Recompensas</h2>
+        <h2>Sistema de Puntos y Recompensas AUTOVIP</h2>
         <div className="header-actions">
           <button onClick={handleNavigateToDashboard} className="dashboard-btn">
             <FaChartLine /> Historial de Mantenimiento
+          </button>
+          <button onClick={() => setShowBenefitsModal(true)} className="dashboard-btn">
+            <FaCrown /> Mis beneficios
           </button>
           <button onClick={handleNavigateToProfile} className="dashboard-btn">
             <FaUser /> Mi Perfil
@@ -549,6 +567,13 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             </div>
         </div>
       </div>
+
+      {/* Benefits Modal */}
+      <BenefitsModal
+        open={showBenefitsModal}
+        onClose={() => setShowBenefitsModal(false)}
+        membershipType={membershipType}
+      />
 
       {/* Redemption Modal */}
       {selectedReward && (

@@ -1,0 +1,322 @@
+/* Benefits Modal – overlay */
+.benefits-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+  box-sizing: border-box;
+  animation: benefits-overlay-in 0.25s ease-out;
+}
+
+@keyframes benefits-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.benefits-modal-content {
+  max-width: 560px;
+  width: 100%;
+  min-height: 320px;
+  max-height: 88vh;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25), 0 12px 24px rgba(0, 0, 0, 0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  animation: benefits-content-in 0.3s ease-out;
+}
+
+@keyframes benefits-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Scrollable body – keeps scrollbar inside rounded modal */
+.benefits-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 48px 32px 40px;
+  border-radius: 0 0 16px 16px;
+}
+
+.benefits-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.benefits-modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.benefits-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.benefits-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.benefits-modal-black .benefits-modal-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.benefits-modal-black .benefits-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.benefits-modal-black .benefits-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Black membership – dark charcoal, white text */
+.benefits-modal-content.benefits-modal-black {
+  background: linear-gradient(165deg, #2d2d30 0%, #232326 40%, #1a1a1c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.benefits-modal-black .benefits-modal-title,
+.benefits-modal-black .benefits-modal-subtitle,
+.benefits-modal-black .benefits-modal-item {
+  color: #ffffff;
+}
+
+.benefits-modal-black .benefits-modal-title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.benefits-modal-black .benefits-modal-close {
+  color: #ffffff;
+}
+
+.benefits-modal-black .benefits-modal-close:hover {
+  color: #ffffff;
+}
+
+.benefits-modal-black .benefits-modal-close svg {
+  fill: currentColor;
+}
+
+.benefits-modal-black .benefits-modal-item::marker {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.benefits-modal-black .benefits-modal-item {
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gold membership – golden/yellow theme, dark brown text */
+.benefits-modal-content.benefits-modal-gold {
+  background: linear-gradient(165deg, #fffbf0 0%, #ffecb8 35%, #ffdf80 100%);
+  color: #2c1810;
+  border: 2px solid rgba(212, 148, 0, 0.35);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 215, 0, 0.1);
+}
+
+.benefits-modal-gold .benefits-modal-title {
+  color: #1f140c;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.benefits-modal-gold .benefits-modal-subtitle,
+.benefits-modal-gold .benefits-modal-item {
+  color: #2c1810;
+}
+
+.benefits-modal-gold .benefits-modal-close {
+  color: #1a1209;
+}
+
+.benefits-modal-gold .benefits-modal-close:hover {
+  color: #0d0905;
+}
+
+.benefits-modal-gold .benefits-modal-close svg {
+  fill: currentColor;
+}
+
+.benefits-modal-gold .benefits-modal-item::marker {
+  color: #b8860b;
+}
+
+.benefits-modal-gold .benefits-modal-item {
+  border-left: 3px solid rgba(184, 134, 11, 0.4);
+}
+
+/* Platinum membership – light grey, dark grey text */
+.benefits-modal-content.benefits-modal-platinum {
+  background: linear-gradient(165deg, #f0f0f0 0%, #e0e0e0 40%, #c8c8c8 100%);
+  color: #2c2c2e;
+  border: 2px solid rgba(140, 140, 140, 0.45);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.benefits-modal-platinum .benefits-modal-title {
+  color: #1c1c1e;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.benefits-modal-platinum .benefits-modal-subtitle,
+.benefits-modal-platinum .benefits-modal-item {
+  color: #2c2c2e;
+}
+
+.benefits-modal-platinum .benefits-modal-close {
+  color: #1c1c1e;
+}
+
+.benefits-modal-platinum .benefits-modal-close:hover {
+  color: #0a0a0b;
+}
+
+.benefits-modal-platinum .benefits-modal-close svg {
+  fill: currentColor;
+}
+
+.benefits-modal-platinum .benefits-modal-item::marker {
+  color: #6c6c6e;
+}
+
+.benefits-modal-platinum .benefits-modal-item {
+  border-left: 3px solid rgba(108, 108, 110, 0.4);
+}
+
+/* Shared modal layout */
+.benefits-modal-header {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 32px 40px 20px 40px;
+  border-bottom: 2px solid currentColor;
+}
+
+.benefits-modal-title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex: 1 1 100%;
+  line-height: 1.2;
+}
+
+.benefits-modal-subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  opacity: 0.95;
+}
+
+.benefits-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  transition: color 0.2s;
+}
+
+.benefits-modal-close svg {
+  width: 1.4em;
+  height: 1.4em;
+  min-width: 22px;
+  min-height: 22px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.benefits-modal-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: disc;
+}
+
+.benefits-modal-item {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  line-height: 1.55;
+  font-size: 1.05rem;
+  padding-left: 8px;
+  font-weight: 500;
+}
+
+.benefits-modal-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive: slightly smaller on narrow screens */
+@media (max-width: 600px) {
+  .benefits-modal-overlay {
+    padding: 16px;
+  }
+
+  .benefits-modal-content {
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .benefits-modal-header {
+    padding: 28px 24px 16px 24px;
+    padding-right: 44px;
+  }
+
+  .benefits-modal-body {
+    padding: 0 40px 28px 24px;
+    border-radius: 0 0 14px 14px;
+  }
+
+  .benefits-modal-title {
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  .benefits-modal-subtitle {
+    font-size: 1rem;
+  }
+
+  .benefits-modal-close {
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .benefits-modal-item {
+    font-size: 0.98rem;
+    margin-bottom: 12px;
+  }
+}

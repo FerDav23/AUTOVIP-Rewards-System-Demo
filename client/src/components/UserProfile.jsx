@@ -10,6 +10,7 @@ import {
   FaChartLine, FaGift, FaCreditCard, 
   FaCrown, FaIdCard 
 } from 'react-icons/fa';
+import BenefitsModal from './BenefitsModal';
 
 export default function UserProfile({ setIsAuthenticated }) {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function UserProfile({ setIsAuthenticated }) {
   const [vehicles, setVehicles] = useState([]);
   const [redeemedRewards, setRedeemedRewards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const [currentVehicleIndex, setCurrentVehicleIndex] = useState(0);
   const vehiclesGridRef = useRef(null);
 
@@ -191,6 +193,9 @@ export default function UserProfile({ setIsAuthenticated }) {
         <div className="header-actions">
           <button onClick={handleNavigateToDashboard} className="nav-btn">
             <FaChartLine /> Historial de Mantenimiento
+          </button>
+          <button onClick={() => setShowBenefitsModal(true)} className="nav-btn">
+            <FaCrown /> Mis beneficios
           </button>
           <button onClick={() => navigate('/rewards')} className="nav-btn">
             <FaGift /> Recompensas
@@ -364,6 +369,12 @@ export default function UserProfile({ setIsAuthenticated }) {
         </div>
       </div>
       </div>
+
+      <BenefitsModal
+        open={showBenefitsModal}
+        onClose={() => setShowBenefitsModal(false)}
+        membershipType={membershipType}
+      />
     </div>
   );
 }
