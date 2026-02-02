@@ -178,6 +178,7 @@ export async function getAllMemberships() {
  * @param {string} userData.cardNumber - User's card number
  * @param {string} userData.rucCi - User's RUC/C.I.
  * @param {number|string} userData.membershipId - Membership ID
+ * @param {string} [userData.cumpleanos] - User's birthday (optional, YYYY-MM-DD)
  * @param {Object} vehicleData - Vehicle data object
  * @param {string} vehicleData.placa - Vehicle license plate
  * @param {string} vehicleData.marca - Vehicle brand
@@ -208,8 +209,17 @@ export async function createAutoVipUser(userData, vehicleData) {
         color: vehicleData.color
       }
     };
-
     console.log(payload);
+    if (userData.cumpleanos != null && userData.cumpleanos !== '') {
+      payload.cumpleanos = userData.cumpleanos;
+    }
+    if (userData.phoneExtension != null && userData.phoneExtension !== '') {
+      payload.phone_extension = userData.phoneExtension;
+    }
+    if (userData.phone != null && userData.phone !== '') {
+      payload.phone = userData.phone;
+    }
+
 
     const response = await client.post('/autovip-users/', payload);
     
@@ -233,6 +243,7 @@ export async function createAutoVipUser(userData, vehicleData) {
  * @param {string} [userData.cardNumber] - User's card number
  * @param {string} [userData.rucCi] - User's RUC/C.I.
  * @param {number|string} [userData.membershipId] - Membership ID
+ * @param {string} [userData.cumpleanos] - User's birthday (optional, YYYY-MM-DD)
  * @returns {Promise<Object>} Updated user object
  */
 export async function updateUser(userId, userData) {
@@ -253,6 +264,9 @@ export async function updateUser(userId, userData) {
     if (userData.cardNumber !== undefined) payload.card_number = userData.cardNumber;
     if (userData.rucCi !== undefined) payload.ruc_ci = userData.rucCi;
     if (userData.membershipId !== undefined) payload.membership_id = userData.membershipId;
+    if (userData.cumpleanos !== undefined) payload.cumpleanos = userData.cumpleanos;
+    if (userData.phoneExtension !== undefined) payload.phone_extension = userData.phoneExtension;
+    if (userData.phone !== undefined) payload.phone = userData.phone;
 
     const response = await client.put(`/autovip-users/${userId}`, payload);
     
