@@ -73,6 +73,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [pointsRangeFilter, setPointsRangeFilter] = useState('all');
   const [cardNumberFilter, setCardNumberFilter] = useState('');
   const [rucCiFilter, setRucCiFilter] = useState('');
+  const [cumpleanosDesdeFilter, setCumpleanosDesdeFilter] = useState('');
+  const [cumpleanosHastaFilter, setCumpleanosHastaFilter] = useState('');
+  const [telefonoFilter, setTelefonoFilter] = useState('');
   const [rewardCategoryFilter, setRewardCategoryFilter] = useState('all');
   const [rewardAvailabilityFilter, setRewardAvailabilityFilter] = useState('all');
   const [rewardMembershipFilter, setRewardMembershipFilter] = useState('all');
@@ -1046,8 +1049,37 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     else if (pointsRangeFilter === '501-1000') matchesPoints = u.points > 500 && u.points <= 1000;
     else if (pointsRangeFilter === '1001-2000') matchesPoints = u.points > 1000 && u.points <= 2000;
     else if (pointsRangeFilter === '2000+') matchesPoints = u.points > 2000;
+
+    // Cumpleaños date range (desde - hasta): only month and day matter
+    let matchesCumpleanos = true;
+    const birthdayRaw = u.birthday ?? u._original?.birthday ?? u._original?.cumpleanos ?? '';
+    const toMonthDay = (dateStr) => {
+      if (!dateStr) return null;
+      const d = new Date(dateStr.includes('T') ? dateStr.split('T')[0] : String(dateStr).slice(0, 10));
+      return isNaN(d.getTime()) ? null : (d.getMonth() + 1) * 100 + d.getDate();
+    };
+    const birthdayMonthDay = toMonthDay(birthdayRaw);
+    if (birthdayMonthDay != null && (cumpleanosDesdeFilter || cumpleanosHastaFilter)) {
+      const desdeMonthDay = toMonthDay(cumpleanosDesdeFilter);
+      const hastaMonthDay = toMonthDay(cumpleanosHastaFilter);
+      if (desdeMonthDay != null && hastaMonthDay != null) {
+        if (desdeMonthDay <= hastaMonthDay) {
+          matchesCumpleanos = birthdayMonthDay >= desdeMonthDay && birthdayMonthDay <= hastaMonthDay;
+        } else {
+          matchesCumpleanos = birthdayMonthDay >= desdeMonthDay || birthdayMonthDay <= hastaMonthDay;
+        }
+      } else if (desdeMonthDay != null) {
+        matchesCumpleanos = birthdayMonthDay >= desdeMonthDay;
+      } else if (hastaMonthDay != null) {
+        matchesCumpleanos = birthdayMonthDay <= hastaMonthDay;
+      }
+    } else if ((cumpleanosDesdeFilter || cumpleanosHastaFilter) && birthdayMonthDay == null) {
+      matchesCumpleanos = false;
+    }
+
+    const matchesTelefono = !telefonoFilter || (u.telefono && u.telefono.toLowerCase().includes(telefonoFilter.toLowerCase()));
     
-    return matchesName && matchesMembership && matchesCarCount && matchesPoints && matchesCardNumber && matchesRucCi;
+    return matchesName && matchesMembership && matchesCarCount && matchesPoints && matchesCardNumber && matchesRucCi && matchesCumpleanos && matchesTelefono;
   });
 
   const filteredRewards = rewards.filter(r => {
@@ -2048,6 +2080,52 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 className="filter-input"
                 autoComplete="off"
               />
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  position: 'absolute', 
+                  top: '-18px', 
+                  left: '0', 
+                  fontSize: '0.85rem', 
+                  color: '#666', 
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>Cumpleaños desde</label>
+                <input 
+                  type="date" 
+                  placeholder="Desde..." 
+                  value={cumpleanosDesdeFilter}
+                  onChange={(e) => setCumpleanosDesdeFilter(e.target.value)}
+                  className="filter-input"
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label style={{ 
+                  position: 'absolute', 
+                  top: '-18px', 
+                  left: '0', 
+                  fontSize: '0.85rem', 
+                  color: '#666', 
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>Cumpleaños hasta</label>
+                <input 
+                  type="date" 
+                  placeholder="Hasta..." 
+                  value={cumpleanosHastaFilter}
+                  onChange={(e) => setCumpleanosHastaFilter(e.target.value)}
+                  className="filter-input"
+                  autoComplete="off"
+                />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Filtrar por teléfono..." 
+                value={telefonoFilter}
+                onChange={(e) => setTelefonoFilter(e.target.value)}
+                className="filter-input"
+                autoComplete="off"
+              />
               <select value={membershipFilter} onChange={(e) => setMembershipFilter(e.target.value)}>
                 <option value="all">Todas las membresías</option>
                 {memberships.map(membership => (
@@ -2075,6 +2153,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   setSearchTerm('');
                   setCardNumberFilter('');
                   setRucCiFilter('');
+                  setCumpleanosDesdeFilter('');
+                  setCumpleanosHastaFilter('');
+                  setTelefonoFilter('');
                   setMembershipFilter('all');
                   setCarCountFilter('all');
                   setPointsRangeFilter('all');
@@ -2247,7 +2328,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       const birthdayDisplay = birthday
                         ? (() => {
                             const d = new Date(birthday);
-                            return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                            return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
                           })()
                         : '-';
                       return (
