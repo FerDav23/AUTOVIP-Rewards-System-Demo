@@ -123,6 +123,52 @@
   flex-wrap: wrap;
 }
 
+.content-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-birthday-messages {
+  position: relative;
+  background: #25d366;
+  color: #fff;
+  border: 1px solid #20bd5a;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-birthday-messages:hover {
+  background: #20bd5a;
+  border-color: #1da851;
+  transform: translateY(-1px);
+}
+
+.btn-birthday-bubble {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #cf0000;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .search-box {
   display: flex;
   align-items: center;
@@ -164,6 +210,78 @@
 .btn-add:hover {
   background: #a50000;
   transform: translateY(-1px);
+}
+
+/* Birthday messages modal */
+.birthday-modal-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.birthday-messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.birthday-message-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.birthday-message-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.birthday-message-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.birthday-message-date {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.btn-whatsapp-felicitaciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #25d366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-whatsapp-felicitaciones:hover {
+  background: #20bd5a;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp-felicitaciones:active {
+  transform: translateY(0);
 }
 
 /* Filters bar */
