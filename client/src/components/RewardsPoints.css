@@ -25,16 +25,19 @@
 .rewards-container::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 5%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.2) 70%, transparent 95%);
   pointer-events: none;
-  animation: liquidShimmer 3s infinite;
+  animation: liquidShimmer 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.2);
   overflow: hidden;
   z-index: 0;
+  box-sizing: border-box;
+  box-shadow: 0 0 80px 30px rgba(255, 255, 255, 0.12);
+  filter: blur(2px);
 }
 
 @keyframes liquidShimmer {

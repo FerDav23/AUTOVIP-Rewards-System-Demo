@@ -43,9 +43,9 @@
   --spacing-lg: var(--space-lg);
   --spacing-xl: var(--space-xl);
   
-  /* Border radius */
-  --border-radius-sm: var(--radius-sm);
-  --border-radius-md: var(--radius-md);
+  /* Border radius (--radius-small/--radius-medium set by init-colors.js) */
+  --border-radius-sm: var(--radius-small);
+  --border-radius-md: var(--radius-medium);
   
   /* Shadow */
   --box-shadow-sm: var(--shadow-sm);
