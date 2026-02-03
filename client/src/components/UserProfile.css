@@ -423,6 +423,10 @@
     gap: 16px;
   }
 
+  .section-header h3{
+    font-size: 1.2rem !important;
+  }
+
   .profile-header {
     flex-direction: column;
     align-items: center;
@@ -434,6 +438,7 @@
   .profile-title-section {
     justify-content: center;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .header-actions {
@@ -479,6 +484,11 @@
     overflow: visible;
   }
 
+  .vehicles-section .vehicles-grid {
+    background: transparent;
+    background-color: transparent;
+  }
+
   .vehicles-section .vehicles-grid:has(.vehicle-card) {
     display: flex;
     flex-direction: row;
@@ -502,8 +512,8 @@
 
   .vehicles-section .vehicles-grid .vehicle-card {
     flex: 0 0 auto;
-    width: min(320px, 88vw);
-    min-width: min(280px, 85vw);
+    width: min(100%, 315px);
+    min-width: min(95%, 275px);
     scroll-snap-align: center;
     scroll-snap-stop: normal;
   }
@@ -565,6 +575,10 @@
     box-sizing: border-box;
   }
 
+  .profile-section:last-of-type {
+    margin-bottom: 30px !important;
+  }
+
   .profile-section::after {
     content: '';
     position: absolute;
@@ -599,7 +613,6 @@
     height: 70px;
     border-bottom-left-radius: 100%;
     background: transparent;
-    box-shadow: inset -6px -6px 0 -3px rgba(0, 0, 0, 0.04);
     pointer-events: none;
   }
 
@@ -624,7 +637,7 @@
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 4px;
+    padding-right: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color, rgba(0,0,0,0.2)) transparent;
   }
@@ -717,6 +730,10 @@
     border-radius: 18px;
     padding: 12px 10px;
     margin-bottom: 16px;
+  }
+
+  .profile-section:last-of-type {
+    margin-bottom: 50px !important;
   }
 
   .profile-section::after {
