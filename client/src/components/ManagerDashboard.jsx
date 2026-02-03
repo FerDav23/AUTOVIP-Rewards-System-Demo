@@ -2395,8 +2395,13 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       const birthday = user.birthday ?? user._original?.birthday;
                       const birthdayDisplay = birthday
                         ? (() => {
-                            const d = new Date(birthday);
-                            return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+                            const s = String(birthday).trim().slice(0, 10);
+                            const parts = s.split('-');
+                            if (parts.length !== 3) return '-';
+                            const month = parseInt(parts[1], 10);
+                            const day = parseInt(parts[2], 10);
+                            if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) return '-';
+                            return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
                           })()
                         : '-';
                       return (
