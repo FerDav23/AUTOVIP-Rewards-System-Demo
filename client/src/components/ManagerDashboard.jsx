@@ -27,12 +27,14 @@ import {
   uploadImage,
   toggleRewardVisibility } from '../services/autovipRewards';
 import { createPromotion, getAllPromotions, updatePromotion, deletePromotion } from '../services/autovipPromotions';
+import { loadBirthdayMessages } from '../services/autovipBdMes';
 import './ManagerDashboard.css';
 import logoImage from '../assets/FJ-LOGOTIPO.png';
 import Loading from './Loading';
 import { 
   FaUsers, FaCar, FaGift, FaTag, FaCoins, FaPlus, FaTrash, 
-  FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage
+  FaEdit, FaSearch, FaSignOutAlt, FaTimes, FaCheck, FaMinus, FaCog, FaImage,
+  FaBirthdayCake
 } from 'react-icons/fa';
 import Alert from './Alert';
 
@@ -119,6 +121,10 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
   // Points transactions history
   const [pointsTransactions, setPointsTransactions] = useState([]);
+
+  // Birthday messages (for Mensajes de Cumpleaños modal)
+  const [birthdayMessages, setBirthdayMessages] = useState([]);
+  const [loadingBirthdayMessages, setLoadingBirthdayMessages] = useState(false);
 
   const MAX_CARS_PER_USER = 5;
   const MIN_CARS_PER_USER = 1;
@@ -320,12 +326,26 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     }
   };
 
-  // Load users, memberships, transaction types, and reward types on component mount
+  // Load birthday messages (for Mensajes de Cumpleaños modal and bubble count)
+  const loadBirthdayMessagesData = async () => {
+    setLoadingBirthdayMessages(true);
+    try {
+      const data = await loadBirthdayMessages();
+      setBirthdayMessages(data);
+    } catch (e) {
+      setBirthdayMessages([]);
+    } finally {
+      setLoadingBirthdayMessages(false);
+    }
+  };
+
+  // Load users, memberships, transaction types, reward types, and birthday messages on component mount
   useEffect(() => {
     loadUsers();
     loadMemberships();
     loadPointsTransactionTypes();
     loadRewardTypesData();
+    loadBirthdayMessagesData();
   }, []);
 
   // Function to load all promotions
@@ -462,6 +482,9 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
         validUntil: item.expires_at || item.validUntil || item._original?.expires_at || item._original?.valid_until || '',
         imageUrl: item.imageUrl || item._original?.imageUrl || item._original?.image_url || ''
       });
+      setShowModal(true);
+    } else if (type === 'birthday') {
+      setModalType('birthday');
       setShowModal(true);
     } else {
       setFormData(item || {});
@@ -2012,6 +2035,39 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
               </form>
             </>
           )}
+          {/* Birthday Messages Modal */}
+          {modalType === 'birthday' && (
+            <>
+              <h3><FaBirthdayCake /> Mensajes de Cumpleaños</h3>
+              {loadingBirthdayMessages ? (
+                <div className="birthday-modal-loading"><Loading /></div>
+              ) : birthdayMessages.length === 0 ? (
+                <p className="modal-subtitle">No hay mensajes de cumpleaños.</p>
+              ) : (
+                <div className="birthday-messages-list">
+                  {birthdayMessages.map((msg) => (
+                    <div key={msg.user_id} className="birthday-message-item">
+                      <div className="birthday-message-info">
+                        <span className="birthday-message-name">{msg.user_name}</span>
+                        <span className="birthday-message-date">{msg.birthday}</span>
+                      </div>
+                      <a
+                        href={msg.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-whatsapp-felicitaciones"
+                      >
+                        Enviar felicitaciones
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={closeModal}>Cerrar</button>
+              </div>
+            </>
+          )}
           </div>
         </div>
       </div>
@@ -2044,12 +2100,24 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
 
       <main className="manager-content">
         <div className="content-header">
-          <button className="btn-add" onClick={() => openModal(
-            activeTab === 'users' ? 'user' :
-            activeTab === 'rewards' ? 'reward' : 'promotion'
-          )}>
-            <FaPlus /> Agregar
-          </button>
+          <div className="content-header-actions">
+            <button className="btn-add" onClick={() => openModal(
+              activeTab === 'users' ? 'user' :
+              activeTab === 'rewards' ? 'reward' : 'promotion'
+            )}>
+              <FaPlus /> Agregar
+            </button>
+            <button
+              className="btn-birthday-messages"
+              onClick={() => openModal('birthday')}
+              title="Mensajes de Cumpleaños"
+            >
+              <FaBirthdayCake /> Mensajes de Cumpleaños
+              {birthdayMessages.length > 0 && (
+                <span className="btn-birthday-bubble">{birthdayMessages.length}</span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
