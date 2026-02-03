@@ -421,6 +421,8 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         >
           {isLoadingRewards ? (
             <Loading message="Cargando recompensas..." fullScreen={true}/>
+          ) : count === 0 ? (
+            <p className="rewards-empty">No hay recompensas disponibles en este momento.</p>
           ) : (
           rewardsToShow.map((reward, i) => (
             <div

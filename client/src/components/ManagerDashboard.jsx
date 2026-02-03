@@ -62,6 +62,21 @@ const PHONE_EXTENSIONS = [
   { extension: '+505', flag: '\u{1F1F3}\u{1F1EE}', label: '\u{1F1F3}\u{1F1EE} Nicaragua' },
 ];
 
+function formatBirthdayDDMM(birthday) {
+  if (!birthday) return '-';
+
+  // Force string
+  const s = String(birthday).trim();
+
+  // Extract YYYY-MM-DD (works even if there's a time part)
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return '-';
+
+  const day = match[3];
+  const month = match[2];
+  return `${day}/${month}`;
+}
+
 export default function ManagerDashboard({ setIsAuthenticated }) {
   const navigate = useNavigate();
   const { showError, showSuccess, showWarning } = useAlert();
@@ -2393,17 +2408,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   ) : (
                     filteredUsers.map(user => {
                       const birthday = user.birthday ?? user._original?.birthday;
-                      const birthdayDisplay = birthday
-                        ? (() => {
-                            const s = String(birthday).trim().slice(0, 10);
-                            const parts = s.split('-');
-                            if (parts.length !== 3) return '-';
-                            const month = parseInt(parts[1], 10);
-                            const day = parseInt(parts[2], 10);
-                            if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) return '-';
-                            return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}`;
-                          })()
-                        : '-';
+                      const birthdayDisplay = formatBirthdayDDMM(birthday);
+
                       return (
                       <tr key={user.id}>
                         <td>{user.name}</td>
