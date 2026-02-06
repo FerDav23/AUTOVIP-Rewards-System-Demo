@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginAutovipUser } from "../services/user";
 import Alert from './Alert';
-import logger from '../utils/logger';
 import './QrBridge.css';
 
 export default function QrBridge({ setIsAuthenticated }) {
