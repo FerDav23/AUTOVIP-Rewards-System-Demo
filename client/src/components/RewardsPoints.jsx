@@ -287,7 +287,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   const handleNavigateToDashboard = () => {
     const BASE_URL = "https://historial-mant.cim-clientes.com/qr-login";
     const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
-    window.open(url, '_blank');
+    window.location.href = url;
   };
 
   const handleNavigateToProfile = () => {
