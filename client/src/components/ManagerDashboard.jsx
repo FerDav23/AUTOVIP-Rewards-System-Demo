@@ -117,6 +117,12 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
   const [loadingRewardTypes, setLoadingRewardTypes] = useState(false);
   const [loadingRewards, setLoadingRewards] = useState(false);
   const [loadingPromotions, setLoadingPromotions] = useState(false);
+  const [loadingAddCar, setLoadingAddCar] = useState(false);
+  const [loadingDeleteCar, setLoadingDeleteCar] = useState(false);
+  const [loadingPointsTransaction, setLoadingPointsTransaction] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loadingRewardVisibility, setLoadingRewardVisibility] = useState(false);
 
   // Users state
   const [users, setUsers] = useState([]);
@@ -540,6 +546,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       return;
     }
 
+    setLoadingAddCar(true);
     try {
       const vehicleData = {
         placa: formData.placa,
@@ -565,6 +572,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     } catch (error) {
       console.error('Error adding vehicle:', error);
       showError(error.response?.data?.message || error.message || error || 'Error al agregar el vehículo. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingAddCar(false);
     }
   };
 
@@ -584,6 +593,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     
     if (!confirmed) return;
 
+    setLoadingDeleteCar(true);
     try {
       // Delete vehicle via API
       await deleteCarById(carId);
@@ -598,6 +608,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       showError(error.response?.data?.message || error.message || error || 'Error al eliminar el vehículo. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingDeleteCar(false);
     }
   };
 
@@ -642,6 +654,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       }
     }
 
+    setLoadingPointsTransaction(true);
     try {
       // Call API to manage the points transaction
       const transactionData = {
@@ -681,13 +694,17 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     } catch (error) {
       console.error('Error managing points transaction:', error);
       showError(error.response?.data?.message || error.message || error || 'Error al procesar la transacción de puntos. Por favor, intente de nuevo.');
+    } finally {
+      setLoadingPointsTransaction(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    switch (modalType) {
+    setLoadingSubmit(true);
+    try {
+      switch (modalType) {
       case 'user':
         if (editingItem) {
           // Update existing user via API
@@ -698,6 +715,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             
             if (!selectedMembership) {
               showWarning('Por favor seleccione una membresía válida.');
+              setLoadingSubmit(false);
               return;
             }
 
@@ -738,6 +756,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           } catch (error) {
             console.error('Error updating user:', error);
             showError(error.response?.data?.message || error.message || error || 'Error al actualizar el usuario. Por favor, intente de nuevo.');
+            setLoadingSubmit(false);
             return; // Don't close modal on error
           }
         } else {
@@ -749,6 +768,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             
             if (!selectedMembership) {
               showWarning('Por favor seleccione una membresía válida.');
+              setLoadingSubmit(false);
               return;
             }
 
@@ -933,8 +953,14 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           }
         }
         break;
+      }
+      closeModal();
+    } catch (error) {
+      // Error handling is done in individual cases
+      console.error('Error in handleSubmit:', error);
+    } finally {
+      setLoadingSubmit(false);
     }
-    closeModal();
   };
 
   const openImageModal = (item, type) => {
@@ -1010,53 +1036,59 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     
     if (!confirmed) return;
     
-    switch (type) {
-      case 'user':
-        try {
-          // Delete user via API
-          await deleteUser(id);
-          
-          // Update local state
-          setUsers(prev => prev.filter(u => u.id !== id));
-          
-          showSuccess('Usuario eliminado exitosamente.');
-        } catch (error) {
-          console.error('Error deleting user:', error);
-          showError(error.response?.data?.message || error.message || error || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
-        }
-        break;
-      case 'reward':
-        try {
-          // Delete reward via API
-          await deleteReward(id);
-          
-          // Update local state
-          await loadRewards();
-          
-          showSuccess('Recompensa eliminada exitosamente.');
-        } catch (error) {
-          console.error('Error deleting reward:', error);
-          showError(error.response?.data?.message || error.message || error || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
-        }
-        break;
-      case 'promotion':
-        try {
-          // Delete promotion via API
-          await deletePromotion(id);
-          
-          // Reload promotions to get the updated list
-          await loadPromotions();
-          
-          showSuccess('Promoción eliminada exitosamente.');
-        } catch (error) {
-          console.error('Error deleting promotion:', error);
-          showError(error.response?.data?.message || error.message || error || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
-        }
-        break;
+    setLoadingDelete(true);
+    try {
+      switch (type) {
+        case 'user':
+          try {
+            // Delete user via API
+            await deleteUser(id);
+            
+            // Update local state
+            setUsers(prev => prev.filter(u => u.id !== id));
+            
+            showSuccess('Usuario eliminado exitosamente.');
+          } catch (error) {
+            console.error('Error deleting user:', error);
+            showError(error.response?.data?.message || error.message || error || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
+          }
+          break;
+        case 'reward':
+          try {
+            // Delete reward via API
+            await deleteReward(id);
+            
+            // Update local state
+            await loadRewards();
+            
+            showSuccess('Recompensa eliminada exitosamente.');
+          } catch (error) {
+            console.error('Error deleting reward:', error);
+            showError(error.response?.data?.message || error.message || error || 'Error al eliminar la recompensa. Por favor, intente de nuevo.');
+          }
+          break;
+        case 'promotion':
+          try {
+            // Delete promotion via API
+            await deletePromotion(id);
+            
+            // Reload promotions to get the updated list
+            await loadPromotions();
+            
+            showSuccess('Promoción eliminada exitosamente.');
+          } catch (error) {
+            console.error('Error deleting promotion:', error);
+            showError(error.response?.data?.message || error.message || error || 'Error al eliminar la promoción. Por favor, intente de nuevo.');
+          }
+          break;
+      }
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
   const handleRewardVisibilityChange = async (reward) => {
+    setLoadingRewardVisibility(true);
     try {
       await toggleRewardVisibility(reward.id);
       const nextAvailable = !reward.available;
@@ -1065,6 +1097,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
     } catch (error) {
       console.error('Error updating reward visibility:', error);
       showError(error?.message || error?.response?.data?.message || 'Error al actualizar la visibilidad.');
+    } finally {
+      setLoadingRewardVisibility(false);
     }
   };
 
@@ -1206,6 +1240,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           {modalType === 'user' && (
             <>
               <h3>{editingItem ? 'Editar' : 'Crear'} Usuario</h3>
+              {loadingSubmit && <Loading message="Guardando..." fullScreen={true} />}
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Nombre</label>
@@ -1432,6 +1467,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     type="submit" 
                     className="btn-submit"
                     disabled={
+                      loadingSubmit ||
                       !formData.name || 
                       !formData.cardNumber || 
                       !formData.rucCi ||
@@ -1451,6 +1487,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             <>
               <h3><FaCar /> Vehículos de {editingItem.name}</h3>
               <p className="modal-subtitle">Vehículos: {getUserCarCount(editingItem.id)}/{MAX_CARS_PER_USER} (mín: {MIN_CARS_PER_USER})</p>
+              {(loadingAddCar || loadingDeleteCar) && <Loading message={loadingAddCar ? "Agregando vehículo..." : "Eliminando vehículo..."} fullScreen={true} />}
               
               {!canAddCarToUser(editingItem.id) && !loadingCars && (
                 <div className="max-cars-warning">
@@ -1471,7 +1508,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                       <button 
                         className="btn-delete-small"
                         onClick={() => handleDeleteCar(car.id)}
-                        disabled={!canDeleteCarFromUser(editingItem.id)}
+                        disabled={loadingDeleteCar || !canDeleteCarFromUser(editingItem.id)}
                         title={canDeleteCarFromUser(editingItem.id) ? "Eliminar" : "Mínimo 1 vehículo"}
                       >
                         <FaTrash />
@@ -1540,7 +1577,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                     <button 
                       type="submit" 
                       className="btn-submit btn-full"
-                      disabled={!formData.placa || !formData.marca || !formData.modelo || !formData.color || !formData.año || formData.año.length !== 4}
+                      disabled={loadingAddCar || !formData.placa || !formData.marca || !formData.modelo || !formData.color || !formData.año || formData.año.length !== 4}
                     >
                       <FaPlus /> Agregar Vehículo
                     </button>
@@ -1562,7 +1599,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                 <p><strong>Usuario:</strong> {editingItem.name}</p>
                 <p><strong>Saldo actual:</strong> <span className="points-balance">{editingItem.points.toLocaleString()} puntos</span></p>
               </div>
-              
+              {loadingPointsTransaction && <Loading message="Procesando transacción..." fullScreen={true} />}
               <form onSubmit={handlePointsTransaction}>
                 <div className="form-group">
                   <label>Tipo de transacción</label>
@@ -1763,7 +1800,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className={`btn-submit ${formData.transactionType === 'remove' ? 'btn-remove' : ''}`}
-                    disabled={(() => {
+                    disabled={loadingPointsTransaction || (() => {
                       const selectedTxType = transactionTypes.find(tx => tx.id === parseInt(formData.transactionTypeId));
                       const isCanje = selectedTxType?.type?.toLowerCase() === 'canje';
                       const requiresReward = isCanje && !formData.rewardId;
@@ -1786,6 +1823,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           {modalType === 'reward' && (
             <>
               <h3>{editingItem ? 'Editar' : 'Crear'} Recompensa</h3>
+              {loadingSubmit && <Loading message="Guardando..." fullScreen={true} />}
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
@@ -1938,7 +1976,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || !formData.pointsRequired || !formData.category || !(formData.memberships || []).length || (!formData.imageFile && !formData.imageUrl)}
+                    disabled={loadingSubmit || !formData.title || !formData.description || !formData.pointsRequired || !formData.category || !(formData.memberships || []).length || (!formData.imageFile && !formData.imageUrl)}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -1951,6 +1989,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           {modalType === 'promotion' && (
             <>
               <h3>{editingItem ? 'Editar' : 'Crear'} Promoción</h3>
+              {loadingSubmit && <Loading message="Guardando..." fullScreen={true} />}
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label>Título</label>
@@ -2042,7 +2081,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                   <button 
                     type="submit" 
                     className="btn-submit"
-                    disabled={!formData.title || !formData.description || (!formData.imageFile && !formData.imageUrl)}
+                    disabled={loadingSubmit || !formData.title || !formData.description || (!formData.imageFile && !formData.imageUrl)}
                   >
                     <FaCheck /> {editingItem ? 'Guardar' : 'Crear'}
                   </button>
@@ -2433,7 +2472,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                             <button className="btn-edit" onClick={() => openModal('user', user)} title="Editar">
                               <FaEdit />
                             </button>
-                            <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar">
+                            <button className="btn-delete" onClick={() => handleDelete('user', user.id)} title="Eliminar" disabled={loadingDelete}>
                               <FaTrash />
                             </button>
                           </div>
@@ -2506,6 +2545,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                           checked={reward.available ?? true}
                           onChange={() => handleRewardVisibilityChange(reward)}
                           title={reward.available ? 'Ocultar' : 'Mostrar'}
+                          disabled={loadingRewardVisibility}
                         />
                         <span className="slider" />
                       </label>
@@ -2520,7 +2560,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         <button className="btn-edit" onClick={() => openModal('reward', reward)} title="Editar">
                           <FaEdit />
                         </button>
-                        <button className="btn-delete" onClick={() => handleDelete('reward', reward.id)} title="Eliminar">
+                        <button className="btn-delete" onClick={() => handleDelete('reward', reward.id)} title="Eliminar" disabled={loadingDelete}>
                           <FaTrash />
                         </button>
                       </div>
@@ -2578,7 +2618,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         <button className="btn-edit" onClick={() => openModal('promotion', promo)} title="Editar">
                           <FaEdit />
                         </button>
-                        <button className="btn-delete" onClick={() => handleDelete('promotion', promo.id)} title="Eliminar">
+                        <button className="btn-delete" onClick={() => handleDelete('promotion', promo.id)} title="Eliminar" disabled={loadingDelete}>
                           <FaTrash />
                         </button>
                       </div>
