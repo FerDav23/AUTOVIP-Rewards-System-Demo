@@ -6,6 +6,7 @@
   min-height: 200px;
   padding: 2rem;
   position: relative;
+  z-index: 999999;
 }
 
 .loading-overlay {
@@ -19,7 +20,7 @@
   min-height: 100vh;
   background-color: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
-  z-index: 9999;
+  z-index: 999999;
   padding: 0;
 }
 
@@ -34,7 +35,7 @@
   min-height: 100vh;
   background-color: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
-  z-index: 9999;
+  z-index: 999999;
 }
 
 .loading-content {
