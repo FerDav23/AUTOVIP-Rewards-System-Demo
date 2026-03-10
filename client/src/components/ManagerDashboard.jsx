@@ -750,7 +750,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload users to get the updated list
             await loadUsers();
             
-            showSuccess('Usuario actualizado exitosamente.');
+            showSuccess('User updated successfully.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
@@ -811,7 +811,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Reload users to get the updated list
             await loadUsers();
             
-            showSuccess('Usuario creado exitosamente.');
+            showSuccess('User created successfully.');
             closeModal(); // Close modal only on success
             return; // Return early to avoid calling closeModal again
           } catch (error) {
@@ -1047,7 +1047,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             // Update local state
             setUsers(prev => prev.filter(u => u.id !== id));
             
-            showSuccess('Usuario eliminado exitosamente.');
+            showSuccess('User deleted successfully.');
           } catch (error) {
             console.error('Error deleting user:', error);
             showError(error.response?.data?.message || error.message || error || 'Error al eliminar el usuario. Por favor, intente de nuevo.');
@@ -1239,7 +1239,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
           {/* User Modal */}
           {modalType === 'user' && (
             <>
-              <h3>{editingItem ? 'Editar' : 'Crear'} Usuario</h3>
+              <h3>{editingItem ? 'Edit' : 'Create'} User</h3>
               {loadingSubmit && <Loading message="Guardando..." fullScreen={true} />}
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -1596,8 +1596,8 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
             <>
               <h3><FaCoins /> Transacción de Puntos</h3>
               <div className="points-user-info">
-                <p><strong>Usuario:</strong> {editingItem.name}</p>
-                <p><strong>Saldo actual:</strong> <span className="points-balance">{editingItem.points.toLocaleString()} puntos</span></p>
+                <p><strong>User:</strong> {editingItem.name}</p>
+                <p><strong>Saldo actual:</strong> <span className="points-balance">{(editingItem.points ?? 0).toLocaleString()} puntos</span></p>
               </div>
               {loadingPointsTransaction && <Loading message="Procesando transacción..." fullScreen={true} />}
               <form onSubmit={handlePointsTransaction}>
@@ -2133,16 +2133,16 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
       <header className="manager-header">
         <div className="header-left">
           <img src={logoImage} alt="Grupo FJ Logo" className="header-logo" />
-          <h1>AUTOVIP Panel de Administración</h1>
+          <h1>AUTOVIP Admin Panel</h1>
         </div>
         <button className="logout-btn" onClick={handleLogout}>
-          <FaSignOutAlt /> Cerrar Sesión
+          <FaSignOutAlt /> Sign Out
         </button>
       </header>
 
       <nav className="manager-nav">
         <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
-          <FaUsers /> Usuarios
+          <FaUsers /> Users
         </button>
         <button className={activeTab === 'rewards' ? 'active' : ''} onClick={() => setActiveTab('rewards')}>
           <FaGift /> Recompensas
@@ -2464,7 +2464,7 @@ export default function ManagerDashboard({ setIsAuthenticated }) {
                         </td>
                         <td>
                           <button className="btn-points-display" onClick={() => openModal('points', user)} title="Gestionar puntos">
-                            <FaCoins /> {user.points.toLocaleString()}
+                            <FaCoins /> {(user.points ?? 0).toLocaleString()}
                           </button>
                         </td>
                         <td className="actions">

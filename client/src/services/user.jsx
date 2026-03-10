@@ -1,4 +1,7 @@
 import client from './apiClient';
+import { demoClient, demoManager, DEMO_TOKEN_VALUE } from './mock/mockData';
+
+const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
 // Token expiration time in milliseconds (24 hours)
 const TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
@@ -71,6 +74,13 @@ export async function login(username, password) {
 }
 
 export async function loginManager(username, password) {
+  if (isDemoMode()) {
+    storeTokenWithExpiration(demoManager.token);
+    localStorage.setItem('managerID', JSON.stringify(demoManager.id));
+    localStorage.setItem('managerName', demoManager.name);
+    localStorage.setItem('managerUsername', demoManager.username);
+    return demoManager;
+  }
   try {
     const response = await client.post('/managers/login', { username, password });
     storeTokenWithExpiration(response.data.data.token);
@@ -85,6 +95,14 @@ export async function loginManager(username, password) {
 }
 
 export async function loginAutovipUser (username, password) {
+  if (isDemoMode()) {
+    storeTokenWithExpiration(demoClient.token);
+    localStorage.setItem('autovipUserID', JSON.stringify(demoClient.id));
+    localStorage.setItem('autovipUserName', demoClient.name);
+    localStorage.setItem('autovipUserCardNumber', demoClient.card_number);
+    localStorage.setItem('autovipUserRucCi', demoClient.ruc_ci);
+    return demoClient;
+  }
   try {
     const response = await client.post('/autovip-users/login', { username, password });
     storeTokenWithExpiration(response.data.data.token);
@@ -160,6 +178,7 @@ export function getCurrentUserPhoneNumber() {
 }
 
 export async function fetchPlacas() {
+  if (isDemoMode()) return { placas: [] };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -187,6 +206,7 @@ export async function fetchPlacas() {
 }
 
 export async function getHistorialData(placa, startDate, endDate) {
+  if (isDemoMode()) return { historial: [] };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -207,6 +227,11 @@ export async function getHistorialData(placa, startDate, endDate) {
  * @returns {Promise<void>} Resolves if token is valid, rejects if invalid
  */
 export async function verifyToken() {
+  if (isDemoMode()) {
+    const token = localStorage.getItem('authToken');
+    if (token) return;
+    throw new Error('No token found. Please login again.');
+  }
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {

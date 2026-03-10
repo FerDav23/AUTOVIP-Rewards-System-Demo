@@ -24,6 +24,15 @@ export default function CreateManager() {
     }
     
     try {
+      if (import.meta.env.VITE_DEMO_MODE === 'true') {
+        setMessage(`Demo: Manager "${name}" would have been created.`);
+        setMessageType('success');
+        setName('');
+        setUsername('');
+        setPassword('');
+        setConfirmPassword('');
+        return;
+      }
       const response = await client.post('/managers/', { name, username, password });
       setMessage(`Manager created successfully: ${response.data.name || username}`);
       setMessageType('success');
@@ -41,7 +50,7 @@ export default function CreateManager() {
     <div className="create-manager-container">
       <div className="create-manager-card">
         <h2>Create Manager</h2>
-        <p className="subtitle">Temporary page - delete after use</p>
+        <p className="subtitle">Temporary page – delete after use</p>
         <form className="create-manager-form" onSubmit={handleSubmit}>
           <div className="create-manager-input-group">
             <label>Name</label>

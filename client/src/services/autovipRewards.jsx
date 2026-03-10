@@ -1,11 +1,15 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import * as mockData from './mock/mockData';
+
+const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
 /**
  * Get all reward types
  * @returns {Promise<Array>} Array of reward type objects
  */
 export async function getRewardTypes() {
+  if (isDemoMode()) return mockData.rewardTypes;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -30,6 +34,7 @@ export async function getRewardTypes() {
  * @returns {Promise<Array>} Array of reward objects
  */
 export async function getAllRewards() {
+  if (isDemoMode()) return mockData.demoRewards;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -64,6 +69,7 @@ export async function getAllRewards() {
  * @returns {Promise<Object>} Created reward object
  */
 export async function createReward(rewardData) {
+  if (isDemoMode()) return { id: 99, title: rewardData.title, description: rewardData.description, points_required: rewardData.pointsRequired, visible: rewardData.available !== false };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -141,6 +147,7 @@ export async function createReward(rewardData) {
  * @returns {Promise<Object>} Updated reward object
  */
 export async function updateReward(rewardId, rewardData) {
+  if (isDemoMode()) return { id: rewardId, ...rewardData };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -215,6 +222,7 @@ export async function updateReward(rewardId, rewardData) {
  * @returns {Promise<void>}
  */
 export async function deleteReward(rewardId) {
+  if (isDemoMode()) return {};
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -245,6 +253,7 @@ export async function deleteReward(rewardId) {
  * @returns {Promise<Object>} Updated reward object
  */
 export async function toggleRewardVisibility(rewardId) {
+  if (isDemoMode()) return { id: rewardId, visible: true };
   try {
     if (isTokenExpired()) {
       clearExpiredToken();
@@ -274,6 +283,7 @@ export async function toggleRewardVisibility(rewardId) {
  * @returns {Promise<string>} The S3 URL of the uploaded image
  */
 export async function uploadImage(file) {
+  if (isDemoMode()) return 'https://example.com/demo-image.png';
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {

@@ -162,6 +162,26 @@
   cursor: not-allowed;
 }
 
+.autovip-back-to-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: var(--spacing-md);
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted, #666);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.autovip-back-to-demo:hover {
+  color: #cf0000;
+}
+
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   .autovip-login-container {

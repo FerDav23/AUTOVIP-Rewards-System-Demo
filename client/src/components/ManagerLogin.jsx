@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginManager } from '../services/user';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
@@ -45,7 +45,7 @@ export default function ManagerLogin({ setIsAuthenticated }) {
       navigate('/manager-dashboard');
     } catch (err) {
       console.error('Error during login or navigation:', err);
-      setError('Credenciales inválidas');
+        setError('Invalid credentials');
     }
   };
 
@@ -65,13 +65,13 @@ export default function ManagerLogin({ setIsAuthenticated }) {
           <img src={logoCIMImg} alt="CIM Logo" className="manager-login-logo" />
         </div>
         <h1 className="manager-welcome-title">
-          AUTOVIP<br />Panel de Administración
+          AUTOVIP<br />Admin Panel
         </h1>
-        <h2>Acceso Gerentes</h2>
+        <h2>Manager Access</h2>
         {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="manager-form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username">Username</label>
             <input
               id="username"
               type="text"
@@ -82,7 +82,7 @@ export default function ManagerLogin({ setIsAuthenticated }) {
             />
           </div>
           <div className="manager-form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">Password</label>
             <div className="password-input-wrapper">
               <input
                 id="password"
@@ -96,14 +96,22 @@ export default function ManagerLogin({ setIsAuthenticated }) {
                 type="button"
                 className="password-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
           </div>
-          <button type="submit" className="manager-login-button">Ingresar</button>
-        
+          <button type="submit" className="manager-login-button">Sign In</button>
+          {import.meta.env.VITE_DEMO_MODE === 'true' && (
+            <button
+              type="button"
+              className="manager-back-to-demo"
+              onClick={() => navigate('/')}
+            >
+              <FaArrowLeft /> Back to demo
+            </button>
+          )}
         </form>
       </div>
     </div>

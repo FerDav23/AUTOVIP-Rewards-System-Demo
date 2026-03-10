@@ -108,6 +108,16 @@
   transform: translateY(-1px);
 }
 
+.dashboard-btn-disabled {
+  background: var(--medium-grey, #888);
+  color: #fff;
+  cursor: default;
+  opacity: 0.9;
+}
+.dashboard-btn-disabled:hover {
+  transform: none;
+}
+
 .dashboard-btn svg {
   font-size: 0.9rem;
   color: var(--text-on-primary);

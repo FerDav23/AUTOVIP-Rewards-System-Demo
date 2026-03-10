@@ -25,7 +25,7 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   const [isLoadingPromotions, setIsLoadingPromotions] = useState(true);
   const [userName] = useState(() => {
     const user = localStorage.getItem('autovipUserName');
-    return user ? user.replace(/"/g, '') : 'Cliente';
+    return user ? user.replace(/"/g, '') : 'Client';
   });
 
   const [rucCi] = useState(() => {
@@ -230,9 +230,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
     if (customerPoints >= reward.pointsRequired && reward.available) {
       setSelectedReward(reward);
     } else if (!reward.available) {
-      showWarning('Este premio no está disponible en este momento.');
+      showWarning('This reward is not available at the moment.');
     } else {
-      showWarning(`No tienes suficientes puntos. Necesitas ${reward.pointsRequired} puntos.`);
+      showWarning(`You do not have enough points. You need ${reward.pointsRequired} points.`);
     }
   };
 
@@ -242,19 +242,19 @@ export default function RewardsPoints({ setIsAuthenticated }) {
 
   const handleWhatsAppContact = () => {
     if (!selectedReward) return;
-    const supportNumber = '593981718630'; // Replace with actual support WhatsApp number (country code + number, no + or spaces)
+    const supportNumber = ''; // Replace with actual support WhatsApp number (country code + number, no + or spaces)
     const rucCi = localStorage.getItem('autovipUserRucCi')?.replace(/"/g, '') ?? '';
     // Emojis via Unicode code points so they display correctly regardless of file encoding
     const gift = '\u{1F381}', trophy = '\u{1F3C6}', star = '\u{2B50}', folder = '\u{1F4C2}', memo = '\u{1F4DD}', user = '\u{1F464}';
     const message = [
-      `${gift} Hola, deseo canjear mis puntos por la siguiente recompensa:\n`,
-      `${trophy} *Recompensa:* ${selectedReward.title}`,
-      `${star} *Puntos requeridos:* ${selectedReward.pointsRequired}`,
-      `${folder} *Categoría:* ${selectedReward.category || 'N/A'}`,
-      selectedReward.description ? `${memo} *Descripción:* ${selectedReward.description}` : '',
+      `${gift} Hello, I would like to redeem my points for the following reward:\n`,
+      `${trophy} *Reward:* ${selectedReward.title}`,
+      `${star} *Points required:* ${selectedReward.pointsRequired}`,
+      `${folder} *Category:* ${selectedReward.category || 'N/A'}`,
+      selectedReward.description ? `${memo} *Description:* ${selectedReward.description}` : '',
       '',
-      `${user} *Mis datos:*`,
-      `- Nombre: ${userName}`,
+      `${user} *My details:*`,
+      `- Name: ${userName}`,
       rucCi ? `- RUC/C.I.: ${rucCi}` : ''
     ].filter(Boolean).join('\n');
     // Use api.whatsapp.com/send instead of wa.me - wa.me has a known bug where emojis display incorrectly on desktop/Web
@@ -284,9 +284,12 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   const radius = 52;
   const circumference = 2 * Math.PI * radius;
 
+  const maintenanceHistoryUrl = import.meta.env.VITE_MAINTENANCE_HISTORY_URL;
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+
   const handleNavigateToDashboard = () => {
-    const BASE_URL = "https://historial-mant.cim-clientes.com/qr-login";
-    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
+    if (isDemoMode || !maintenanceHistoryUrl) return;
+    const url = `${maintenanceHistoryUrl}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
     window.location.href = url;
   };
 
@@ -297,19 +300,26 @@ export default function RewardsPoints({ setIsAuthenticated }) {
   return (
     <div className="rewards-wrapper">
     <div className="rewards-header">
-        <h2>Sistema de Puntos y Recompensas AUTOVIP</h2>
+        <h2>AUTOVIP Points and Rewards System</h2>
         <div className="header-actions">
-          <button onClick={handleNavigateToDashboard} className="dashboard-btn">
-            <FaChartLine /> Historial de Mantenimiento
-          </button>
+          {maintenanceHistoryUrl && !isDemoMode && (
+            <button onClick={handleNavigateToDashboard} className="dashboard-btn">
+              <FaChartLine /> Historial de Mantenimiento
+            </button>
+          )}
+          {isDemoMode && (
+            <span className="dashboard-btn dashboard-btn-disabled" title="Not available in demo">
+              <FaChartLine /> Maintenance History (demo)
+            </span>
+          )}
           <button onClick={() => setShowBenefitsModal(true)} className="dashboard-btn">
-            <FaCrown /> Mis beneficios
+            <FaCrown /> My benefits
           </button>
           <button onClick={handleNavigateToProfile} className="dashboard-btn">
-            <FaUser /> Mi Perfil
+            <FaUser /> My Profile
           </button>
           <button onClick={handleLogout} className="logout-btn">
-            Cerrar Sesión
+            Sign Out
           </button>
         </div>
       </div>
@@ -319,19 +329,19 @@ export default function RewardsPoints({ setIsAuthenticated }) {
       {/* Customer Points Display – mobile: big number + "puntos" (reference style) */}
       <div className="points-display-section">
         {isLoadingPoints ? (
-          <Loading message="Cargando puntos..." fullScreen={true} />
+          <Loading message="Loading points..." fullScreen={true} />
         ) : (
         <div className="points-card">
           <div className="points-icon">
             <FaCoins />
           </div>
           <div className="points-content">
-            <h3 className="points-label">Tus Puntos</h3>
+            <h3 className="points-label">Your Points</h3>
             <p className="points-value">
               {customerPoints.toLocaleString()}
-              <span className="points-units-mobile"> puntos</span>
+              <span className="points-units-mobile"> points</span>
             </p>
-            <p className="points-subtitle">¡Sigue acumulando puntos y canjéalos por increíbles recompensas!</p>
+            <p className="points-subtitle">Keep earning points and redeem them for great rewards!</p>
           </div>
           {nextReward && (
             <div className="next-reward-counter">
@@ -359,13 +369,13 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                   />
                 </svg>
                 <div className="progress-content">
-                  <span className="progress-label">Faltan</span>
+                  <span className="progress-label">Need</span>
                   <span className="progress-points">{pointsNeeded.toLocaleString()}</span>
-                  <span className="progress-text">puntos</span>
+                  <span className="progress-text">points</span>
                 </div>
               </div>
               <p className="next-reward-info">
-                Para: <strong>{nextReward.title}</strong>
+                For: <strong>{nextReward.title}</strong>
               </p>
             </div>
           )}
@@ -380,23 +390,23 @@ export default function RewardsPoints({ setIsAuthenticated }) {
         <div className="section-header rewards-header section-header-with-hint">
           <span className="section-title-wrap">
             <FaGift className="section-icon" />
-            <h3>Recompensas disponibles</h3>
+            <h3>Available rewards</h3>
           </span>
           {!isLoadingRewards && availableRewards.length > 0 && (
             <span className="slider-hint" aria-hidden="true">
-              Desliza para ver más <FaAngleDoubleRight className="slider-hint-arrow" />
+              Swipe to see more <FaAngleDoubleRight className="slider-hint-arrow" />
             </span>
           )}
         </div>
         {!isLoadingRewards && availableRewards.length > 0 && rewardCategories.length > 0 && (
-          <div className="category-pills" role="tablist" aria-label="Filtrar por categoría">
+          <div className="category-pills" role="tablist" aria-label="Filter by category">
             <button
               type="button"
               role="tab"
               className={`category-pill ${!selectedCategory ? 'active' : ''}`}
               onClick={() => setSelectedCategory(null)}
             >
-              Todos
+              All
             </button>
             {rewardCategories.map((cat) => (
               <button
@@ -417,12 +427,12 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           className="rewards-grid"
           onScroll={handleRewardsScroll}
           role="region"
-          aria-label="Recompensas disponibles"
+          aria-label="Available rewards"
         >
           {isLoadingRewards ? (
-            <Loading message="Cargando recompensas..." fullScreen={true}/>
+            <Loading message="Loading rewards..." fullScreen={true}/>
           ) : count === 0 ? (
-            <p className="rewards-empty">No hay recompensas disponibles en este momento.</p>
+            <p className="rewards-empty">No rewards available at this time.</p>
           ) : (
           rewardsToShow.map((reward, i) => (
             <div
@@ -458,14 +468,14 @@ export default function RewardsPoints({ setIsAuthenticated }) {
               <div className="reward-footer">
                 <div className="reward-points">
                   <FaCoins className="points-icon-small" />
-                  <span>{reward.pointsRequired.toLocaleString()} puntos</span>
+                  <span>{reward.pointsRequired.toLocaleString()} points</span>
                 </div>
                 <button
                   className={`redeem-btn ${canAfford(reward.pointsRequired) ? 'can-redeem' : 'cannot-redeem'}`}
                   onClick={() => handleRedeem(reward)}
                   disabled={!canAfford(reward.pointsRequired)}
                 >
-                  {canAfford(reward.pointsRequired) ? 'Canjear' : 'Puntos Insuficientes'}
+                  {canAfford(reward.pointsRequired) ? 'Redeem' : 'Insufficient Points'}
                 </button>
               </div>
             </div>
@@ -473,14 +483,14 @@ export default function RewardsPoints({ setIsAuthenticated }) {
           )}
         </div>
         {!isLoadingRewards && count > 1 && (
-          <div className="slider-dots" role="tablist" aria-label="Elemento actual">
+          <div className="slider-dots" role="tablist" aria-label="Current item">
             {displayedRewards.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 role="tab"
                 aria-selected={i === currentRewardIndex}
-                aria-label={`Elemento ${i + 1} de ${count}`}
+                aria-label={`Item ${i + 1} of ${count}`}
                 className={`slider-dot ${i === currentRewardIndex ? 'active' : ''}`}
                 onClick={() => scrollRewardsTo(i)}
               />
@@ -496,11 +506,11 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             <div className="section-header promotions-header section-header-with-hint">
             <span className="section-title-wrap">
               <FaTag className="section-icon promotion-icon" />
-              <h3>Promociones activas</h3>
+              <h3>Active promotions</h3>
             </span>
             {!isLoadingPromotions && promotions.length > 0 && (
               <span className="slider-hint" aria-hidden="true">
-                Desliza para ver más <FaAngleDoubleRight className="slider-hint-arrow" />
+                Swipe to see more <FaAngleDoubleRight className="slider-hint-arrow" />
               </span>
             )}
             </div>
@@ -510,17 +520,17 @@ export default function RewardsPoints({ setIsAuthenticated }) {
               className="promotions-grid"
               onScroll={handlePromotionsScroll}
               role="region"
-              aria-label="Promociones activas"
+              aria-label="Active promotions"
             >
             {isLoadingPromotions ? (
-              <Loading message="Cargando promociones..." />
+              <Loading message="Loading promotions..." />
             ) : promoCount === 0 ? (
-              <p className="promotions-empty">No hay promociones activas en este momento.</p>
+              <p className="promotions-empty">No active promotions at this time.</p>
             ) : (
               promotionsToShow.map((promotion, i) => (
                 <div key={promoCount > 1 && isMobile && i >= promoCount ? `${promotion.id}-dup` : promotion.id} className="promotion-card promotion-card-coupon">
                   <div className="promotion-card-header-bar">
-                    <span className="promotion-card-header-label">Promoción</span>
+                    <span className="promotion-card-header-label">Promotion</span>
                   </div>
                   {promotion.imageUrl && (
                     <div className="promotion-image-container">
@@ -542,9 +552,9 @@ export default function RewardsPoints({ setIsAuthenticated }) {
                   <p className="promotion-description">{promotion.description}</p>
                   <div className="promotion-footer">
                     {promotion.expires_at ? (
-                      <span className="promotion-date">Válido hasta: {new Date(promotion.expires_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                      <span className="promotion-date">Valid until: {new Date(promotion.expires_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     ) : (
-                      <span className="promotion-date">Válido permanentemente</span>
+                      <span className="promotion-date">No expiration</span>
                     )}
                   </div>
                 </div>
@@ -552,14 +562,14 @@ export default function RewardsPoints({ setIsAuthenticated }) {
             )}
             </div>
             {!isLoadingPromotions && promoCount > 1 && (
-              <div className="slider-dots" role="tablist" aria-label="Elemento actual">
+              <div className="slider-dots" role="tablist" aria-label="Current item">
                 {promotions.map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     role="tab"
                     aria-selected={i === currentPromotionIndex}
-                    aria-label={`Elemento ${i + 1} de ${promoCount}`}
+                    aria-label={`Item ${i + 1} of ${promoCount}`}
                     className={`slider-dot ${i === currentPromotionIndex ? 'active' : ''}`}
                     onClick={() => scrollPromotionsTo(i)}
                   />
@@ -606,16 +616,16 @@ export default function RewardsPoints({ setIsAuthenticated }) {
               <h3 className="redeem-modal-reward-title">{selectedReward.title}</h3>
               <div className="redeem-modal-reward-points">
                 <FaCoins className="redeem-modal-points-icon" />
-                <span>{selectedReward.pointsRequired.toLocaleString()} puntos</span>
+                <span>{selectedReward.pointsRequired.toLocaleString()} points</span>
               </div>
               <p className="redeem-modal-instructions">
-                Para canjear los puntos porfavor comuniquese con el asesor CIM usando el boton de abajo.
+                To redeem your points, please contact the CIM advisor using the button below.
               </p>
               <button className="redeem-modal-whatsapp-btn" onClick={handleWhatsAppContact}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                 </svg>
-                Comunicarse con asesor
+                Contact advisor
               </button>
             </div>
           </div>

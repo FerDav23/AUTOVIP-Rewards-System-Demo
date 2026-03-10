@@ -5,7 +5,7 @@ import Alert from './Alert';
 import './QrBridge.css';
 
 export default function QrBridge({ setIsAuthenticated }) {
-  const [status, setStatus] = useState("Procesando…");
+  const [status, setStatus] = useState("Processing…");
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -16,14 +16,14 @@ export default function QrBridge({ setIsAuthenticated }) {
     
     try {
         setError('');
-        setStatus("Iniciando sesión…");
+        setStatus("Signing in…");
         await loginAutovipUser(usernameStr, passwordStr);
         if (setIsAuthenticated) setIsAuthenticated(true);
         navigate('/rewards');
       } catch (err) {
         console.error('Failed to login:', err);
-        setError('Credenciales inválidas, porfavor contactar al soporte.');
-        setStatus("Error en la autenticación");
+        setError('Invalid credentials. Please contact support.');
+        setStatus("Authentication error");
       }
   }
 
@@ -34,8 +34,8 @@ export default function QrBridge({ setIsAuthenticated }) {
     const passwordUrl = url.searchParams.get("password");
 
     if (!userNameUrl || !passwordUrl) {
-      setStatus("Faltan parámetros.");
-      setError("El código no contiene la información necesaria para iniciar sesión.");
+      setStatus("Missing parameters.");
+      setError("The code does not contain the information needed to sign in.");
       return;
     }
     handleLogin(userNameUrl, passwordUrl);
@@ -46,7 +46,7 @@ export default function QrBridge({ setIsAuthenticated }) {
 
   const getStatusClass = () => {
     if (error) return 'error';
-    if (status.includes('Procesando') || status.includes('Iniciando')) return 'processing';
+    if (status.includes('Processing') || status.includes('Signing')) return 'processing';
     if (status.includes('Error')) return 'error';
     return '';
   };
@@ -54,7 +54,7 @@ export default function QrBridge({ setIsAuthenticated }) {
   return (
     <div className="qr-bridge-container">
       <div className="qr-bridge-form">
-        <h2>Inicio de Sesión</h2>
+        <h2>Sign In</h2>
         {error && <Alert variant="error" message={error} dismissible={true} />}
         <div className={`status-message ${getStatusClass()}`}>
           <p>{status}</p>

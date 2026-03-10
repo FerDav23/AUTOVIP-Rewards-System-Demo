@@ -106,6 +106,16 @@
   transform: translateY(-1px);
 }
 
+.nav-btn-disabled {
+  background: var(--medium-grey, #888);
+  color: #fff;
+  cursor: default;
+  opacity: 0.9;
+}
+.nav-btn-disabled:hover {
+  transform: none;
+}
+
 .logout-btn {
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
   background-color: var(--primary-color); /* Fallback */

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginAutovipUser } from '../services/user';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
@@ -46,7 +46,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
       navigate('/rewards');
     } catch (err) {
       console.error('Failed to login:', err);
-      setError('Credenciales inválidas');
+        setError('Invalid credentials');
     }
   };
 
@@ -58,12 +58,12 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
           <img src={logoImg} alt="CIM Logo" className="autovip-login-logo autovip-login-logo-positioned" />
           <img src={logoCIMImg} alt="CIM Logo" className="autovip-login-logo" />
         </div>
-        <h1 className="autovip-welcome-title">Bienvenido al Sistema AUTOVIP</h1>
-        <h2>Iniciar Sesión</h2>
+        <h1 className="autovip-welcome-title">Welcome to the AUTOVIP System</h1>
+        <h2>Sign In</h2>
         {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="autovip-form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username">Username</label>
             <input
               id="username"
               type="text"
@@ -74,7 +74,7 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
             />
           </div>
           <div className="autovip-form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">Password</label>
             <div className="password-input-wrapper">
               <input
                 id="password"
@@ -88,14 +88,22 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
                 type="button"
                 className="password-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
           </div>
-          <button type="submit" className="autovip-login-button">Ingresar</button>
-        
+          <button type="submit" className="autovip-login-button">Sign In</button>
+          {import.meta.env.VITE_DEMO_MODE === 'true' && (
+            <button
+              type="button"
+              className="autovip-back-to-demo"
+              onClick={() => navigate('/')}
+            >
+              <FaArrowLeft /> Back to demo
+            </button>
+          )}
         </form>
       </div>
     </div>

@@ -1,232 +1,151 @@
-# Historial Mantenimiento ECIM - Frontend
+# AUTOVIP Rewards – Frontend
 
-Aplicación web frontend para el sistema de historial de mantenimiento ECIM con sistema de puntos y recompensas AUTOVIP.
+Web frontend for the AUTOVIP points and rewards system (maintenance history and rewards management). This repository is configured to run as a **demo** with mock data and no backend, or with a real API when demo mode is off.
 
-## 🚀 Características
+## Features
 
-- **Autenticación**: Sistema de login para usuarios AUTOVIP y administradores
-- **Sistema de Puntos**: Gestión de puntos y recompensas para usuarios
-- **Perfil de Usuario**: Visualización y gestión de información del usuario
-- **Dashboard de Administrador**: Panel de control para gestión de usuarios, recompensas y promociones
-- **Responsive Design**: Diseño adaptativo para dispositivos móviles y desktop
-- **Manejo de Errores**: Error boundaries y logging centralizado
-- **Optimizaciones de Producción**: Build optimizado con code splitting y minificación
+- **Authentication:** Sign in as AUTOVIP client or as manager (admin).
+- **Points & rewards:** View points, available rewards, and redeem via contact flow.
+- **User profile:** View membership, vehicles, and redeemed rewards history.
+- **Manager dashboard:** Manage users, rewards, promotions, points, and birthday messages.
+- **Demo mode:** Run without a backend using simulated data; choose role from the home page.
+- **Responsive layout:** Works on mobile and desktop.
+- **Error handling:** Error boundaries and centralized logging.
 
-## 📋 Requisitos Previos
+## Prerequisites
 
-- Node.js 18+ 
-- npm o yarn
-- Backend API corriendo (ver configuración de API URL)
+- Node.js 18+
+- npm or yarn
 
-## 🛠️ Instalación
+For **demo mode:** no backend required.  
+For **live API:** a running backend and correct `VITE_API_URL`.
 
-1. **Clonar el repositorio** (si aplica)
+## Installation
+
+1. From the repo root, go to the client:
    ```bash
-   git clone <repository-url>
-   cd frontend/client
+   cd client
    ```
-
-2. **Instalar dependencias**
+2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. **Configurar variables de entorno**
+3. Configure environment (see below):
    ```bash
    cp .env.example .env
    ```
-   
-   Editar `.env` y configurar:
+   Edit `.env` as needed.
+
+## Demo mode (no backend)
+
+To run the app as a **demo** with mock data:
+
+1. In `.env`, set:
    ```env
-   VITE_API_URL=http://localhost:3000/api
+   VITE_DEMO_MODE=true
+   VITE_API_URL=http://localhost:3001/api
    ```
+2. Run:
+   ```bash
+   npm run dev
+   ```
+3. Open the app (e.g. `http://localhost:5173`). You will see:
+   - A **demo notice** at the top: "Demo mode – simulated data only."
+   - A **home page** with two options: **Sign in as Client** and **Sign in as Manager**.
+4. Use any username and password to sign in; the app will use mock auth and data.
 
-## 🏃 Desarrollo
+When `VITE_DEMO_MODE=true`:
 
-Ejecutar el servidor de desarrollo:
+- No real API calls are made.
+- All data (users, points, rewards, promotions, etc.) is simulated.
+- The "Maintenance History" link is shown as disabled (demo only).
 
-```bash
-npm run dev
+## Running with a real backend
+
+1. In `.env`, **do not** set `VITE_DEMO_MODE`, or set it to `false`.
+2. Set your API base URL:
+   ```env
+   VITE_API_URL=https://your-api.example.com/api
+   ```
+3. Run `npm run dev` or `npm run build` and `npm run preview` as needed.
+
+Optional: to show the "Maintenance History" link (client profile/rewards), set:
+
+```env
+VITE_MAINTENANCE_HISTORY_URL=https://your-maintenance-app.example.com/qr-login
 ```
 
-La aplicación estará disponible en `http://localhost:5173`
+## Scripts
 
-### Scripts Disponibles
+- `npm run dev` – Start dev server with hot reload (default: `http://localhost:5173`).
+- `npm run build` – Production build (output in `dist/`).
+- `npm run preview` – Serve the production build locally.
+- `npm run lint` – Run ESLint.
 
-- `npm run dev` - Inicia el servidor de desarrollo con hot-reload
-- `npm run build` - Construye la aplicación para producción
-- `npm run preview` - Previsualiza el build de producción localmente
-- `npm run lint` - Ejecuta ESLint para verificar el código
-
-## 🏗️ Estructura del Proyecto
+## Project structure
 
 ```
 client/
 ├── src/
-│   ├── components/          # Componentes React
-│   │   ├── ErrorBoundary.jsx    # Manejo de errores globales
-│   │   ├── Alert.jsx             # Sistema de alertas
-│   │   ├── Dashboard.jsx         # Dashboard principal
-│   │   ├── ManagerDashboard.jsx  # Dashboard de administrador
-│   │   ├── RewardsPoints.jsx    # Sistema de puntos y recompensas
+│   ├── components/       React components
+│   │   ├── DemoEntry.jsx      Demo role selector (when VITE_DEMO_MODE=true)
+│   │   ├── DemoBanner.jsx     Demo mode notice
+│   │   ├── AUTOVIPLogin.jsx   Client login
+│   │   ├── ManagerLogin.jsx   Manager login
+│   │   ├── RewardsPoints.jsx  Points and rewards (client)
+│   │   ├── UserProfile.jsx    User profile
+│   │   ├── ManagerDashboard.jsx  Manager panel
 │   │   └── ...
-│   ├── services/            # Servicios API
-│   │   ├── apiClient.jsx         # Cliente HTTP configurado
-│   │   ├── user.jsx              # Servicios de usuario
-│   │   ├── autovipUsers.jsx      # Servicios AUTOVIP
+│   ├── services/         API and mock layer
+│   │   ├── apiClient.jsx     Axios instance, auth interceptors
+│   │   ├── user.jsx          Auth and user API
+│   │   ├── autovipUsers.jsx   Users, memberships, vehicles, points
+│   │   ├── autovipRewards.jsx Rewards and reward types
+│   │   ├── autovipPromotions.jsx  Promotions
+│   │   ├── mock/              Mock data and demo behavior
+│   │   │   └── mockData.js
 │   │   └── ...
-│   ├── utils/               # Utilidades
-│   │   └── logger.js             # Sistema de logging
-│   ├── config/              # Configuración
-│   │   └── init-colors.js        # Inicialización de temas
-│   ├── App.jsx              # Componente principal
-│   └── main.jsx             # Punto de entrada
-├── public/                  # Archivos estáticos
-├── .env.example             # Ejemplo de variables de entorno
-├── vite.config.js           # Configuración de Vite
-└── package.json             # Dependencias y scripts
+│   ├── config/           Theme/colors (e.g. init-colors.js)
+│   ├── utils/            e.g. logger
+│   ├── App.jsx
+│   └── main.jsx
+├── public/
+├── .env.example
+├── vite.config.js
+└── package.json
 ```
 
-## 🔧 Configuración
+## Environment variables
 
-### Variables de Entorno
+All env vars use the `VITE_` prefix so Vite can expose them to the client.
 
-El proyecto usa variables de entorno con el prefijo `VITE_`. Archivos soportados:
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend API base URL (e.g. `http://localhost:3001/api`). |
+| `VITE_DEMO_MODE` | Set to `true` to use mock data and disable real API calls. |
+| `VITE_MAINTENANCE_HISTORY_URL` | Optional. URL for "Maintenance History" link; only used when not in demo mode. |
 
-- `.env` - Variables para todos los entornos (local)
-- `.env.local` - Variables locales (ignorado por git)
-- `.env.production` - Variables para producción
-- `.env.development` - Variables para desarrollo
+Files (in order of precedence): `.env.[mode].local` > `.env.local` > `.env.[mode]` > `.env`.  
+Do not commit `.env` or files containing secrets (they are in `.gitignore`).
 
-**Prioridad**: `.env.[mode].local` > `.env.local` > `.env.[mode]` > `.env`
+## Theming
 
-### Configuración de Producción
+The app supports dynamic colors by membership type (Gold, Platinum, Black). Colors are initialized from `src/config/init-colors.js` based on the current user’s membership.
 
-1. Crear `.env.production`:
-   ```env
-   VITE_API_URL=https://api.yourdomain.com/api
-   ```
+## Security
 
-2. Construir para producción:
-   ```bash
-   npm run build
-   ```
+- JWT-style tokens with expiration; stored in `localStorage`.
+- HTTP client adds `Authorization: Bearer <token>` and handles 401/403 (e.g. redirect to login).
+- Error boundaries catch React errors to avoid full app crashes.
+- Logging is configured to avoid leaking sensitive data in production.
 
-3. El build se genera en la carpeta `dist/`
+## Build and deploy
 
-## 🎨 Temas y Estilos
+- **Production build:** `npm run build` → output in `dist/`.
+- Deploy the contents of `dist/` to any static host (Netlify, Vercel, S3, Nginx, etc.).
+- For demo deployments, set `VITE_DEMO_MODE=true` in the build environment (e.g. in your CI or host’s env).
 
-El sistema soporta temas dinámicos basados en el tipo de membresía del usuario:
-- **Gold**: Colores dorados
-- **Platinum**: Colores plateados/platinados
-- **Black**: Colores negros/oscuros
+## Status
 
-Los colores se inicializan automáticamente según la membresía del usuario autenticado.
-
-## 🔒 Seguridad
-
-- **Tokens JWT**: Autenticación mediante tokens con expiración
-- **Interceptores HTTP**: Manejo automático de tokens y errores 401/403
-- **Error Boundaries**: Captura de errores de React para prevenir crashes
-- **Logging**: Sistema de logging que suprime información sensible en producción
-
-## 🐛 Manejo de Errores
-
-### Error Boundary
-
-La aplicación incluye un Error Boundary global que captura errores de React y muestra una interfaz amigable al usuario.
-
-### Logging
-
-El sistema de logging (`src/utils/logger.js`) proporciona:
-- Logs en desarrollo para debugging
-- Supresión de logs en producción (excepto errores)
-- Preparado para integración con servicios de logging (Sentry, LogRocket, etc.)
-
-**Uso**:
-```javascript
-import logger from '../utils/logger';
-
-logger.info('Información general');
-logger.warn('Advertencia');
-logger.error('Error crítico');
-logger.logApiError(error, { context: 'Operación específica' });
-```
-
-## 📦 Build y Despliegue
-
-### Build de Producción
-
-```bash
-npm run build
-```
-
-El build incluye:
-- ✅ Minificación de código
-- ✅ Code splitting por vendor
-- ✅ Optimización de assets
-- ✅ Tree-shaking de código no utilizado
-- ✅ Exclusión de código de desarrollo (dummy data)
-
-### Despliegue
-
-El contenido de la carpeta `dist/` puede ser desplegado en cualquier servidor estático:
-- Netlify
-- Vercel
-- AWS S3 + CloudFront
-- Nginx
-- Apache
-
-## 🧪 Testing
-
-Actualmente no hay tests configurados. Se recomienda agregar:
-- Tests unitarios con Vitest o Jest
-- Tests de integración
-- Tests E2E con Playwright o Cypress
-
-## 📝 Convenciones de Código
-
-- **ESLint**: Configurado con reglas de React y mejores prácticas
-- **Componentes**: Usar funciones de React (hooks)
-- **Nombres**: PascalCase para componentes, camelCase para funciones
-- **Imports**: Organizados por tipo (React, librerías, componentes locales, estilos)
-
-## 🔄 Estado del Proyecto
-
-### ✅ Completado
-
-- [x] Sistema de autenticación
-- [x] Dashboard de usuario
-- [x] Sistema de puntos y recompensas
-- [x] Dashboard de administrador
-- [x] Error boundaries
-- [x] Sistema de logging
-- [x] Optimizaciones de producción
-- [x] Manejo de errores HTTP global
-
-### 🚧 Pendiente
-
-- [ ] Tests unitarios e integración
-- [ ] Integración con servicio de error tracking (Sentry)
-- [ ] Documentación de API
-- [ ] Mejoras de accesibilidad (a11y)
-- [ ] Internacionalización (i18n)
-
-## 🤝 Contribución
-
-1. Crear una rama para la nueva característica
-2. Realizar cambios y commits descriptivos
-3. Ejecutar `npm run lint` antes de commitear
-4. Crear un Pull Request
-
-## 📄 Licencia
-
-[Especificar licencia si aplica]
-
-## 📞 Soporte
-
-Para problemas o preguntas, contactar al equipo de desarrollo.
-
----
-
-**Nota**: Este proyecto está en desarrollo activo. Algunas características pueden estar en construcción.
+- Implemented: auth (client + manager), rewards flow, profile, manager dashboard, demo mode, mock data, English UI.
+- Optional improvements: unit/integration tests, i18n for multiple languages, accessibility audit.

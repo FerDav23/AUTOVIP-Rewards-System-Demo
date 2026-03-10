@@ -110,9 +110,9 @@ client.interceptors.response.use(
       // Return a rejected promise with a clear error message
       return Promise.reject({
         ...error,
-        message: status === 401 
-          ? 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.'
-          : 'No tiene permisos para realizar esta acción.',
+        message: status === 401
+          ? 'Your session has expired. Please sign in again.'
+          : 'You do not have permission to perform this action.',
         isAuthError: true
       });
     }

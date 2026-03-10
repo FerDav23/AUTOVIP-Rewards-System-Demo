@@ -1,11 +1,15 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import * as mockData from './mock/mockData';
+
+const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
 /**
  * Get all promotions
  * @returns {Promise<Array>} Array of promotion objects
  */
 export async function getAllPromotions() {
+  if (isDemoMode()) return mockData.demoPromotions;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -37,6 +41,7 @@ export async function getAllPromotions() {
  * @returns {Promise<Object>} Created promotion object
  */
 export async function createPromotion(promotionData) {
+  if (isDemoMode()) return { id: 99, ...promotionData };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -99,6 +104,7 @@ export async function createPromotion(promotionData) {
  * @returns {Promise<Object>} Updated promotion object
  */
 export async function updatePromotion(promotionId, promotionData) {
+  if (isDemoMode()) return { id: promotionId, ...promotionData };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -161,6 +167,7 @@ export async function updatePromotion(promotionId, promotionData) {
  * @returns {Promise<void>}
  */
 export async function deletePromotion(promotionId) {
+  if (isDemoMode()) return {};
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {

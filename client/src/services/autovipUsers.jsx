@@ -1,11 +1,15 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import * as mockData from './mock/mockData';
+
+const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
 /**
  * Get all AutoVIP users
  * @returns {Promise<Array>} Array of user objects
  */
 export async function getAllAutoVipUsers() {
+  if (isDemoMode()) return mockData.demoAutovipUsers;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -32,6 +36,7 @@ export async function getAllAutoVipUsers() {
  * @returns {Promise<Object>} Membership object
  */
 export async function getMembershipById(membershipId) {
+  if (isDemoMode()) return mockData.memberships.find(m => m.id === Number(membershipId)) || mockData.memberships[0];
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -62,6 +67,7 @@ export async function getMembershipById(membershipId) {
  * @returns {Promise<Object>} Membership object
  */
 export async function getMembershipByUserId(userId) {
+  if (isDemoMode()) return { membership_id: mockData.demoClient.membership_id, ...mockData.memberships[0] };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -91,6 +97,7 @@ export async function getMembershipByUserId(userId) {
  * @returns {Promise<number>} Number of cars for the user
  */
 export async function getCarsCountByUserId(userId) {
+  if (isDemoMode()) return mockData.demoVehicles.length;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -123,6 +130,7 @@ export async function getCarsCountByUserId(userId) {
  * @returns {Promise<Array>} Array of vehicle objects
  */
 export async function getAllCarsByUserId(userId) {
+  if (isDemoMode()) return mockData.demoVehicles;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -152,6 +160,7 @@ export async function getAllCarsByUserId(userId) {
  * @returns {Promise<Array>} Array of membership objects
  */
 export async function getAllMemberships() {
+  if (isDemoMode()) return mockData.memberships;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -188,6 +197,7 @@ export async function getAllMemberships() {
  * @returns {Promise<Object>} Created user object
  */
 export async function createAutoVipUser(userData, vehicleData) {
+  if (isDemoMode()) return { id: 99, name: userData.name, card_number: userData.cardNumber, ruc_ci: userData.rucCi, membership_id: userData.membershipId };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -247,6 +257,7 @@ export async function createAutoVipUser(userData, vehicleData) {
  * @returns {Promise<Object>} Updated user object
  */
 export async function updateUser(userId, userData) {
+  if (isDemoMode()) return { id: userId, ...userData };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -287,6 +298,7 @@ export async function updateUser(userId, userData) {
  * @returns {Promise<void>}
  */
 export async function deleteUser(userId) {
+  if (isDemoMode()) return {};
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -323,6 +335,7 @@ export async function deleteUser(userId) {
  * @returns {Promise<Object>} Created vehicle object
  */
 export async function createCarForUser(userId, vehicleData) {
+  if (isDemoMode()) return { id: 99, ...vehicleData, user_id: userId };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -363,6 +376,7 @@ export async function createCarForUser(userId, vehicleData) {
  * @returns {Promise<void>}
  */
 export async function deleteCarById(vehicleId) {
+  if (isDemoMode()) return {};
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -392,6 +406,7 @@ export async function deleteCarById(vehicleId) {
  * @returns {Promise<Array>} Array of transaction type objects
  */
 export async function loadTransactionTypes() {
+  if (isDemoMode()) return mockData.transactionTypes;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -417,6 +432,7 @@ export async function loadTransactionTypes() {
  * @returns {Promise<number>} User's current points balance
  */
 export async function getPointsByUserId(userId) {
+  if (isDemoMode()) return mockData.demoPointsBalance;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -448,6 +464,7 @@ export async function getPointsByUserId(userId) {
  * @returns {Promise<Array>} Array of reward objects available for the user
  */
 export async function getRewardsByUserId(userId) {
+  if (isDemoMode()) return mockData.demoRewards;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -479,6 +496,7 @@ export async function getRewardsByUserId(userId) {
  * @returns {Promise<Object>} User object with name, card_number, ruc_ci, and membership
  */
 export async function getUserInformation(userId) {
+  if (isDemoMode()) return { name: mockData.demoClient.name, card_number: mockData.demoClient.card_number, ruc_ci: mockData.demoClient.ruc_ci, membership: mockData.memberships[0] };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -508,6 +526,7 @@ export async function getUserInformation(userId) {
  * @returns {Promise<Array>} Array of redeemed reward objects with reward_title, points_before, points_used, points_after, redeemedAt
  */
 export async function getAllRedeemedRewardsByUserId(userId) {
+  if (isDemoMode()) return mockData.demoRedeemedRewards;
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {
@@ -543,6 +562,7 @@ export async function getAllRedeemedRewardsByUserId(userId) {
  * @returns {Promise<Object>} Updated user object with new points balance
  */
 export async function managePointTransaction(userId, transactionData) {
+  if (isDemoMode()) return { points_balance: mockData.demoPointsBalance + (transactionData.type === 'add' ? transactionData.amount : -transactionData.amount) };
   try {
     // Check if token is expired before making request
     if (isTokenExpired()) {

@@ -146,7 +146,7 @@ export default function UserProfile({ setIsAuthenticated }) {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -166,7 +166,7 @@ export default function UserProfile({ setIsAuthenticated }) {
   };
 
   const getMembershipDisplayName = (type) => {
-    if (!type) return 'Sin membresía';
+    if (!type) return 'No membership';
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
@@ -175,33 +175,43 @@ export default function UserProfile({ setIsAuthenticated }) {
     return `membership-badge membership-${type.toLowerCase()}`;
   };
 
+  const maintenanceHistoryUrl = import.meta.env.VITE_MAINTENANCE_HISTORY_URL;
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+
   const handleNavigateToDashboard = () => {
-    const BASE_URL = "https://historial-mant.cim-clientes.com/qr-login";
-    const url = `${BASE_URL}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
+    if (isDemoMode || !maintenanceHistoryUrl) return;
+    const url = `${maintenanceHistoryUrl}?userName=${encodeURIComponent(userName)}&rucCi=${encodeURIComponent(rucCi)}`;
     window.location.href = url;
   };
 
   return (
     <div className="profile-wrapper">
-      {isLoading && <Loading message="Cargando información del perfil..." fullScreen={true} />}
+      {isLoading && <Loading message="Loading profile information..." fullScreen={true} />}
       <div className="profile-container">
       <div className="profile-header">
         <div className="profile-title-section">
           <FaUser className="profile-icon" />
-          <h2>Mi Perfil</h2>
+          <h2>My Profile</h2>
         </div>
         <div className="header-actions">
-          <button onClick={handleNavigateToDashboard} className="nav-btn">
-            <FaChartLine /> Historial de Mantenimiento
-          </button>
+          {maintenanceHistoryUrl && !isDemoMode && (
+            <button onClick={handleNavigateToDashboard} className="nav-btn">
+              <FaChartLine /> Historial de Mantenimiento
+            </button>
+          )}
+          {isDemoMode && (
+            <span className="nav-btn nav-btn-disabled" title="Not available in demo">
+              <FaChartLine /> Maintenance History (demo)
+            </span>
+          )}
           <button onClick={() => setShowBenefitsModal(true)} className="nav-btn">
-            <FaCrown /> Mis beneficios
+            <FaCrown /> My benefits
           </button>
           <button onClick={() => navigate('/rewards')} className="nav-btn">
-            <FaGift /> Recompensas
+            <FaGift /> Rewards
           </button>
           <button onClick={handleLogout} className="logout-btn">
-            Cerrar Sesión
+            Sign Out
           </button>
         </div>
       </div>
@@ -211,15 +221,15 @@ export default function UserProfile({ setIsAuthenticated }) {
         <div className="profile-section">
           <div className="section-header">
             <FaUser className="section-icon" />
-            <h3>Información del Usuario</h3>
+            <h3>User Information</h3>
           </div>
           <div className="user-info-card">
             <div className="user-info-item">
-              <span className="info-label">Nombre:</span>
-              <span className="info-value">{userName || 'Cliente'}</span>
+              <span className="info-label">Name:</span>
+              <span className="info-value">{userName || 'Client'}</span>
             </div>
             <div className="user-info-item">
-              <span className="info-label">Tipo de Membresía:</span>
+              <span className="info-label">Membership Type:</span>
               <span className={`info-value ${getMembershipBadgeClass(membershipType)}`}>
                 <FaCrown className="membership-icon" />
                 {getMembershipDisplayName(membershipType)}
@@ -227,15 +237,15 @@ export default function UserProfile({ setIsAuthenticated }) {
             </div>
             <div className="user-info-item">
               <span className="info-label">
-                <FaCreditCard className="info-icon" /> Número de Tarjeta:
+                <FaCreditCard className="info-icon" /> Card Number:
               </span>
-              <span className="info-value">{cardNumber ? formatCardNumber(cardNumber) : 'No disponible'}</span>
+              <span className="info-value">{cardNumber ? formatCardNumber(cardNumber) : 'Not available'}</span>
             </div>
             <div className="user-info-item">
               <span className="info-label">
                 <FaIdCard className="info-icon" /> RUC/C.I.:
               </span>
-              <span className="info-value">{rucCi || 'No disponible'}</span>
+              <span className="info-value">{rucCi || 'Not available'}</span>
             </div>
           </div>
         </div>
@@ -245,15 +255,15 @@ export default function UserProfile({ setIsAuthenticated }) {
           <div className="section-header">
             <FaCar className="section-icon" />
             <h3 className="centered-title">
-              Mis Vehículos {vehicles.length > 0 && <span className="count-badge">({vehicles.length}/5)</span>}
+              My Vehicles {vehicles.length > 0 && <span className="count-badge">({vehicles.length}/5)</span>}
             </h3>
           </div>
 
           {vehicles.length === 0 ? (
             <div className="empty-state">
               <FaCar className="empty-icon" />
-              <p>No has agregado vehículos a tu perfil.</p>
-              <p className="empty-subtitle">Agrega hasta 5 vehículos para un mejor seguimiento de tus servicios.</p>
+              <p>You have not added any vehicles to your profile.</p>
+              <p className="empty-subtitle">Add up to 5 vehicles for better service tracking.</p>
             </div>
           ) : (
             <div className="slider-viewport">
@@ -262,7 +272,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                 className="vehicles-grid"
                 onScroll={handleVehiclesScroll}
                 role="region"
-                aria-label="Mis vehículos"
+                aria-label="My vehicles"
               >
                 {vehiclesToShow.map((vehicle, i) => (
                   <div
@@ -291,7 +301,7 @@ export default function UserProfile({ setIsAuthenticated }) {
                       type="button"
                       role="tab"
                       aria-selected={i === currentVehicleIndex}
-                      aria-label={`Vehículo ${i + 1} de ${vehicleCount}`}
+                      aria-label={`Vehicle ${i + 1} of ${vehicleCount}`}
                       className={`slider-dot ${i === currentVehicleIndex ? 'active' : ''}`}
                       onClick={() => scrollVehiclesTo(i)}
                     />
@@ -306,35 +316,35 @@ export default function UserProfile({ setIsAuthenticated }) {
         <div className="profile-section premios-section">
           <div className="section-header">
             <FaGift className="section-icon" />
-            <h3>Historial de Premios Ganados</h3>
+            <h3>Redeemed Rewards History</h3>
           </div>
           {redeemedRewards.length === 0 ? (
             <div className="empty-state">
               <FaGift className="empty-icon" />
-              <p>No hay historial de premios ganados disponible.</p>
+              <p>No redeemed rewards history available.</p>
             </div>
           ) : isMobile ? (
-            <div className="premios-cards-list" role="region" aria-label="Historial de premios ganados">
+            <div className="premios-cards-list" role="region" aria-label="Redeemed rewards history">
               {redeemedRewards.map((reward, i) => (
                 <div key={i} className="premio-card">
                   <div className="premio-card-header">
-                    <span className="premio-card-label">Premio</span>
+                    <span className="premio-card-label">Reward</span>
                     <span className="premio-card-value premio-card-title">{reward.reward_title || 'N/A'}</span>
                   </div>
                   <div className="premio-card-row">
-                    <span className="premio-card-label">Puntos antes</span>
+                    <span className="premio-card-label">Points before</span>
                     <span className="premio-card-value">{reward.points_before?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="premio-card-row">
-                    <span className="premio-card-label">Puntos usados</span>
+                    <span className="premio-card-label">Points used</span>
                     <span className="premio-card-value">{reward.points_used?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="premio-card-row">
-                    <span className="premio-card-label">Puntos después</span>
+                    <span className="premio-card-label">Points after</span>
                     <span className="premio-card-value">{reward.points_after?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="premio-card-row premio-card-date">
-                    <span className="premio-card-label">Fecha de canje</span>
+                    <span className="premio-card-label">Redemption date</span>
                     <span className="premio-card-value">{reward.redeemedAt ? formatDate(reward.redeemedAt) : 'N/A'}</span>
                   </div>
                 </div>
@@ -345,11 +355,11 @@ export default function UserProfile({ setIsAuthenticated }) {
               <table className="billing-table">
                 <thead>
                   <tr>
-                    <th>Premio</th>
-                    <th>Puntos Antes</th>
-                    <th>Puntos Usados</th>
-                    <th>Puntos Después</th>
-                    <th>Fecha de Canje</th>
+                    <th>Reward</th>
+                    <th>Points Before</th>
+                    <th>Points Used</th>
+                    <th>Points After</th>
+                    <th>Redemption Date</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -4,43 +4,45 @@ import './BenefitsModal.css';
 
 const BENEFITS_BY_MEMBERSHIP = {
   black: {
-    title: 'Tarjeta Black',
+    title: 'Black Card',
     benefits: [
-      '18% dcto., en Repuestos Automotriz.',
-      '2 Alineaciones Gratis por año.',
-      '2 Inspecciones Generales visuales por año.',
-      'Retiro y entrega a domicilio (elección).',
-      '4 Puntos AutoVIP por servicio.',
-      'Taller Móvil y Grúa con precios exclusivos.',
-      'Acceso al Historial Digital de su vehículo.',
-      'Lavado express del vehículo por servicio.',
+      '18% discount on automotive parts.',
+      '2 free alignments per year.',
+      '2 general visual inspections per year.',
+      'Pick-up and delivery at home (optional).',
+      '4 AutoVIP points per service.',
+      'Mobile workshop and towing at exclusive prices.',
+      'Access to your vehicle digital history.',
+      'Express vehicle wash per service.',
     ],
   },
   gold: {
-    title: 'Tarjeta Gold',
+    title: 'Gold Card',
     benefits: [
-      '12% dcto., en Repuestos Automotriz.',
-      '1 punto AutoVIP por servicio.',
-      'Taller móvil/grúa para emergencias.',
-      'Accesos Histórico de su vehículo.',
-      'Lavado de vehículo por servicio.',
+      '12% discount on automotive parts.',
+      '1 AutoVIP point per service.',
+      'Mobile workshop/towing for emergencies.',
+      'Access to your vehicle history.',
+      'Vehicle wash per service.',
     ],
   },
   platinum: {
-    title: 'Tarjeta Platinum',
+    title: 'Platinum Card',
     benefits: [
-      '15% dcto., en Repuestos Automotriz.',
-      '2 Alineaciones Gratis por año.',
-      '4 Puntos AutoVIP por servicio.',
-      'Taller Móvil y Grúa con precios exclusivos.',
-      'Acceso al Historial Digital de su vehículo.',
-      'Lavado express de vehículo por servicio.',
+      '15% discount on automotive parts.',
+      '2 free alignments per year.',
+      '4 AutoVIP points per service.',
+      'Mobile workshop and towing at exclusive prices.',
+      'Access to your vehicle digital history.',
+      'Express vehicle wash per service.',
     ],
   },
 };
 
 export default function BenefitsModal({ open, onClose, membershipType }) {
-  const normalizedType = (membershipType || '').toLowerCase();
+  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true';
+  const effectiveType = isDemo ? 'black' : (membershipType || '');
+  const normalizedType = effectiveType.toLowerCase();
   const data = BENEFITS_BY_MEMBERSHIP[normalizedType] || BENEFITS_BY_MEMBERSHIP.gold;
   const styleClass = ['black', 'gold', 'platinum'].includes(normalizedType)
     ? `benefits-modal-${normalizedType}`
@@ -66,13 +68,13 @@ export default function BenefitsModal({ open, onClose, membershipType }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="benefits-modal-header">
-          <h2 id="benefits-modal-title" className="benefits-modal-title">BENEFICIOS</h2>
+          <h2 id="benefits-modal-title" className="benefits-modal-title">BENEFITS</h2>
           <span className="benefits-modal-subtitle">{data.title}</span>
           <button
             type="button"
             className="benefits-modal-close"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label="Close"
           >
             <FaTimes />
           </button>

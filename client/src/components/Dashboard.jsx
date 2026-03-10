@@ -130,16 +130,16 @@ export default function Dashboard({setIsAuthenticated}) {
   return (
     <div className='main-container'>
       <div className="dashboard-header">
-        <h2>Reporte Historial De Mantenimiento</h2>
+        <h2>Maintenance History Report</h2>
         <div className="header-actions">
           <button onClick={handleNavigateToRewards} className="rewards-btn">
-            <FaGift /> Puntos y Recompensas
+            <FaGift /> Points and Rewards
           </button>
           <button onClick={handleNavigateToProfile} className="rewards-btn">
-            <FaUser /> Mi Perfil
+            <FaUser /> My Profile
           </button>
           <button onClick={handleLogout} className="logout-btn">
-            Cerrar Sesión
+            Sign Out
           </button>
         </div>
       </div>
@@ -147,10 +147,10 @@ export default function Dashboard({setIsAuthenticated}) {
       <div className="welcome-section">
         <div className="welcome-content">
           <h3 className="welcome-title">
-            ¡Bienvenido{userName ? ` ${userName}` : ''}!
+            Welcome{userName ? ` ${userName}` : ''}!
           </h3>
           <p className="welcome-message">
-            Bienvenido al sistema de gestión de historial de mantenimiento.
+            Welcome to the maintenance history management system.
           </p>
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function Dashboard({setIsAuthenticated}) {
         <form>
           <div className="filter-row">
             <div className="form-group">
-              <label htmlFor="placa">Seleccione Placa:</label>
+              <label htmlFor="placa">Select Plate:</label>
               <div className={`custom-select-container ${dropdownOpen ? 'open' : ''}`} ref={dropdownRef}>
                 <div 
                   className="custom-select-header"
@@ -169,7 +169,7 @@ export default function Dashboard({setIsAuthenticated}) {
                     ref={inputRef}
                     type="text"
                     className="custom-select-input"
-                    placeholder="Seleccionar..."
+                    placeholder="Select..."
                     value={searchTerm}
                     onChange={handleSearchChange}
                     onClick={handleInputClick}
@@ -191,7 +191,7 @@ export default function Dashboard({setIsAuthenticated}) {
                       ))
                     ) : (
                       <div className="custom-select-no-results">
-                        No se encontraron placas
+                        No plates found
                       </div>
                     )}
                   </div>
@@ -207,7 +207,7 @@ export default function Dashboard({setIsAuthenticated}) {
             </div>
             
             <div className="form-group">
-              <label htmlFor="startDate">Fecha inicio:</label>
+              <label htmlFor="startDate">Start date:</label>
               <input 
                 id="startDate" 
                 type="date" 
@@ -220,7 +220,7 @@ export default function Dashboard({setIsAuthenticated}) {
             </div>
             
             <div className="form-group">
-              <label htmlFor="endDate">Fecha fin:</label>
+              <label htmlFor="endDate">End date:</label>
               <input 
                 id="endDate" 
                 type="date" 
@@ -233,27 +233,27 @@ export default function Dashboard({setIsAuthenticated}) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="codigo">Código:</label>
+              <label htmlFor="codigo">Code:</label>
               <input 
                 id="codigo" 
                 type="text" 
                 value={codigo} 
                 onChange={(e) => setCodigo(e.target.value)}
                 className="form-input"
-                placeholder="Ingrese código"
+                placeholder="Enter code"
                 autoComplete="off"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="descripcion">Descripción de Mantenimiento:</label>
+              <label htmlFor="descripcion">Maintenance Description:</label>
               <input 
                 id="descripcion" 
                 type="text" 
                 value={descripcion} 
                 onChange={(e) => setDescripcion(e.target.value)}
                 className="form-input"
-                placeholder="Ingrese descripción"
+                placeholder="Enter description"
                 autoComplete="off"
               />
             </div>

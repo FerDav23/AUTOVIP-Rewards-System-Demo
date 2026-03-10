@@ -1,11 +1,15 @@
 import client from './apiClient';
 import { isTokenExpired, clearExpiredToken } from './user';
+import * as mockData from './mock/mockData';
+
+const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
 /**
  * Load birthday messages for AutoVIP users.
  * @returns {Promise<Array<{ user_id: number|string, user_name: string, birthday: string, url: string }>>} Array of birthday message objects
  */
 export async function loadBirthdayMessages() {
+  if (isDemoMode()) return mockData.birthdayMessageLogs;
   try {
     if (isTokenExpired()) {
       clearExpiredToken();
@@ -31,6 +35,6 @@ export async function loadBirthdayMessages() {
     }));
   } catch (error) {
     console.error('loadBirthdayMessages error:', error?.response?.data ?? error.message);
-    throw error?.response?.data?.message ?? error.message ?? new Error('Error al cargar mensajes de cumpleaños.');
+    throw error?.response?.data?.message ?? error.message ?? new Error('Error loading birthday messages.');
   }
 }

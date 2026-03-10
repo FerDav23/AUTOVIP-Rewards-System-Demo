@@ -22,7 +22,7 @@ export default function Login({ setIsAuthenticated }) {
       navigate('/rewards');
     } catch (err) {
       console.error('Error during login or navigation:', err);
-      setError('Credenciales inválidas');
+      setError('Invalid credentials');
     }
   };
 
@@ -40,11 +40,11 @@ export default function Login({ setIsAuthenticated }) {
            }} />
           <img src={logoCIMImg} alt="CIM Logo" className="login-logo" />
         </div>
-        <h2>Iniciar Sesión</h2>
+        <h2>Sign In</h2>
         {error && <Alert variant="error" message={error} dismissible={true} />}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="username">Username</label>
             <input
               id="username"
               type="text"
@@ -55,7 +55,7 @@ export default function Login({ setIsAuthenticated }) {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
@@ -65,7 +65,7 @@ export default function Login({ setIsAuthenticated }) {
               required
             />
           </div>
-          <button type="submit" className="login-button">Ingresar</button>
+          <button type="submit" className="login-button">Sign In</button>
         
         </form>
       </div>

@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import AUTOVIPLogin from './components/AUTOVIPLogin';
 import ManagerLogin from './components/ManagerLogin';
+import DemoEntry from './components/DemoEntry';
+import DemoBanner from './components/DemoBanner';
 import Dashboard from './components/Dashboard';
 import ManagerDashboard from './components/ManagerDashboard';
 import QrBridge from './components/QrBridge';
@@ -102,10 +104,15 @@ export default function App() {
       <AlertProvider>
         <ConfirmProvider>
           <div className="app-container">
+            {import.meta.env.VITE_DEMO_MODE === 'true' && <DemoBanner />}
             <Routes>
             <Route
               path="/"
-              element={isAuthenticated ? <Navigate to="/rewards" /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />}
+              element={
+                isAuthenticated
+                  ? <Navigate to={localStorage.getItem('managerID') ? '/manager-dashboard' : '/rewards'} />
+                  : (import.meta.env.VITE_DEMO_MODE === 'true' ? <DemoEntry /> : <AUTOVIPLogin setIsAuthenticated={setIsAuthenticated} />)
+              }
             />
             <Route
               path="/login"
