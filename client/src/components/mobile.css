@@ -1,0 +1,662 @@
+/* Mobile-specific styles for ECIM Maintenance History Frontend */
+
+/* Mobile breakpoint */
+@media screen and (max-width: 768px) {
+  
+  /* ===== GENERAL MOBILE STYLES ===== */
+  
+  /* Adjust base font size for mobile */
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  /* Reduce padding and margins for mobile */
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* ===== LOGIN COMPONENT MOBILE STYLES ===== */
+  
+  .login-container {
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .login-form {
+    padding: 30px 20px;
+    max-width: 100%;
+    margin: 0 10px;
+    position: relative;
+  }
+  
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    position: relative;
+  }
+  
+  .login-logo {
+    max-width: 150px;
+    height: auto;
+  }
+  
+  /* Hide FJ logo on mobile */
+  .login-logo[src*="FJ-LOGOTIPO"] {
+    display: none !important;
+  }
+  
+  /* CIM logo positioning on mobile */
+  .login-logo[src*="CIM_LOGOTIPO"] {
+    max-width: 180px !important;
+    height: auto !important;
+  }
+  
+  .login-form h2 {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+  }
+  
+  .form-group input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 15px 12px;
+  }
+  
+  .login-button {
+    padding: 15px 20px;
+    font-size: 16px;
+  }
+  
+  /* ===== DASHBOARD COMPONENT MOBILE STYLES ===== */
+  
+  .dashboard-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 15px;
+    border-radius: 0;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .dashboard-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .logout-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  /* Welcome section mobile styles */
+  .welcome-section {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+  }
+  
+  .welcome-title {
+    font-size: 1.8rem !important;
+    margin-bottom: 12px !important;
+    line-height: 1.3;
+  }
+  
+  .welcome-message {
+    font-size: 1rem !important;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+  
+  .filter-container {
+    padding: 20px 15px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    min-width: 100%;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .form-select,
+  .form-input {
+    padding: 12px 10px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .submit-btn {
+    padding: 15px 20px;
+    font-size: 16px;
+    max-width: 100%;
+  }
+  
+  /* Custom select mobile adjustments */
+  .custom-select-header {
+    padding: 12px 10px;
+  }
+  
+  .custom-select-input {
+    padding: 12px 10px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .custom-select-options {
+    max-height: 150px;
+  }
+  
+  /* PDF container mobile adjustments */
+  .pdf-container {
+    padding: 15px;
+    margin-top: 15px;
+  }
+  
+  .pdf-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .pdf-frame {
+    height: 400px;
+  }
+  
+  /* ===== INFO TABLE COMPONENT MOBILE STYLES ===== */
+  
+  /* Hide desktop table on mobile */
+  .reporte-container {
+    display: none !important;
+  }
+  
+  /* Show mobile table container */
+  .reporte-container-mobile {
+    display: block !important;
+  }
+  
+  .historial-table {
+    min-width: 800px; /* Increased for better readability */
+    font-size: 14px; /* Much larger font for readability */
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .historial-table th,
+  .historial-table td {
+    padding: 12px 8px; /* Increased padding for better spacing */
+    font-size: 13px; /* Larger font size */
+    text-align: left;
+    border: 1px solid var(--color-border);
+    vertical-align: top;
+    word-wrap: break-word;
+    white-space: normal; /* Allow text to wrap */
+  }
+  
+  .historial-table th {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: center;
+  }
+  
+  /* Alternate row colors for better readability */
+  .historial-table tbody tr:nth-child(even) {
+    background-color: var(--color-bg-medium);
+  }
+  
+  .historial-table tbody tr:hover {
+    background-color: var(--color-light-grey);
+  }
+  
+  /* Footer adjustments for mobile */
+  .footer {
+    padding: 10px 15px;
+    font-size: 12px;
+    height: 35px;
+  }
+  
+  /* PDF-specific table adjustments - Improved for mobile */
+  .tablavacia {
+    font-size: 10px; /* Increased from 6px */
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .tablavacia td {
+    padding: 6px 4px; /* Increased padding */
+    font-size: 10px; /* Increased from 6px */
+    border: 1px solid var(--color-border);
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .tablalineas {
+    margin-bottom: 200px;
+    font-size: 9px; /* Increased from 5px */
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .tablalineas th,
+  .tablalineas td {
+    padding: 6px 4px; /* Increased padding */
+    font-size: 9px; /* Increased from 5px */
+    border: 1px solid var(--color-medium-grey);
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+  }
+  
+  .tablalineas th {
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: bold;
+    font-size: 10px;
+  }
+  
+  .piepagina {
+    padding: 8px 12px; /* Increased padding */
+    font-size: 8px; /* Increased from 5px */
+    height: 20px; /* Increased height */
+  }
+  
+  /* ===== TABLE STATES COMPONENT MOBILE STYLES ===== */
+  
+  /* If TableStates component exists, add mobile styles here */
+  .table-states-container {
+    padding: 15px;
+  }
+  
+  .table-states-table {
+    font-size: 12px;
+  }
+  
+  .table-states-table th,
+  .table-states-table td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  
+  /* ===== REPORT FORM COMPONENT MOBILE STYLES ===== */
+  
+  .report-form-container {
+    padding: 15px;
+  }
+  
+  .report-form {
+    padding: 20px 15px;
+  }
+  
+  .report-form h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+  
+  .report-form .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .report-form input,
+  .report-form select,
+  .report-form textarea {
+    font-size: 16px;
+    padding: 12px 10px;
+  }
+  
+  .report-form button {
+    padding: 15px 20px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  /* ===== PDF VIEWER COMPONENT MOBILE STYLES ===== */
+  
+  .pdf-viewer-container {
+    padding: 15px;
+  }
+  
+  .pdf-viewer-frame {
+    height: 400px;
+    width: 100%;
+  }
+  
+  /* ===== UTILITY CLASSES FOR MOBILE ===== */
+  
+  /* Hide elements on mobile if needed */
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  /* Show elements only on mobile */
+  .mobile-only {
+    display: block !important;
+  }
+  
+  /* Desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Hide mobile table on desktop */
+  .reporte-container-mobile {
+    display: block !important;
+  }
+  
+  /* ===== TOUCH-FRIENDLY INTERACTIONS ===== */
+  
+  /* Increase touch targets */
+  button,
+  input[type="submit"],
+  input[type="button"],
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve touch scrolling */
+  .table-container,
+  .custom-select-options {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* ===== MOBILE TABLE IMPROVEMENTS ===== */
+  
+  /* Better table scrolling indicators */
+  .table-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.1));
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  /* Improve table cell readability */
+  .historial-table td {
+    line-height: 1.4;
+    max-width: 200px; /* Prevent cells from becoming too wide */
+  }
+  
+  /* Better table header styling */
+  .historial-table th {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Add subtle borders for better cell separation */
+  .historial-table td:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+  }
+  
+  /* Improve table row hover effect */
+  .historial-table tbody tr:hover {
+    background-color: rgba(139, 0, 0, 0.05) !important;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* ===== MOBILE NAVIGATION IMPROVEMENTS ===== */
+  
+  /* Better spacing for mobile navigation */
+  .nav-item {
+    padding: 12px 15px;
+  }
+  
+  /* ===== RESPONSIVE IMAGES ===== */
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .logo img {
+    max-width: 80%;
+  }
+  
+  /* ===== MOBILE FORM IMPROVEMENTS ===== */
+  
+  /* Better form spacing on mobile */
+  form {
+    margin: 0;
+  }
+  
+  /* Improve input focus on mobile */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* ===== MOBILE-SPECIFIC ANIMATIONS ===== */
+  
+  /* Reduce animations on mobile for better performance */
+  * {
+    transition-duration: 0.2s;
+  }
+  
+  /* ===== MOBILE LANDSCAPE ADJUSTMENTS ===== */
+  
+  @media screen and (max-width: 768px) and (orientation: landscape) {
+    .login-container {
+      min-height: 100vh;
+      padding: 10px;
+    }
+    
+    .login-form {
+      padding: 20px 15px;
+    }
+    
+    .pdf-frame {
+      height: 300px;
+    }
+    
+    .dashboard-container {
+      padding: 10px;
+    }
+  }
+  
+  /* ===== SMALL MOBILE DEVICES (320px - 480px) ===== */
+  
+  @media screen and (max-width: 480px) {
+    .dashboard-container {
+      padding: 10px;
+    }
+    
+    .filter-container {
+      padding: 15px 10px;
+    }
+    
+    .reporte-container {
+      padding: 10px;
+    }
+    
+    .historial-table {
+      min-width: 600px; /* Increased for better readability */
+      font-size: 12px; /* Larger font for small screens */
+    }
+    
+    .historial-table th,
+    .historial-table td {
+      padding: 8px 6px; /* Increased padding */
+      font-size: 11px; /* Larger font size */
+    }
+    
+    /* PDF tables for small mobile */
+    .tablavacia {
+      font-size: 9px; /* Still readable */
+    }
+    
+    .tablavacia td {
+      padding: 5px 3px;
+      font-size: 9px;
+    }
+    
+    .tablalineas {
+      font-size: 8px; /* Still readable */
+    }
+    
+    .tablalineas th,
+    .tablalineas td {
+      padding: 5px 3px;
+      font-size: 8px;
+    }
+    
+    .piepagina {
+      padding: 6px 10px;
+      font-size: 7px;
+      height: 18px;
+    }
+    
+    .login-form {
+      padding: 25px 15px;
+    }
+    
+    .logo-container {
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .login-logo[src*="CIM_LOGOTIPO"] {
+      max-width: 150px !important;
+    }
+    
+    /* Welcome section for small mobile */
+    .welcome-section {
+      padding: 15px 10px;
+      margin-bottom: 15px;
+    }
+    
+    .welcome-title {
+      font-size: 1.5rem !important;
+      margin-bottom: 10px !important;
+    }
+    
+    .welcome-message {
+      font-size: 0.9rem !important;
+      padding: 0 5px;
+    }
+  }
+  
+  /* ===== EXTRA SMALL MOBILE DEVICES (320px and below) ===== */
+  
+  @media screen and (max-width: 320px) {
+    .dashboard-container {
+      padding: 5px;
+    }
+    
+    .filter-container {
+      padding: 10px 5px;
+    }
+    
+    .reporte-container {
+      padding: 5px;
+    }
+    
+    .historial-table {
+      min-width: 500px; /* Increased for readability */
+      font-size: 11px; /* Larger font for readability */
+    }
+    
+    .historial-table th,
+    .historial-table td {
+      padding: 6px 4px; /* Increased padding */
+      font-size: 10px; /* Larger font size */
+    }
+    
+    /* PDF tables for extra small mobile */
+    .tablavacia {
+      font-size: 8px; /* Still readable */
+    }
+    
+    .tablavacia td {
+      padding: 4px 2px;
+      font-size: 8px;
+    }
+    
+    .tablalineas {
+      font-size: 7px; /* Still readable */
+    }
+    
+    .tablalineas th,
+    .tablalineas td {
+      padding: 4px 2px;
+      font-size: 7px;
+    }
+    
+    .piepagina {
+      padding: 5px 8px;
+      font-size: 6px;
+      height: 16px;
+    }
+    
+    .login-form {
+      padding: 20px 10px;
+    }
+    
+    .logo-container {
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    
+    .login-logo[src*="CIM_LOGOTIPO"] {
+      max-width: 130px !important;
+    }
+    
+    /* Welcome section for extra small mobile */
+    .welcome-section {
+      padding: 12px 8px;
+      margin-bottom: 12px;
+    }
+    
+    .welcome-title {
+      font-size: 1.3rem !important;
+      margin-bottom: 8px !important;
+    }
+    
+    .welcome-message {
+      font-size: 0.85rem !important;
+      padding: 0 3px;
+    }
+  }
+}
+
+/* ===== TABLET-SPECIFIC ADJUSTMENTS ===== */
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .dashboard-container {
+    max-width: 90%;
+    padding: 20px;
+  }
+  
+  .filter-row {
+    gap: 15px;
+  }
+  
+  .form-group {
+    min-width: 180px;
+  }
+  
+  .historial-table {
+    min-width: 700px;
+  }
+  
+  .pdf-frame {
+    height: 500px;
+  }
+}

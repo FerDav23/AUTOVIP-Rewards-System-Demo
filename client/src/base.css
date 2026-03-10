@@ -1,0 +1,196 @@
+/* Base styles and CSS variables */
+:root {
+  /* Colors */
+  --primary-color: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-dark: var(--color-primary-dark);
+  --accent-color: var(--color-accent);
+  
+  --text-color: var(--color-text);
+  --text-light: var(--color-text-light);
+  --text-muted: var(--color-text-muted);
+  
+  --bg-color: var(--color-bg);
+  --bg-light: var(--color-bg-light);
+  --bg-medium: var(--color-bg-medium);
+  --bg-hard: var(--color-bg-hard);
+  
+  --border-color: var(--color-border);
+  --disabled-color: var(--color-disabled);
+  
+  --dark-grey: var(--color-dark-grey);
+  --medium-grey: var(--color-medium-grey);
+  --light-grey: var(--color-light-grey);
+  
+  --error-bg: var(--color-error-bg);
+  --error-text: var(--color-error-text);
+  
+  /* Text on primary background - adapts to membership */
+  --text-on-primary: var(--color-text-on-primary);
+  
+  /* Gradient colors for platinum shiny effect */
+  --gradient-start: var(--color-gradient-start, var(--primary-color));
+  --gradient-mid: var(--color-gradient-mid, var(--primary-color));
+  --gradient-end: var(--color-gradient-end, var(--primary-hover));
+
+  /* Slider pagination dots – active state (per membership style) */
+  --slider-dot-active: var(--color-slider-dot-active, var(--primary-color));
+  
+  /* Spacing */
+  --spacing-xs: var(--space-xs);
+  --spacing-sm: var(--space-sm);
+  --spacing-md: var(--space-md);
+  --spacing-lg: var(--space-lg);
+  --spacing-xl: var(--space-xl);
+  
+  /* Border radius (--radius-small/--radius-medium set by init-colors.js) */
+  --border-radius-sm: var(--radius-small);
+  --border-radius-md: var(--radius-medium);
+  
+  /* Shadow */
+  --box-shadow-sm: var(--shadow-sm);
+  --box-shadow-md: var(--shadow-md);
+  --box-shadow-hard: var(--shadow-hard);
+  
+  /* Default font settings */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  color-scheme: light;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-color: var(--bg-color); /* Fallback */
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 2rem;
+  margin-bottom: 15rem;
+  background-color: #FFFFFF;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Typography */
+a {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: inherit;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+h3 {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: var(--border-radius-md);
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #f3f3f3;
+}
+
+button:hover {
+  border-color: var(--primary-color);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form elements */
+input:focus,
+select:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* App container */
+.app-container {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: 2rem;
+  padding-bottom: 6rem;
+  margin-bottom: 2rem;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+  min-height: 0;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding-top: 0;
+  }
+}
