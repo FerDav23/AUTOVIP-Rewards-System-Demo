@@ -52,6 +52,11 @@ export default function ManagerLogin({ setIsAuthenticated }) {
   return (
     <div className="manager-login-container">
       <AUTOVIPBackground />
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <p className="manager-login-demo-notice">
+          This is a demo. You can use any username and password to sign in.
+        </p>
+      )}
       <div className="manager-login-form">
         <div className="manager-logo-container">
           <img src={logoImg} alt="CIM Logo" className="manager-login-logo" style={{ 

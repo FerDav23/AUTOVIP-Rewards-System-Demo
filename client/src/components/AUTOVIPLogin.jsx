@@ -53,6 +53,11 @@ export default function AUTOVIPLogin({ setIsAuthenticated }) {
   return (
     <div className="autovip-login-container">
       <AUTOVIPBackground />
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <p className="autovip-login-demo-notice">
+          This is a demo. You can use any username and password to sign in.
+        </p>
+      )}
       <div className="autovip-login-form">
         <div className="autovip-logo-container">
           <img src={logoImg} alt="CIM Logo" className="autovip-login-logo autovip-login-logo-positioned" />

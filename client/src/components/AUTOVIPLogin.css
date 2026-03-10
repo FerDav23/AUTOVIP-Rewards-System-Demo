@@ -1,12 +1,27 @@
 /* AUTOVIP Login styles - Always Red Theme */
 .autovip-login-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 80vh;
   background-color: #FFFFFF; /* Same as #root background */
   position: relative;
   overflow: hidden;
+}
+
+.autovip-login-demo-notice {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 1rem 0;
+  padding: 0.6rem 1rem;
+  background: rgba(207, 0, 0, 0.1);
+  border: 1px solid rgba(207, 0, 0, 0.4);
+  border-radius: 8px;
+  color: #8b0000;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 400px;
 }
 
 .autovip-login-form {
