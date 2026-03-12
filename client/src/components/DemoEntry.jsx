@@ -1,12 +1,28 @@
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import logoCIMImg from '../assets/CIM_LOGOTIPO.png';
 import logoImg from '../assets/FJ-LOGOTIPO.png';
 import AUTOVIPBackground from './AUTOVIPBackground';
-import { FaUser, FaUserTie } from 'react-icons/fa';
+import DemoInstructionsModal, { getDemoInstructionsSeen } from './DemoInstructionsModal';
+import { FaUser, FaUserTie, FaInfoCircle } from 'react-icons/fa';
 import './DemoEntry.css';
 
 export default function DemoEntry() {
   const navigate = useNavigate();
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [markAsSeenOnClose, setMarkAsSeenOnClose] = useState(false);
+
+  useEffect(() => {
+    if (!getDemoInstructionsSeen()) {
+      setMarkAsSeenOnClose(true);
+      setShowInstructions(true);
+    }
+  }, []);
+
+  const openInstructions = () => {
+    setMarkAsSeenOnClose(false);
+    setShowInstructions(true);
+  };
 
   return (
     <div className="demo-entry-container">
@@ -20,6 +36,15 @@ export default function DemoEntry() {
         <p className="demo-entry-notice">
           This is a demo. Data is simulated and no real backend is connected.
         </p>
+        <button
+          type="button"
+          className="demo-entry-instructions-link"
+          onClick={openInstructions}
+          aria-label="View demo instructions"
+        >
+          <FaInfoCircle className="demo-entry-instructions-icon" />
+          How to use this demo
+        </button>
         <p className="demo-entry-choose">Choose how to sign in:</p>
         <div className="demo-entry-actions">
           <button
@@ -40,6 +65,11 @@ export default function DemoEntry() {
           </button>
         </div>
       </div>
+      <DemoInstructionsModal
+        open={showInstructions}
+        onClose={() => setShowInstructions(false)}
+        markAsSeenOnClose={markAsSeenOnClose}
+      />
     </div>
   );
 }

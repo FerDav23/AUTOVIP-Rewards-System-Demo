@@ -57,6 +57,35 @@
   text-align: center;
 }
 
+.demo-entry-instructions-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  color: #cf0000;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+}
+
+.demo-entry-instructions-link:hover {
+  background: rgba(207, 0, 0, 0.08);
+  color: #a50000;
+}
+
+.demo-entry-instructions-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
 .demo-entry-choose {
   margin: 0 0 0.75rem;
   text-align: center;
